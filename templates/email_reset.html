@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperação de Senha</title>
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background-color: #f6f6f6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .email-container {
+      max-width: 550px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #eec8f1, #d8b1e3);
+      text-align: center;
+      padding: 25px;
+      color: #3a0066;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    .content {
+      padding: 25px 30px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .content p {
+      margin: 15px 0;
+      font-size: 1rem;
+    }
+    .button {
+      display: inline-block;
+      background-color: #8a2be2;
+      color: white;
+      padding: 12px 24px;
+      margin: 20px 0;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    .button:hover {
+      background-color: #6f1bbd;
+    }
+    .footer {
+      font-size: 0.9rem;
+      color: #777;
+      padding: 20px;
+      border-top: 1px solid #eee;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="email-container">
+    <div class="header">
+      <h1>Agenda Beleza 💅</h1>
+    </div>
+
+    <div class="content">
+      <p>Olá <strong>{{ nome }}</strong>,</p>
+      <p>Recebemos um pedido para redefinir a sua senha.</p>
+
+      <a href="{{ reset_link }}" class="button">Redefinir Senha</a>
+
+      <p>Se não foi você quem fez este pedido, pode ignorar este e-mail.<br>
+      O link expira em 1 hora.</p>
+    </div>
+
+    <div class="footer">
+      <p>Com carinho 💕,<br>A equipa da Agenda Beleza</p>
+      <p>Olhão, Portugal</p>
+    </div>
+  </div>
+
+</body>
+</html>

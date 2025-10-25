@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmação de Marcação - Agenda Beleza</title>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background:#f8f9fa; color:#333; margin:0; padding:0; }
+    .container { max-width:600px; margin:40px auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .header { background:linear-gradient(90deg,#f48fb1,#ec407a); color:#fff; text-align:center; padding:30px 20px; }
+    .header h1 { margin:0; font-size:1.8rem; }
+    .content { padding:35px 40px; font-size:1rem; line-height:1.6; }
+    .info { background:#fff5f7; border-left:5px solid #ec407a; padding:15px 20px; border-radius:8px; margin:20px 0; }
+    .cta { display:inline-block; background:#ec407a; color:#fff!important; text-decoration:none; padding:10px 22px; border-radius:6px; font-weight:600; margin-top:15px; transition:background .2s; }
+    .cta:hover { background:#d81b60; }
+    .footer { text-align:center; font-size:0.85rem; color:#777; padding:20px; border-top:1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>Agenda Beleza 💅</h1></div>
+    <div class="content">
+      <p>Olá <strong>{{ nome }}</strong>,</p>
+      <p>A sua marcação foi registada com sucesso e está <strong>pendente de aprovação</strong> pela nossa equipa.</p>
+      <div class="info">
+        <strong>🗓️ Data:</strong> {{ datahora.strftime('%d/%m/%Y às %H:%M') }}<br>
+        <strong>💖 Serviço:</strong> O serviço escolhido será confirmado brevemente.
+      </div>
+      <p>Entraremos em contacto assim que for aprovada.</p>
+      <p style="text-align:center;"><a href="mailto:contato@agendabeleza.pt" class="cta">Falar com o salão</a></p>
+      <p>Com carinho,<br><strong>Equipe Agenda Beleza</strong></p>
+    </div>
+    <div class="footer">© {{ current_year }} Agenda Beleza — Todos os direitos reservados.</div>
+  </div>
+</body>
+</html>

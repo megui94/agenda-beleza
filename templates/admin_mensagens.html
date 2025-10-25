@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Mensagens de Contacto{% endblock %}
+{% block content %}
+<section class="section container">
+  <h1>📬 Mensagens Recebidas</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Assunto</th>
+        <th>Mensagem</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in mensagens %}
+      <tr>
+        <td>{{ m[5].strftime("%d/%m/%Y %H:%M") }}</td>
+        <td>{{ m[1] }}</td>
+        <td>{{ m[2] }}</td>
+        <td>{{ m[3] }}</td>
+        <td>{{ m[4] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

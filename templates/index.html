@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Início • {{ super() }}{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="overlay"></div>
+  <div class="container hero-content">
+    <h1 class="display">Beleza que combina com você</h1>
+    <p>Tratamentos relaxantes e resultados impecáveis com um toque de delicadeza.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('agendar_redirect') }}" class="btn-agendar">Agendar agora</a>
+      <a class="btn btn-outline" href="{{ url_for('servicos') }}">Ver serviços</a>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <header class="section-header">
+    <h2 class="section-title">Bem-vinda á nossa agenda</h2>
+    <p class="section-subtitle">Experiência, segurança e um atendimento feito sob medida.</p>
+  </header>
+
+  <div class="grid cards-3">
+    <article class="card lift">
+      <img src="{{ url_for('static', filename='imagens/inicio/massagem.png') }}" alt="Massagem relaxante" />
+      <div class="card-body">
+        <h3>Massagem Relaxante</h3>
+        <p>Alivie o stress do dia a dia com terapias manuais e aromas suaves.</p>
+        <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
+      </div>
+    </article>
+    <article class="card lift">
+      <img src="{{ url_for('static', filename='imagens/inicio/skincare.png') }}" alt="Tratamento facial" />
+      <div class="card-body">
+        <h3>Skincare &amp; Facial</h3>
+        <p>Protocolos personalizados para cada tipo de pele, com ativos de alta performance.</p>
+        <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
+      </div>
+    </article>
+    <article class="card lift">
+      <img src="{{ url_for('static', filename='imagens/inicio/manicure.png') }}" alt="Manicure" />
+      <div class="card-body">
+        <h3>Manicure &amp; Pedicure</h3>
+        <p>Unhas impecáveis com esmaltes hipoalergênicos e esterilização rigorosa.</p>
+        <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container cta-inner">
+    <h3>Quer um horário hoje?</h3>
+    <p>Verifique a disponibilidade e garanta o seu momento de cuidado.</p>
+    <a class="btn btn-dark" href="{{ url_for('marcacoes') }}">Fazer marcação</a>
+  </div>
+</section>
+{% endblock %}

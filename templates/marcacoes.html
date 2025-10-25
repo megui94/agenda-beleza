@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Agendar Marcação • {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Agendar Marcação</h1>
+    <p>Escolha o serviço, data e horário. A sua marcação será analisada e confirmada por e-mail.</p>
+  </div>
+</section>
+
+<section class="section container">
+  <form class="form card form-book" method="POST" action="{{ url_for('marcacoes') }}">
+    
+    <div class="form-row">
+      <label for="servico_id">Serviço</label>
+      <select id="servico_id" name="servico_id" required>
+        <option value="">Selecione o serviço desejado</option>
+        {% for s in servicos %}
+          <option value="{{ s[0] }}">{{ s[1] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="datahora">Data e hora</label>
+      <input id="datahora" name="datahora" type="datetime-local" required>
+      <small class="hint">Escolha um horário dentro do funcionamento do salão.</small>
+    </div>
+
+    <div class="form-row">
+      <label for="observacoes">Observações</label>
+      <textarea id="observacoes" name="observacoes" rows="4" placeholder="Ex: Tenho alergia a cremes com perfume..."></textarea>
+    </div>
+
+    <button class="btn btn-primary" type="submit">💅 Solicitar marcação</button>
+  </form>
+</section>
+
+<!-- Dica de utilização -->
+<section class="section container info-box">
+  <h3>🕓 Após solicitar:</h3>
+  <ul>
+    <li>Receberá um e-mail de confirmação assim que a marcação for aprovada.</li>
+    <li>Poderá acompanhar o estado das suas marcações em <a href="{{ url_for('minhas_marcacoes') }}">Minhas Marcações</a>.</li>
+    <li>Se precisar, pode cancelar ou reagendar contactando-nos pelo <a href="{{ url_for('contato') }}">formulário de contacto</a>.</li>
+  </ul>
+</section>
+{% endblock %}

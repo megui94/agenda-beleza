@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Serviços • {{ super() }}{% endblock %}
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Serviços</h1>
+    <p>Explore os nossos serviços e encontre o ideal para si.</p>
+  </div>
+</section>
+
+<section class="section container">
+  <form method="GET" action="{{ url_for('servicos') }}" class="search-box" style="margin-bottom: 30px;">
+    <input type="text" name="q" placeholder="Pesquisar serviços..." value="{{ request.args.get('q', '') }}">
+  </form>
+
+  <div class="grid cards-3">
+    {% for servico in servicos %}
+    <div class="card lift">
+    <img src="{{ url_for('static', filename='imagens/unhas.png') }}" alt="Serviço">
+      <div class="card-body">
+        <h3>{{ servico[1] }}</h3>
+        <p>{{ servico[2] or "Descrição breve do serviço." }}</p>
+        <p class="price-line"><strong>{{ "%.2f"|format(servico[3]) }}€</strong> • {{ servico[4] }} min</p>
+      </div>
+    </div>
+    {% else %}
+    <p>Nenhum serviço encontrado.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

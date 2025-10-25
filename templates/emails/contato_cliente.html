@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #fff8f9;
+      color: #444;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-inline-size: 600px;
+      box-shadow: 0 2px 8px rgba(255, 180, 190, 0.2);
+    }
+    h2 {
+      color: #e46b8c;
+      text-align: center;
+      font-weight: 700;
+    }
+    .message {
+      background: #fff1f4;
+      padding: 1rem;
+      border-radius: 10px;
+      border-inline-start: 4px solid #f89db2;
+      margin: 1.5rem 0;
+    }
+    .footer {
+      text-align: center;
+      margin-block-start: 2rem;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 1rem;
+      inline-size: 80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://i.ibb.co/6bHVmCQ/agenda-beleza-logo.png" alt="Agenda Beleza" class="logo">
+
+    <h2>Olá {{ nome }} 💖</h2>
+
+    <div class="message">
+      <p>Recebemos a sua mensagem sobre <b>{{ assunto }}</b>.</p>
+      <p>A nossa equipa entrará em contacto o mais breve possível.</p>
+    </div>
+
+    <p>Com carinho,</p>
+    <p><b>💅 Equipa Agenda Beleza</b></p>
+
+    <div class="footer">
+      <p>Este é um e-mail automático. Por favor, não responda.</p>
+      <p>© {{ current_year }} Agenda Beleza</p>
+    </div>
+  </div>
+</body>
+</html>

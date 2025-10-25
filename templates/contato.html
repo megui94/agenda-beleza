@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Contacto • {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Contacto</h1>
+    <p>Entre em contacto connosco para dúvidas, sugestões ou marcações personalizadas. 💅</p>
+  </div>
+</section>
+
+<section class="section container contato-grid">
+  <!-- 🗺️ Informações -->
+  <div class="card contato-info">
+    <h2>📍 Informações</h2>
+    <ul class="info-list">
+      <li><strong>📌 Endereço:</strong> Rua Alves Redol, Encosta do Brejo, 5</li>
+      <li><strong>📞 Telefone:</strong> (+351) 966115222</li>
+      <li><strong>📧 E-mail:</strong> contato@agendabeleza.pt</li>
+      <li><strong>🕓 Horário:</strong> Seg–Sex 09h–19h • Sáb 09h–16h</li>
+    </ul>
+
+    <div class="mapa">
+      <iframe
+        width="100%"
+        height="250"
+        frameborder="0"
+        scrolling="no"
+        marginheight="0"
+        marginwidth="0"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=-9.1446%2C38.713%2C-9.1346%2C38.718&amp;layer=mapnik&amp;marker=38.715%2C-9.140">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- 💌 Formulário -->
+  <div class="card contato-form">
+    <h2>💌 Envie-nos uma mensagem</h2>
+    <form method="POST" action="{{ url_for('contato') }}">
+      <div class="form-row">
+        <label for="assunto">Assunto</label>
+        <input id="assunto" name="assunto" type="text" placeholder="Quero saber sobre..." required>
+      </div>
+
+      <div class="form-row grid-2">
+        <div>
+          <label for="nome">Nome</label>
+          <input id="nome" name="nome" type="text" placeholder="O seu nome" required>
+        </div>
+        <div>
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" placeholder="exemplo@email.com" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="mensagem">Mensagem</label>
+        <textarea id="mensagem" name="mensagem" rows="5" placeholder="Escreva a sua mensagem aqui..." required></textarea>
+      </div>
+
+      <button class="btn btn-primary" type="submit">✨ Enviar mensagem</button>
+    </form>
+  </div>
+</section>
+
+<style>
+  /* GRID */
+  .contato-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  /* CARTÕES */
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(255, 174, 185, 0.15);
+    padding: 2rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(255, 174, 185, 0.25);
+  }
+
+  /* LISTA DE INFO */
+  .info-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 2rem 0;
+  }
+
+  .info-list li {
+    background: #fff7f8;
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    margin-block-end: 0.7rem;
+    line-height: 1.6;
+    border-inline-start: 4px solid #ffb3c6;
+    font-size: 1rem;
+  }
+
+  .info-list strong {
+    color: #333;
+  }
+
+  .mapa iframe {
+    border-radius: 14px;
+    inline-size: 100%;
+  }
+
+  /* FORMULÁRIO */
+  .contato-form h2 {
+    margin-block-end: 1.5rem;
+  }
+
+  .contato-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .form-row label {
+    font-weight: 600;
+    color: #333;
+    margin-block-end: 0.4rem;
+    display: block;
+  }
+
+  .contato-form input,
+  .contato-form textarea {
+    inline-size: 100%;
+    border: 1.5px solid #f3c6ce;
+    border-radius: 12px;
+    padding: 0.9rem 1.2rem;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-family: "Poppins", sans-serif;
+    color: #444;
+    resize: none;
+  }
+
+  .contato-form input::placeholder,
+  .contato-form textarea::placeholder {
+    color: #bbb;
+  }
+
+  .contato-form input:focus,
+  .contato-form textarea:focus {
+    border-color: #ff9cb5;
+    box-shadow: 0 0 0 3px #ffe4ec;
+    outline: none;
+  }
+
+  /* GRID DOS CAMPOS */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-inline-size: 700px) {
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* BOTÃO */
+  .contato-form button {
+    align-self: flex-start;
+    background: linear-gradient(90deg, #ffb3c6, #ff9cb5);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(255, 180, 190, 0.3);
+  }
+
+  .contato-form button:hover {
+    background: linear-gradient(90deg, #ff9cb5, #ff82a3);
+    transform: translateY(-1px);
+  }
+
+  .contato-form button:active {
+    transform: scale(0.98);
+  }
+</style>
+
+{% endblock %}

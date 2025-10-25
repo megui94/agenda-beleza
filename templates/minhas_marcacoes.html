@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Minhas Marcações • {{ super() }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Minhas Marcações</h1>
+    <p>Veja todas as suas marcações feitas.</p>
+  </div>
+</section>
+
+<section class="section container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% if marcacoes %}
+  <div class="grid">
+    {% for m in marcacoes %}
+    <div class="card">
+      <div class="card-body">
+        <h3>{{ m[1] }}</h3>
+        <p><strong>Data:</strong> {{ m[2].strftime('%d/%m/%Y %H:%M') }}</p>
+        <p><strong>Estado:</strong> {{ m[3] }}</p>
+        {% if m[4] %}<p><strong>Obs:</strong> {{ m[4] }}</p>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>Não há marcações registadas ainda.</p>
+  {% endif %}
+</section>
+{% endblock %}

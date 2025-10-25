@@ -1,0 +1,10 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\anapedro124\\OneDrive\\flask-beleza\\venv\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.extraPaths": [
+      "C:\\Users\\anapedro124\\OneDrive\\flask-beleza"
+  ],
+  "python-envs.pythonProjects": [],
+  "python-envs.defaultEnvManager": "ms-python.python:system"
+}

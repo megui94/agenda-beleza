@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Lembrete de Marcação - Agenda Beleza</title>
+  <style>
+    body { font-family:'Poppins',sans-serif;background:#f8f9fa;color:#333;margin:0;padding:0; }
+    .container { max-inline-size:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .header { background:linear-gradient(90deg,#f48fb1,#ec407a);color:#fff;text-align:center;padding:30px 20px; }
+    .header h1 { margin:0;font-size:1.8rem; }
+    .content { padding:35px 40px;font-size:1rem;line-height:1.6; }
+    .info-box { background:#fff5f7;border-inline-start:5px solid #ec407a;padding:15px 20px;border-radius:8px;margin:20px 0; }
+    .cta { display:inline-block;background:#ec407a;color:#fff!important;text-decoration:none;padding:10px 22px;border-radius:6px;font-weight:600;margin-block-start:15px;transition:background .2s; }
+    .cta:hover { background:#d81b60; }
+    .footer { text-align:center;font-size:0.85rem;color:#777;padding:20px;border-block-start:1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>Agenda Beleza 💖</h1></div>
+    <div class="content">
+      <p>Olá <strong>{{ nome }}</strong>,</p>
+      <p>Este é um lembrete da sua marcação para <strong>{{ servico }}</strong>:</p>
+      <div class="info-box">
+        <strong>📅 {{ datahora.strftime('%d/%m/%Y às %H:%M') }}</strong>
+        <p>Por favor, chegue com alguns minutos de antecedência.</p>
+      </div>
+      <p>Se precisar reagendar ou cancelar, fale connosco.</p>
+      <p style="text-align:center;"><a href="mailto:agenda.beleza.contato@gmail.com" class="cta">Contactar o salão</a></p>
+      <p>Até breve 💅<br><strong>Equipe Agenda Beleza</strong></p>
+    </div>
+    <div class="footer">© {{ current_year }} Agenda Beleza — Beleza e bem-estar sempre.</div>
+  </div>
+</body>
+</html>

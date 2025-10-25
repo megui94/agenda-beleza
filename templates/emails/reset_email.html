@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Redefinir Senha - Agenda Beleza</title>
+  <style>
+    body { font-family:'Poppins',sans-serif;background:#f8f9fa;color:#333;margin:0;padding:0; }
+    .container { max-width:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .header { background:linear-gradient(90deg,#f48fb1,#ec407a);color:#fff;text-align:center;padding:30px 20px; }
+    .header h1 { margin:0;font-size:1.8rem; }
+    .content { padding:35px 40px;font-size:1rem;line-height:1.6; }
+    .cta { display:inline-block;background:#ec407a;color:#fff!important;text-decoration:none;padding:10px 22px;border-radius:6px;font-weight:600;margin:20px 0;transition:background .2s; }
+    .cta:hover { background:#d81b60; }
+    .footer { text-align:center;font-size:0.85rem;color:#777;padding:20px;border-top:1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>Agenda Beleza 💕</h1></div>
+    <div class="content">
+      <p>Olá <strong>{{ nome }}</strong>,</p>
+      <p>Recebemos um pedido para redefinir a sua senha. Clique no botão abaixo para criar uma nova:</p>
+      <p style="text-align:center;">
+        <a href="{{ reset_link }}" class="cta">Redefinir Senha</a>
+      </p>
+      <p>Se não foi você quem solicitou, ignore este e-mail — a sua conta continua segura.</p>
+      <p>Com carinho,<br><strong>Equipe Agenda Beleza</strong></p>
+    </div>
+    <div class="footer">© {{ current_year }} Agenda Beleza — Confiança e cuidado consigo.</div>
+  </div>
+</body>
+</html>

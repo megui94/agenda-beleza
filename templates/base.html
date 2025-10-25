@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Agenda Beleza{% endblock %}</title>
+
+  <!-- 🌸 ESTILOS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/theme.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- ✨ ANIMAÇÃO + SOMBRA + BRILHO -->
+  <style>
+    .user-menu {
+      position: relative;
+    }
+
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      inset-block-start: 60px;
+      inset-inline-end: 0;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+      min-inline-size: 220px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-12px) scale(0.98);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .user-dropdown.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      box-shadow: 0 10px 25px rgba(166, 72, 122, 0.2),
+                  0 0 12px rgba(255, 182, 206, 0.3);
+      animation: glowPulse 1.2s ease-in-out;
+    }
+
+    @keyframes glowPulse {
+      0% { box-shadow: 0 6px 24px rgba(166, 72, 122, 0.15); }
+      50% { box-shadow: 0 10px 25px rgba(255, 182, 206, 0.35); }
+      100% { box-shadow: 0 6px 24px rgba(166, 72, 122, 0.15); }
+    }
+
+    .user-dropdown .header {
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 16px;
+      border-block-end: 1px solid #f3d8e7;
+      color: var(--primary-color, #a6487a);
+      background: linear-gradient(135deg, #fff8fb, #ffe5ef);
+      text-align: center;
+    }
+
+    .user-dropdown a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      font-size: 15px;
+      text-decoration: none;
+      color: #333;
+      transition: all 0.25s ease;
+    }
+
+    .user-dropdown a:hover {
+      background: #fff3f8;
+      color: var(--primary-color, #a6487a);
+      padding-inline-start: 20px;
+    }
+
+    .user-dropdown .divider {
+      block-size: 1px;
+      background: #f1d5e3;
+      margin: 4px 0;
+    }
+
+    .user-dropdown .logout {
+      color: #a33;
+    }
+
+    .user-dropdown .logout:hover {
+      background: #ffe6ea;
+      color: #e60000;
+      padding-inline-start: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 🌸 HEADER -->
+  <header class="site-header">
+    <div class="container nav-wrapper">
+      <a href="{{ url_for('index') }}" class="brand">
+        <span class="brand-mark">Agenda Beleza</span>
+        <span class="brand-sub">Cuidar de si é essencial</span>
+      </a>
+
+      <!-- ✅ MENU RESPONSIVO -->
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <label for="nav-toggle" class="hamburger"><span></span></label>
+
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">Início</a>
+        <a href="{{ url_for('servicos') }}">Serviços</a>
+        <a href="{{ url_for('sobre') }}">Sobre</a>
+        <a href="{{ url_for('contato') }}">Contacto</a>
+
+        {% if is_admin %}
+          <a href="{{ url_for('admin_marcacoes') }}">⚙️ Área Administrativa</a>
+        {% endif %}
+
+        {% if session.get('user_id') %}
+          <div class="user-menu">
+            <button class="user-toggle" id="userToggle">
+              <div class="avatar">{{ session['nome'][0]|upper }}</div>
+              <span class="user-greet">Olá, {{ session['nome'].split(' ')[0] }} 👋</span>
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+
+            <div class="user-dropdown" id="userDropdown">
+              {% if is_admin %}
+                <div class="header">🌸 Administração</div>
+                <a href="{{ url_for('admin_marcacoes') }}">⚙️ Painel Administrativo</a>
+              {% else %}
+                <a href="{{ url_for('marcacoes') }}">🗓️ Agendar</a>
+                <a href="{{ url_for('minhas_marcacoes') }}">📋 Minhas Marcações</a>
+              {% endif %}
+              <div class="divider"></div>
+              <a href="{{ url_for('logout') }}" class="logout">🚪 Sair</a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-outline">Entrar</a>
+          <a href="{{ url_for('registar') }}" class="btn btn-primary">Registar</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <!-- 🔔 MENSAGENS FLASH -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages container">
+        {% for category, message in messages %}
+          <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- 📄 CONTEÚDO -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- 👣 RODAPÉ -->
+  <footer class="site-footer">
+    <div class="container grid footer-grid">
+      <div>
+        <h4>Agenda Beleza</h4>
+        <p>O seu espaço de beleza e bem-estar.<br>Atendimento com amor e profissionalismo.</p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <ul class="list-unstyled">
+          <li>📍 Olhão, Portugal</li>
+          <li>📞 +351 966 115 222</li>
+          <li>✉️ contato@agendabeleza.pt</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Horário</h4>
+        <ul class="list-unstyled">
+          <li>Seg - Sex: 09h00 - 19h00</li>
+          <li>Sábado: 09h00 - 14h00</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      &copy; {{ current_year }} Agenda Beleza — Todos os direitos reservados.
+    </div>
+  </footer>
+
+  <!-- 🌿 SCRIPTS -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      /* === MENU DO UTILIZADOR === */
+      const toggle = document.getElementById("userToggle");
+      const dropdown = document.getElementById("userDropdown");
+      const chevron = document.querySelector(".chevron");
+
+      if (toggle && dropdown) {
+        toggle.addEventListener("click", (e) => {
+          e.stopPropagation();
+          dropdown.classList.toggle("show");
+          chevron.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!toggle.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove("show");
+            chevron.style.transform = "rotate(0deg)";
+          }
+        });
+      }
+
+      /* === ALERTAS (fade após 3s) === */
+      const alerts = document.querySelectorAll(".alert");
+      alerts.forEach(alert => {
+        setTimeout(() => {
+          alert.classList.add("fade-out");
+          setTimeout(() => alert.remove(), 600);
+        }, 3000);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Criar Conta • {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Criar Conta</h1>
+    <p>Registe-se para poder fazer marcações e acompanhar os seus agendamentos.</p>
+  </div>
+</section>
+
+<section class="section container" style="max-width: 520px;">
+  <form class="form card form-register" method="POST" action="{{ url_for('registar') }}" onsubmit="return validarSenha(event)">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert {{ 'alert-error' if category == 'error' else 'alert-success' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="form-row">
+      <label for="nome">Nome completo</label>
+      <input id="nome" name="nome" type="text" required placeholder="Ex: Ana Silva" autocomplete="name">
+    </div>
+
+    <div class="form-row">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" required placeholder="exemplo@gmail.com" autocomplete="email">
+    </div>
+
+    <div class="form-row">
+      <label for="telefone">Telefone</label>
+      <input id="telefone" name="telefone" type="tel" placeholder="(xx) xxxxx-xxxx" autocomplete="tel">
+    </div>
+
+    <div class="form-row password-field">
+      <label for="password">Senha</label>
+      <div class="input-with-icon">
+        <input id="password" name="password" type="password" required placeholder="••••••••" oninput="verificarForcaSenha()" autocomplete="new-password">
+        <button type="button" class="toggle-password" onclick="toggleSenha('password')" aria-label="Mostrar ou ocultar senha">👁️</button>
+      </div>
+      <div class="password-strength-bar"><div id="password-strength"></div></div>
+      <small id="password-hint" class="password-hint">
+        A senha deve ter pelo menos 8 caracteres, incluindo 1 letra maiúscula, 1 minúscula e 1 número.
+      </small>
+    </div>
+
+    <div class="form-row password-field">
+      <label for="confirm_password">Confirmar Senha</label>
+      <div class="input-with-icon">
+        <input id="confirm_password" name="confirm_password" type="password" required placeholder="Confirme a senha">
+        <button type="button" class="toggle-password" onclick="toggleSenha('confirm_password')" aria-label="Mostrar ou ocultar senha">👁️</button>
+      </div>
+    </div>
+
+    <div id="form-warning" class="alert alert-error" style="display:none;"></div>
+
+    <button class="btn btn-primary w-full" type="submit">Criar Conta</button>
+
+    <p class="register-prompt">
+      Já tem conta? <a href="{{ url_for('login') }}">Iniciar sessão</a>
+    </p>
+  </form>
+</section>
+
+<style>
+/* --- Layout consistente com login --- */
+.form-register {
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--card-bg, #fff);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.w-full { width: 100%; }
+
+.register-prompt {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #555;
+}
+.register-prompt a {
+  color: var(--accent-color, #d05c91);
+  font-weight: 600;
+}
+
+/* --- Senhas --- */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-with-icon input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+.toggle-password:hover { opacity: 1; }
+
+/* --- Força da senha --- */
+.password-strength-bar {
+  width: 100%;
+  height: 6px;
+  background: #eee;
+  border-radius: 4px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.password-strength-bar div {
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  transition: width .3s ease, background-color .3s ease;
+}
+
+.password-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: .85rem;
+  color: #777;
+  transition: color .3s ease;
+}
+.password-hint.invalid { color: #c0392b; }
+.password-hint.valid { color: #27ae60; }
+
+/* --- Alertas --- */
+.alert {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: .95rem;
+  text-align: center;
+  font-weight: 500;
+}
+.alert-error { background: #ffe0e0; color: #c00000; border: 1px solid #ffb3b3; }
+.alert-success { background: #e0ffe4; color: #0a7a23; border: 1px solid #b3ffca; }
+</style>
+
+<script>
+function toggleSenha(id){
+  const campo = document.getElementById(id);
+  campo.type = campo.type === "password" ? "text" : "password";
+}
+function verificarForcaSenha(){
+  const s = document.getElementById("password").value;
+  const hint = document.getElementById("password-hint");
+  const bar = document.getElementById("password-strength");
+  let f = 0;
+  if(s.length >= 8) f++;
+  if(/[A-Z]/.test(s)) f++;
+  if(/[a-z]/.test(s)) f++;
+  if(/[0-9]/.test(s)) f++;
+  if(/[^A-Za-z0-9]/.test(s)) f++;
+  bar.style.width = (f / 5 * 100) + "%";
+  if(f <= 2){ bar.style.backgroundColor="#e74c3c"; hint.textContent="❌ Senha fraca. Use letras maiúsculas, minúsculas e números."; hint.classList.add("invalid"); hint.classList.remove("valid"); }
+  else if(f <= 4){ bar.style.backgroundColor="#f39c12"; hint.textContent="⚠️ Senha média. Pode ser mais segura."; hint.classList.add("valid"); hint.classList.remove("invalid"); }
+  else { bar.style.backgroundColor="#27ae60"; hint.textContent="✅ Senha forte."; hint.classList.add("valid"); hint.classList.remove("invalid"); }
+}
+function mostrarAviso(msg){
+  const alert = document.getElementById("form-warning");
+  alert.style.display = "block";
+  alert.textContent = msg;
+  alert.scrollIntoView({ behavior:"smooth", block:"center" });
+}
+function validarSenha(e){
+  const s = document.getElementById("password").value;
+  const c = document.getElementById("confirm_password").value;
+  const alert = document.getElementById("form-warning");
+  alert.style.display = "none";
+  if(s !== c){ e.preventDefault(); mostrarAviso("⚠️ As senhas não coincidem!"); return false; }
+  if(s.length < 8 || !/[A-Z]/.test(s) || !/[a-z]/.test(s) || !/[0-9]/.test(s)){
+    e.preventDefault(); mostrarAviso("❌ A senha não cumpre os requisitos mínimos de segurança."); return false;
+  }
+  return true;
+}
+</script>
+{% endblock %}

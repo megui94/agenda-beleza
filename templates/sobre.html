@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Sobre • {{ super() }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Sobre</h1>
+    <p>Beleza com leveza. Cuidamos de pessoas, não só de peles.</p>
+  </div>
+</section>
+
+<section class="section container grid about-grid">
+  <div>
+    <h3 class="fancy-title">Nossa história</h3>
+    <p>Nascemos com o propósito de proporcionar bem-estar e resultados reais com atendimento humano. Investimos em formação contínua e produtos certificados.</p>
+    <p>O ambiente foi pensado para acolher e acalmar — iluminação suave, música tranquila e um cheirinho inesquecível.</p>
+  </div>
+    <img class="rounded"
+      src="{{ url_for('static', filename='imagens/nails.png') }}"
+      alt="Equipe do salão"
+      style="max-width: 400px; width: 100%; height: auto; margin: auto;">
+
+
+</section>
+
+<section class="section container">
+  <header class="section-header">
+    <h2 class="section-title">Nossa equipa</h2>
+    <p class="section-subtitle">Profissionais experientes, apaixonados pelo que fazem.</p>
+  </header>
+  <div class="grid cards-3 team-grid">
+    {% for p in [
+    ("Carolina Pedro","Esteticista • Especialista em Manicure", url_for('static', filename='imagens/equipa/carolina-pedro.png')),
+    ] %}
+    <article class="card lift">
+      <img src="{{ p[2] }}" alt="{{ p[0] }}">
+      <div class="card-body">
+        <h3>{{ p[0] }}</h3>
+        <p>{{ p[1] }}</p>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
