@@ -346,6 +346,46 @@ def servicos():
     conn.close()
     return render_template("servicos.html", servicos=servs)
 
+# =========================
+# Contato
+# =========================
+@app.route("/contato", methods=["GET", "POST"])
+def contato():
+    if request.method == "POST":
+        assunto = (request.form.get("assunto") or "").strip()
+        nome = (request.form.get("nome") or "").strip()
+        email = (request.form.get("email") or "").strip()
+        mensagem = (request.form.get("mensagem") or "").strip()
+
+        if not (assunto and nome and email and mensagem):
+            flash("Por favor, preencha todos os campos antes de enviar.", "error")
+            return redirect(url_for("contato"))
+
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO MensagensContato (Nome, Email, Assunto, Mensagem)
+                VALUES (%s, %s, %s, %s)
+            """, (nome, email, assunto, mensagem))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            app.logger.error(f"Erro ao guardar mensagem: {e}")
+            flash("Erro ao enviar mensagem. Tente novamente.", "error")
+            return redirect(url_for("contato"))
+
+        # E-mails (cliente e admin)
+        send_email("Novo contacto recebido", [os.getenv("MAIL_USERNAME")],
+                   f"<p><b>{nome}</b> ({email}) escreveu:<br>{mensagem}</p>")
+        send_email("Recebemos a sua mensagem • Agenda Beleza", [email],
+                   f"<p>Olá {nome}, recebemos a sua mensagem sobre <b>{assunto}</b>. Em breve entraremos em contacto.</p>")
+
+        flash("Mensagem enviada com sucesso!", "success")
+        return redirect(url_for("contato"))
+
+    return render_template("contato.html")
+
 # ==========================================
 # ▶️ Run
 # ==========================================
