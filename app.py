@@ -284,7 +284,7 @@ def marcacoes():
             conn.commit()
             conn.close()
 
-            html_cliente = render_template("emails/confirmacao_marcacao.html", nome=session["nome"], datahora=datahora_obj)
+            html_cliente = render_template("emails/confirmacao_email.html", nome=session["nome"], datahora=datahora_obj)
             send_email("🗓️ Marcação registada", [session["email"]], html_cliente)
 
             html_admin = render_template("emails/nova_marcacao_admin.html", nome_cliente=session["nome"], servico=servico_id, datahora=datahora_obj, observacoes=observacoes)
