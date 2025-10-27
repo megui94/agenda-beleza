@@ -293,7 +293,6 @@ def marcacoes():
             flash("Marcação enviada com sucesso!", "success")
         except Exception as e:
             app.logger.error(f"Erro ao criar marcação: {e}")
-            flash("Erro ao criar marcação.", "error")
         return redirect(url_for("minhas_marcacoes"))
 
     conn = get_db_connection()
