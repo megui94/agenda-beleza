@@ -389,6 +389,15 @@ def contato():
         return redirect(url_for("contato"))
 
     return render_template("contato.html")
+@app.route("/debug/email")
+def debug_email():
+    try:
+        html = "<p>✅ E-mail de teste enviado a partir do servidor Render.</p>"
+        send_email("🧪 Teste SMTP • Agenda Beleza", [os.getenv("MAIL_USERNAME")], html)
+        return "✅ Pedido de envio feito. Verifica os logs e a tua caixa de entrada (ou SPAM)."
+    except Exception as e:
+        app.logger.error(f"Erro no teste de envio: {e}")
+        return f"❌ Erro: {e}", 500
 
 # ==========================================
 # ▶️ Run
