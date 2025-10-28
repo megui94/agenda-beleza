@@ -8,6 +8,7 @@ from functools import wraps
 from dotenv import load_dotenv
 from flask_apscheduler import APScheduler
 from threading import Thread
+import smtplib
 import traceback
 import re
 import os
@@ -46,17 +47,21 @@ app.config.update(
 )
 mail = Mail(app)
 
+
 def _send_async(app, msg):
-    """Envia e-mails em thread paralela."""
     with app.app_context():
         try:
             mail.send(msg)
-            app.logger.info(f"📧 E-mail enviado para {msg.recipients}")
+            app.logger.info(f"[MAIL] Enviado para {msg.recipients}")
+        except smtplib.SMTPException as e:
+            app.logger.error(f"[MAIL][SMTPException] {type(e).__name__}: {e}")
         except Exception as e:
-            app.logger.error(f"⚠️ Erro ao enviar e-mail: {e}")
+            app.logger.error(f"[MAIL][Exception] {type(e).__name__}: {e}")
 
 def send_email(subject, recipients, html, reply_to=None):
-    msg = Message(subject=subject, recipients=recipients)
+    msg = Message(subject=subject,
+                  recipients=recipients,
+                  sender=os.getenv("MAIL_USERNAME"))  # <- força sender
     if reply_to:
         msg.reply_to = reply_to
     msg.html = html
