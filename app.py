@@ -52,11 +52,10 @@ def _send_async(app, msg):
     with app.app_context():
         try:
             mail.send(msg)
-            app.logger.info(f"[MAIL] Enviado para {msg.recipients}")
-        except smtplib.SMTPException as e:
-            app.logger.error(f"[MAIL][SMTPException] {type(e).__name__}: {e}")
+            app.logger.info(f"[MAIL] Enviado com sucesso para {msg.recipients}")
         except Exception as e:
-            app.logger.error(f"[MAIL][Exception] {type(e).__name__}: {e}")
+            import traceback
+            app.logger.error(f"[MAIL] Falhou: {e}\n{traceback.format_exc()}")
 
 def send_email(subject, recipients, html, reply_to=None):
     msg = Message(subject=subject,
