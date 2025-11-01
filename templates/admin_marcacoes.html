@@ -102,7 +102,7 @@
 
 /* 🔹 PAINEL */
 .admin-panel {
-  margin-top: 2rem;
+  margin-block-start: 2rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -138,7 +138,7 @@
   border-color: #f472b6;
 }
 .search {
-  min-width: 270px;
+  min-inline-size: 270px;
 }
 .btn-search {
   background: linear-gradient(90deg, #ec4899, #f472b6);
@@ -164,12 +164,12 @@
   padding: 1rem;
 }
 .admin-table {
-  width: 100%;
+  inline-size: 100%;
   border-collapse: separate;
   border-spacing: 0 10px;
 }
 .admin-table th {
-  text-align: left;
+  text-align: start;
   padding: 14px 16px;
   font-size: 0.9rem;
   color: #444;
@@ -180,7 +180,7 @@
 .admin-table td {
   padding: 14px 16px;
   background: #fff;
-  border-bottom: 1px solid #f2f2f2;
+  border-block-end: 1px solid #f2f2f2;
   font-size: 0.95rem;
   color: #333;
 }

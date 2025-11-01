@@ -1,22 +1,24 @@
 {% extends "base.html" %}
 {% block title %}Início • {{ super() }}{% endblock %}
 {% block content %}
+
+<!-- 🌸 HERO -->
 <section class="hero">
   <div class="overlay"></div>
   <div class="container hero-content">
-    <h1 class="display">Beleza que combina com você</h1>
+    <h1 class="display">Beleza que combina contigo</h1>
     <p>Tratamentos relaxantes e resultados impecáveis com um toque de delicadeza.</p>
     <div class="hero-actions">
       <a href="{{ url_for('agendar_redirect') }}" class="btn btn-pink">Agendar agora</a>
       <a href="{{ url_for('servicos') }}" class="btn btn-light">Ver serviços</a>
-
     </div>
   </div>
 </section>
 
+<!-- 💅 SERVIÇOS EM DESTAQUE -->
 <section class="section container">
   <header class="section-header">
-    <h2 class="section-title">Bem-vinda á nossa agenda</h2>
+    <h2 class="section-title">Bem-vinda à nossa agenda</h2>
     <p class="section-subtitle">Experiência, segurança e um atendimento feito sob medida.</p>
   </header>
 
@@ -29,6 +31,7 @@
         <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
       </div>
     </article>
+
     <article class="card lift">
       <img src="{{ url_for('static', filename='imagens/inicio/skincare.png') }}" alt="Tratamento facial" />
       <div class="card-body">
@@ -37,17 +40,43 @@
         <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
       </div>
     </article>
+
     <article class="card lift">
       <img src="{{ url_for('static', filename='imagens/inicio/manicure.png') }}" alt="Manicure" />
       <div class="card-body">
         <h3>Manicure &amp; Pedicure</h3>
-        <p>Unhas impecáveis com esmaltes hipoalergênicos e esterilização rigorosa.</p>
+        <p>Unhas impecáveis com esmaltes hipoalergénicos e esterilização rigorosa.</p>
         <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
       </div>
     </article>
   </div>
 </section>
 
+<!-- 💬 FEEDBACK DOS CLIENTES -->
+{% if feedbacks %}
+<section class="section container">
+  <header class="section-header">
+    <h2 class="section-title">O que dizem as nossas clientes 💕</h2>
+    <p class="section-subtitle">Veja algumas das opiniões reais deixadas na plataforma.</p>
+  </header>
+
+  <div class="grid cards-3">
+    {% for f in feedbacks %}
+      <article class="card lift">
+        <div class="card-body">
+          <p>⭐ {{ f[2] }}/5</p>
+          <blockquote>“{{ f[3] }}”</blockquote>
+          <small>– {{ f[1] }}</small>
+        </div>
+      </article>
+    {% else %}
+      <p style="text-align:center;color:#777;">Ainda não há feedbacks disponíveis.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 📅 CTA FINAL -->
 <section class="cta">
   <div class="container cta-inner">
     <h3>Quer um horário hoje?</h3>
@@ -55,4 +84,5 @@
     <a class="btn btn-dark" href="{{ url_for('marcacoes') }}">Fazer marcação</a>
   </div>
 </section>
+
 {% endblock %}

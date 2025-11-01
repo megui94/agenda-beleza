@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Gerir Utilizadores • Agenda Beleza{% endblock %}
+{% block content %}
+<div class="container" style="max-inline-size:900px; margin:40px auto; font-family:'Poppins',sans-serif;">
+  <h1 style="color:#f26d92; text-align:center;">👥 Utilizadores</h1>
+
+  <table style="inline-size:100%; margin-block-start:30px; border-collapse:collapse;">
+    <thead style="background:#f26d92; color:#fff;">
+      <tr>
+        <th style="padding:10px;">Nome</th>
+        <th>Email</th>
+        <th>Telefone</th>
+        <th>Admin</th>
+        <th>Data Registo</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr style="border-block-end:1px solid #eee;">
+        <td style="padding:10px;">{{ u[1] }}</td>
+        <td>{{ u[2] }}</td>
+        <td>{{ u[3] or '—' }}</td>
+        <td>{{ 'Sim' if u[4] else 'Não' }}</td>
+        <td>{{ u[5].strftime('%d/%m/%Y') }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin_utilizador_toggle', uid=u[0]) }}">
+            <button type="submit" class="btn btn-pink">Alternar admin</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" style="text-align:center; color:#777;">Sem utilizadores registados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Feedbacks • Admin{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Gestão de Feedbacks</h1>
+    <p>Revise e aprove ou remova opiniões dos clientes.</p>
+  </div>
+</section>
+
+<section class="section container">
+  <table class="table" style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="background:#f7b6c2;color:#fff;">
+        <th style="padding:10px;">Cliente</th>
+        <th>Classificação</th>
+        <th>Comentário</th>
+        <th>Data</th>
+        <th>Aprovado</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in feedbacks %}
+      <tr style="border-bottom:1px solid #f2dfe4;">
+        <td>{{ f[1] }}</td>
+        <td>⭐ {{ f[2] }}/5</td>
+        <td>{{ f[3] }}</td>
+        <td>{{ f[5].strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>{{ "✅" if f[4] else "❌" }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('admin_feedbacks_update') }}" style="display:inline;">
+            <input type="hidden" name="id" value="{{ f[0] }}">
+            {% if not f[4] %}
+            <button name="acao" value="aprovar" class="btn btn-primary" style="padding:6px 10px;">Aprovar</button>
+            {% endif %}
+            <button name="acao" value="rejeitar" class="btn btn-outline" style="padding:6px 10px;">Remover</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Gerir Serviços • Agenda Beleza{% endblock %}
+{% block content %}
+<div class="container" style="max-inline-size:900px; margin:40px auto; font-family:'Poppins',sans-serif;">
+  <h1 style="color:#f26d92; text-align:center;">💅 Serviços</h1>
+
+  <form method="post" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-block-start:20px;">
+    <input type="text" name="nome" placeholder="Nome do serviço" required>
+    <input type="text" name="descricao" placeholder="Descrição">
+    <input type="number" name="preco" placeholder="Preço (€)" step="0.01">
+    <input type="number" name="duracao" placeholder="Duração (min)">
+    <button type="submit" class="btn btn-pink">Adicionar</button>
+  </form>
+
+  <table style="inline-size:100%; margin-block-start:30px; border-collapse:collapse;">
+    <thead style="background:#f26d92; color:#fff;">
+      <tr>
+        <th style="padding:10px;">Nome</th>
+        <th>Descrição</th>
+        <th>Preço</th>
+        <th>Duração</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in servicos %}
+      <tr style="border-block-end:1px solid #eee;">
+        <form method="post" action="{{ url_for('admin_servico_editar', sid=s[0]) }}">
+          <td><input type="text" name="nome" value="{{ s[1] }}" required></td>
+          <td><input type="text" name="descricao" value="{{ s[2] }}"></td>
+          <td><input type="number" name="preco" value="{{ s[3] }}" step="0.01"></td>
+          <td><input type="number" name="duracao" value="{{ s[4] }}"></td>
+          <td>
+            <button type="submit" class="btn btn-green">💾</button>
+        </form>
+            <form method="post" action="{{ url_for('admin_servico_apagar', sid=s[0]) }}" style="display:inline;">
+              <button type="submit" class="btn btn-red">🗑️</button>
+            </form>
+          </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" style="text-align:center; color:#777;">Sem serviços registados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Feedback • {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Deixe o seu feedback 💬</h1>
+    <p>A sua opinião é essencial para continuarmos a melhorar!</p>
+  </div>
+</section>
+
+<section class="section container form-book">
+  <form method="POST" class="form">
+    <div class="form-row">
+      <label for="classificacao">Classificação (1 a 5 estrelas):</label>
+      <select name="classificacao" id="classificacao" required>
+        <option value="">Selecione...</option>
+        {% for i in range(5, 0, -1) %}
+        <option value="{{ i }}">{{ i }} ⭐</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="comentario">Comentário:</label>
+      <textarea name="comentario" id="comentario" rows="4" placeholder="Conte-nos a sua experiência..." required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enviar feedback</button>
+  </form>
+</section>
+{% endblock %}

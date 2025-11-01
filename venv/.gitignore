@@ -1,0 +1,33 @@
+# --- AMBIENTE E SEGREDOS ---
+.env
+*.pem
+
+# --- PYTHON / FLASK ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+instance/
+*.log
+logs/
+
+# --- AMBIENTE VIRTUAL ---
+venv/
+env/
+.venv/
+
+# --- FICHEIROS TEMPORÁRIOS ---
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- VS CODE / IDEs ---
+.vscode/
+.idea/
+
+# --- UPLOADS / BUILD ---
+*.egg-info/
+dist/
+build/
