@@ -667,3 +667,22 @@ werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'servic
 2025-11-01 14:18:41,808 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
 2025-11-01 14:23:41,748 — INFO — A verificar marcações para lembrete...
 2025-11-01 14:23:41,781 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:23:49,236 — INFO — Logging iniciado.
+2025-11-01 14:24:08,681 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:14,744 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:15,512 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:21,193 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:23,548 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:26,553 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:27,355 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:30,870 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:39,234 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:24:43,692 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:28:49,279 — INFO — A verificar marcações para lembrete...
+2025-11-01 14:28:49,304 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:33:49,271 — INFO — A verificar marcações para lembrete...
+2025-11-01 14:33:49,321 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:38:49,271 — INFO — A verificar marcações para lembrete...
+2025-11-01 14:38:49,304 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
+2025-11-01 14:43:49,271 — INFO — A verificar marcações para lembrete...
+2025-11-01 14:43:49,308 — INFO — MySQL host mysql-anapedro0813-6f31.b.aivencloud.com → 85.9.202.141
