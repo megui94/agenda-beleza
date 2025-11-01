@@ -5,7 +5,6 @@ from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from datetime import datetime, timezone, timedelta
 from functools import wraps
-from dotenv import load_dotenv
 from flask_apscheduler import APScheduler
 from threading import Thread
 import smtplib
@@ -16,6 +15,7 @@ import socket
 import time
 import logging
 from logging.handlers import RotatingFileHandler
+from dotenv import load_dotenv
 
 # ==========================================
 # 🔧 Inicialização / Configuração Base
@@ -33,38 +33,50 @@ app.logger.addHandler(handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info("🪶 Logging iniciado.")
 
-# ==========================================
-# 📬 Configuração de E-mail (Gmail / Sendinblue)
-# ==========================================
-app.config.update(
-    MAIL_SERVER=os.getenv("MAIL_SERVER", "smtp.gmail.com"),
-    MAIL_PORT=int(os.getenv("MAIL_PORT", 587)),
-    MAIL_USE_TLS=os.getenv("MAIL_USE_TLS", "true").lower() == "true",
-    MAIL_USE_SSL=os.getenv("MAIL_USE_SSL", "false").lower() == "true",
-    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
-    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
-    MAIL_DEFAULT_SENDER=("Agenda Beleza", os.getenv("MAIL_USERNAME")),
-)
+
+# Configuração do Flask-Mail
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'false').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
 mail = Mail(app)
 
-
+# =========================================
+# 📧 SISTEMA DE EMAIL (100% FUNCIONAL BREVO)
+# =========================================
 def _send_async(app, msg):
     with app.app_context():
         try:
             mail.send(msg)
-            app.logger.info(f"[MAIL] Enviado com sucesso para {msg.recipients}")
+            app.logger.info(f"📨 E-mail enviado com sucesso → {msg.recipients}")
         except Exception as e:
-            import traceback
-            app.logger.error(f"[MAIL] Falhou: {e}\n{traceback.format_exc()}")
+            app.logger.error(f"❌ Falha ao enviar e-mail: {type(e).__name__}: {e}")
 
 def send_email(subject, recipients, html, reply_to=None):
-    msg = Message(subject=subject,
-                  recipients=recipients,
-                  sender=os.getenv("MAIL_USERNAME"))  # <- força sender
+    """Função genérica e compatível com Brevo SMTP"""
+    sender_email = app.config.get("MAIL_DEFAULT_SENDER") or app.config.get("MAIL_USERNAME")
+
+    if not sender_email:
+        app.logger.error("❌ Nenhum remetente definido no .env (MAIL_DEFAULT_SENDER ou MAIL_USERNAME).")
+        return
+
+    msg = Message(
+        subject=subject,
+        recipients=recipients,
+        sender=("Agenda de Beleza", sender_email),
+        html=html
+    )
+
     if reply_to:
         msg.reply_to = reply_to
-    msg.html = html
+
     Thread(target=_send_async, args=(app, msg), daemon=True).start()
+
+
 
 # ==========================================
 # 💾 Conexão MySQL (Render / Aiven)
