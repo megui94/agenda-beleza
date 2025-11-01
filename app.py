@@ -3,11 +3,10 @@ import mysql.connector
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from functools import wraps
 from flask_apscheduler import APScheduler
 from threading import Thread
-import smtplib
 import traceback
 import re
 import os
@@ -24,7 +23,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "segredo-super-seguro")
 
-# Logging seguro (sem emojis, compatível Windows)
+# Logging seguro
 os.makedirs("logs", exist_ok=True)
 handler = RotatingFileHandler("logs/app.log", maxBytes=1_000_000, backupCount=5, encoding="utf-8")
 handler.setLevel(logging.INFO)
@@ -33,8 +32,9 @@ app.logger.addHandler(handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info("🪶 Logging iniciado.")
 
-
-# Configuração do Flask-Mail
+# ==========================================
+# 📧 Configuração do Flask-Mail (Brevo SMTP)
+# ==========================================
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
@@ -45,9 +45,9 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 mail = Mail(app)
 
-# =========================================
-# 📧 SISTEMA DE EMAIL (100% FUNCIONAL BREVO)
-# =========================================
+# ==========================================
+# 📬 Sistema de Envio de E-mails (assíncrono)
+# ==========================================
 def _send_async(app, msg):
     with app.app_context():
         try:
@@ -59,24 +59,15 @@ def _send_async(app, msg):
 def send_email(subject, recipients, html, reply_to=None):
     """Função genérica e compatível com Brevo SMTP"""
     sender_email = app.config.get("MAIL_DEFAULT_SENDER") or app.config.get("MAIL_USERNAME")
-
-    if not sender_email:
-        app.logger.error("❌ Nenhum remetente definido no .env (MAIL_DEFAULT_SENDER ou MAIL_USERNAME).")
-        return
-
     msg = Message(
         subject=subject,
         recipients=recipients,
-        sender=("Agenda de Beleza", sender_email),
+        sender=("Agenda de Beleza 💅", sender_email),
         html=html
     )
-
     if reply_to:
         msg.reply_to = reply_to
-
     Thread(target=_send_async, args=(app, msg), daemon=True).start()
-
-
 
 # ==========================================
 # 💾 Conexão MySQL (Render / Aiven)
@@ -232,8 +223,8 @@ def reset_request():
         token = serializer.dumps(email, salt="reset-salt")
         reset_link = url_for("reset_token", token=token, _external=True)
 
-        html = render_template("emails/reset_email.html", nome=user[1], reset_link=reset_link)
-        send_email("Redefinição de senha • Agenda Beleza", [email], html)
+        html = render_template("emails/clientes/reset_email.html", nome=user[1], reset_link=reset_link)
+        send_email("🔐 Recuperação de Senha • Agenda Beleza", [email], html)
         flash("Enviámos um link de redefinição.", "info")
         return redirect(url_for("login"))
     return render_template("reset_request.html")
@@ -264,16 +255,8 @@ def reset_token(token):
     return render_template("reset_token.html", token=token)
 
 # ==========================================
-# 🗓️ Marcações
+# 🗓️ Marcações + E-mails
 # ==========================================
-@app.route("/agendar")
-def agendar_redirect():
-    if not session.get("user_id"):
-        flash("Faça login para agendar a sua marcação.", "info")
-        session["next"] = "marcacoes"
-        return redirect(url_for("login"))
-    return redirect(url_for("marcacoes"))
-
 @app.route("/marcacoes", methods=["GET", "POST"])
 def marcacoes():
     if request.method == "POST":
@@ -298,14 +281,24 @@ def marcacoes():
                 VALUES (%s,%s,%s,'Pendente',%s)
             """, (session["user_id"], servico_id, datahora_obj, observacoes))
             conn.commit()
-            conn.close()
 
-            html_cliente = render_template("emails/confirmacao_email.html", nome=session["nome"], datahora=datahora_obj)
-            send_email("🗓️ Marcação registada", [session["email"]], html_cliente)
+            cur.execute("SELECT Nome FROM Servicos WHERE Id = %s", (servico_id,))
+            servico_nome = cur.fetchone()[0]
 
-            html_admin = render_template("emails/nova_marcacao_admin.html", nome_cliente=session["nome"], servico=servico_id, datahora=datahora_obj, observacoes=observacoes)
+            html_cliente = render_template("emails/clientes/confirmacao_email.html",
+                                           nome=session["nome"],
+                                           datahora=datahora_obj.strftime("%d/%m/%Y %H:%M"),
+                                           servico=servico_nome)
+            send_email("🗓️ Marcação registada com sucesso", [session["email"]], html_cliente)
+
+            html_admin = render_template("emails/admin/nova_marcacao_admin.html",
+                                         nome_cliente=session["nome"],
+                                         servico=servico_nome,
+                                         datahora=datahora_obj.strftime("%d/%m/%Y %H:%M"),
+                                         observacoes=observacoes)
             send_email("📢 Nova marcação pendente", [os.getenv("MAIL_USERNAME")], html_admin, reply_to=session["email"])
 
+            conn.close()
             flash("Marcação enviada com sucesso!", "success")
         except Exception as e:
             app.logger.error(f"Erro ao criar marcação: {e}")
@@ -318,100 +311,51 @@ def marcacoes():
     conn.close()
     return render_template("marcacoes.html", servicos=servicos)
 
-@app.route("/minhas_marcacoes")
-def minhas_marcacoes():
-    if not session.get("user_id"):
-        flash("Inicie sessão para aceder às suas marcações.", "error")
-        return redirect(url_for("login"))
-
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT m.Id, s.Nome, m.DataHora, m.Estado, m.Observacoes
-        FROM Marcacoes m
-        JOIN Servicos s ON m.Servico_id = s.Id
-        WHERE m.Cliente_id = %s
-        ORDER BY m.DataHora DESC
-    """, (session["user_id"],))
-    marcacoes = cur.fetchall()
-    conn.close()
-    return render_template("minhas_marcacoes.html", marcacoes=marcacoes)
-
 # ==========================================
-# 🌐 Páginas Gerais
+# ⏰ Lembretes automáticos
 # ==========================================
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/sobre")
-def sobre():
-    return render_template("sobre.html")
-
-@app.route("/servicos")
-def servicos():
-    termo = (request.args.get("q") or "").strip()
-    conn = get_db_connection()
-    cur = conn.cursor()
-    if termo:
-        cur.execute("SELECT * FROM Servicos WHERE Nome LIKE %s OR Descricao LIKE %s", (f"%{termo}%", f"%{termo}%"))
-    else:
-        cur.execute("SELECT * FROM Servicos")
-    servs = cur.fetchall()
-    conn.close()
-    return render_template("servicos.html", servicos=servs)
-
-# =========================
-# Contato
-# =========================
-@app.route("/contato", methods=["GET", "POST"])
-def contato():
-    if request.method == "POST":
-        assunto = (request.form.get("assunto") or "").strip()
-        nome = (request.form.get("nome") or "").strip()
-        email = (request.form.get("email") or "").strip()
-        mensagem = (request.form.get("mensagem") or "").strip()
-
-        if not (assunto and nome and email and mensagem):
-            flash("Por favor, preencha todos os campos antes de enviar.", "error")
-            return redirect(url_for("contato"))
-
-        try:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            cur.execute("""
-                INSERT INTO MensagensContato (Nome, Email, Assunto, Mensagem)
-                VALUES (%s, %s, %s, %s)
-            """, (nome, email, assunto, mensagem))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            app.logger.error(f"Erro ao guardar mensagem: {e}")
-            flash("Erro ao enviar mensagem. Tente novamente.", "error")
-            return redirect(url_for("contato"))
-
-        # E-mails (cliente e admin)
-        send_email("Novo contacto recebido", [os.getenv("MAIL_USERNAME")],
-                   f"<p><b>{nome}</b> ({email}) escreveu:<br>{mensagem}</p>")
-        send_email("Recebemos a sua mensagem • Agenda Beleza", [email],
-                   f"<p>Olá {nome}, recebemos a sua mensagem sobre <b>{assunto}</b>. Em breve entraremos em contacto.</p>")
-
-        flash("Mensagem enviada com sucesso!", "success")
-        return redirect(url_for("contato"))
-
-    return render_template("contato.html")
-@app.route("/debug/email")
-def debug_email():
+def enviar_lembretes():
+    """Envia e-mails automáticos 1 hora antes da marcação"""
     try:
-        html = "<p>✅ E-mail de teste enviado a partir do servidor Render.</p>"
-        send_email("🧪 Teste SMTP • Agenda Beleza", [os.getenv("MAIL_USERNAME")], html)
-        return "✅ Pedido de envio feito. Verifica os logs e a tua caixa de entrada (ou SPAM)."
+        app.logger.info("🕐 Verificando marcações para lembrete...")
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT m.Id, u.Nome, u.Email, s.Nome, m.DataHora
+            FROM Marcacoes m
+            JOIN Utilizador u ON m.Cliente_id = u.Id
+            JOIN Servicos s ON m.Servico_id = s.Id
+            WHERE m.Estado = 'Aprovado'
+              AND TIMESTAMPDIFF(MINUTE, NOW(), m.DataHora) BETWEEN 55 AND 65
+              AND (m.LembreteEnviado IS NULL OR m.LembreteEnviado = 0)
+        """)
+        marcacoes = cur.fetchall()
+
+        for m in marcacoes:
+            id_marcacao, nome, email, servico, datahora = m
+            html = render_template(
+                "emails/clientes/lembrete_email.html",
+                nome=nome,
+                servico=servico,
+                datahora=datahora.strftime("%d/%m/%Y %H:%M"),
+                current_year=datetime.utcnow().year
+            )
+            send_email("⏰ Lembrete de Marcação • Agenda Beleza", [email], html)
+            cur.execute("UPDATE Marcacoes SET LembreteEnviado = 1 WHERE Id = %s", (id_marcacao,))
+            conn.commit()
+
+        conn.close()
+        app.logger.info(f"📨 {len(marcacoes)} lembretes enviados com sucesso!")
     except Exception as e:
-        app.logger.error(f"Erro no teste de envio: {e}")
-        return f"❌ Erro: {e}", 500
+        app.logger.error(f"❌ Erro ao enviar lembretes: {e}")
 
 # ==========================================
-# ▶️ Run
+# ▶️ Run + Scheduler
 # ==========================================
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+scheduler.add_job(id='lembretes_marcacoes', func=enviar_lembretes, trigger='interval', minutes=5)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=False)

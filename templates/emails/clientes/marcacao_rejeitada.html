@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>❌ Marcação Rejeitada • Agenda Beleza</title>
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-inline-size: 600px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(90deg, #ff9bb3, #f26d92);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    .content {
+      padding: 30px 40px;
+      line-height: 1.6;
+    }
+    .content h2 {
+      color: #b91c1c;
+      font-size: 1.3rem;
+    }
+    .btn {
+      display: inline-block;
+      background: #f26d92;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 500;
+      margin-block-start: 15px;
+    }
+    .footer {
+      background: #f9f9f9;
+      padding: 15px 25px;
+      text-align: center;
+      font-size: 13px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>❌ Marcação Rejeitada</h1>
+    </div>
+
+    <div class="content">
+      <h2>Olá {{ nome }}!</h2>
+
+      <p>Infelizmente, a sua marcação de <strong>{{ servico }}</strong> para o dia <strong>{{ datahora }}</strong> 
+      não pôde ser confirmada devido a indisponibilidade no horário selecionado.</p>
+
+      <p>Pode reagendar facilmente clicando abaixo 👇</p>
+
+      <a href="https://agenda-beleza-ipca.onrender.com/marcacoes" class="btn">
+        Fazer novo agendamento
+      </a>
+
+      <p style="margin-block-start:20px;">
+        Agradecemos a sua compreensão,<br>
+        <strong>Agenda Beleza 💅</strong>
+      </p>
+    </div>
+
+    <div class="footer">
+      © {{ current_year }} Agenda Beleza. Sistema de marcações online.
+    </div>
+  </div>
+</body>
+</html>
