@@ -1,29 +1,281 @@
 {% extends "base.html" %}
-{% block title %}Mensagens de Contacto{% endblock %}
+{% block title %}Mensagens Recebidas • {{ super() }}{% endblock %}
+
 {% block content %}
-<section class="section container">
-  <h1>📬 Mensagens Recebidas</h1>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Nome</th>
-        <th>Email</th>
-        <th>Assunto</th>
-        <th>Mensagem</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for m in mensagens %}
-      <tr>
-        <td>{{ m[5].strftime("%d/%m/%Y %H:%M") }}</td>
-        <td>{{ m[1] }}</td>
-        <td>{{ m[2] }}</td>
-        <td>{{ m[3] }}</td>
-        <td>{{ m[4] }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<section class="page-hero soft-gradient">
+  <div class="container text-center">
+    <h1 class="mb-3 font-semibold text-4xl text-gray-800 tracking-tight">📨 Mensagens Recebidas</h1>
+    <p class="text-gray-600 text-sm">Pesquise, visualize e elimine mensagens enviadas pelos clientes.</p>
+  </div>
 </section>
+
+<section class="section container">
+  <div class="admin-panel shadow-2xl bg-white/80 backdrop-blur-md rounded-3xl p-10 border border-pink-100">
+
+    <!-- 🔍 FILTRO DE PESQUISA -->
+    <form method="GET" action="{{ url_for('admin_mensagens') }}" class="filter-bar">
+      <input type="text" name="q" placeholder="🔍 Pesquisar por nome, email ou assunto..." value="{{ q }}" class="search-input" />
+      <button type="submit" class="btn-search">Filtrar</button>
+      {% if q %}
+        <a href="{{ url_for('admin_mensagens') }}" class="btn-clear">Limpar</a>
+      {% endif %}
+    </form>
+
+    {% if mensagens %}
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Assunto</th>
+            <th>Mensagem</th>
+            <th>Data</th>
+            <th class="center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in mensagens %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ m[1] }}</td>
+            <td><a href="mailto:{{ m[2] }}">{{ m[2] }}</a></td>
+            <td>{{ m[3] }}</td>
+            <td class="mensagem">{{ m[4] }}</td>
+            <td>{{ m[5].strftime("%d/%m/%Y %H:%M") }}</td>
+            <td class="center">
+              <button
+                class="btn-delete"
+                data-id="{{ m[0] }}"
+                data-nome="{{ m[1] | escape }}"
+                onclick="abrirModal(this)">
+                🗑️
+              </button>
+
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="no-results text-center text-gray-600 italic">Nenhuma mensagem encontrada.</p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- 🩷 MODAL DE CONFIRMAÇÃO -->
+<div id="modalConfirm" class="modal">
+  <div class="modal-content">
+    <h3>Eliminar mensagem</h3>
+    <p id="modalText">Tem a certeza que deseja eliminar esta mensagem?</p>
+    <div class="modal-actions">
+      <form id="deleteForm" method="POST">
+        <button type="submit" class="btn-confirm">Sim, eliminar</button>
+      </form>
+      <button type="button" class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ---------- HERO ---------- */
+.soft-gradient {
+  background: linear-gradient(135deg, #ffeaf4, #ffd8eb);
+  padding: 3.5rem 1rem 2.5rem;
+}
+
+/* ---------- PAINEL ---------- */
+.admin-panel {
+  margin-block-start: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ---------- FILTRO ---------- */
+.filter-bar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.search-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input:hover,
+.search-input:focus {
+  border-color: #f472b6;
+  box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.15);
+}
+.btn-search, .btn-clear {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn-search {
+  background: linear-gradient(90deg, #ec4899, #f472b6);
+  color: white;
+}
+.btn-search:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+.btn-clear {
+  background: #f3f3f3;
+  color: #444;
+}
+.btn-clear:hover {
+  background: #e4e4e4;
+}
+
+/* ---------- TABELA ---------- */
+.table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #fbcfe8;
+  padding: 1rem;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+.admin-table th {
+  background: #ffe4ec;
+  text-align: start;
+  padding: 14px 16px;
+  color: #444;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+.admin-table td {
+  padding: 14px 16px;
+  background: #fff;
+  border-bottom: 1px solid #f2f2f2;
+  font-size: 0.95rem;
+}
+.admin-table tr:hover td {
+  background-color: #fff5f8;
+}
+.center { text-align: center; }
+.mensagem {
+  max-width: 350px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- BOTÕES ---------- */
+.btn-delete {
+  background-color: #fca5a5;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn-delete:hover {
+  background-color: #dc2626;
+  transform: scale(1.05);
+}
+.no-results {
+  text-align: center;
+  padding: 2rem 0;
+  color: #777;
+  font-style: italic;
+}
+
+/* ---------- MODAL ---------- */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+.modal.show { display: flex; }
+.modal-content {
+  background: #fff;
+  border-radius: 18px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(255, 182, 206, 0.3);
+  animation: popIn 0.25s ease;
+}
+.modal-content h3 { color: #a6487a; margin-bottom: 1rem; }
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.btn-confirm {
+  background: linear-gradient(90deg, #ec4899, #f472b6);
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn-confirm:hover { transform: scale(1.05); }
+.btn-cancel {
+  background: #f3f3f3;
+  border: none;
+  color: #444;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn-cancel:hover {
+  background: #e0e0e0;
+  transform: scale(1.03);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+
+<script>
+let modal = document.getElementById("modalConfirm");
+let modalText = document.getElementById("modalText");
+let deleteForm = document.getElementById("deleteForm");
+
+function abrirModal(btn) {
+  const id = btn.getAttribute("data-id");
+  const nome = btn.getAttribute("data-nome");
+  modalText.innerHTML = `Tem a certeza que deseja eliminar a mensagem de <b>${nome}</b>?`;
+  deleteForm.action = `/admin/mensagens/eliminar/${id}`;
+  modal.classList.add("show");
+}
+function fecharModal() {
+  modal.classList.remove("show");
+}
+window.onclick = e => {
+  if (e.target === modal) fecharModal();
+};
+</script>
+
 {% endblock %}

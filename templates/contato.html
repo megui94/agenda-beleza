@@ -2,54 +2,59 @@
 {% block title %}Contacto • {{ super() }}{% endblock %}
 
 {% block content %}
-<section class="page-hero">
-  <div class="container">
-    <h1>Contacto</h1>
-    <p>Entre em contacto connosco para dúvidas, sugestões ou marcações personalizadas. 💅</p>
+<section class="page-hero soft-gradient">
+  <div class="container text-center">
+    <h1 class="display">Entre em Contacto</h1>
+    <p class="subtitle">Estamos prontos para cuidar de si. Fale connosco e marque já a sua sessão!</p>
   </div>
 </section>
 
-<section class="section container contato-grid">
-  <!-- 🗺️ Informações -->
-  <div class="card contato-info">
-    <h2>📍 Informações</h2>
-    <ul class="info-list">
-      <li><strong>📌 Endereço:</strong> Rua Alves Redol, Encosta do Brejo, 5</li>
-      <li><strong>📞 Telefone:</strong> (+351) 966115222</li>
-      <li><strong>📧 E-mail:</strong> contato@agendabeleza.pt</li>
-      <li><strong>🕓 Horário:</strong> Seg–Sex 09h–19h • Sáb 09h–16h</li>
+<section class="section container contact-grid grid">
+  <!-- 🩷 INFORMAÇÕES DE CONTACTO -->
+  <div class="contact-info card lift">
+    <h2 class="section-title">Informações</h2>
+    <ul class="contact-list">
+      <li>📞 <strong>Telefone:</strong> (+351) 966 115 222</li>
+      <li>📧 <strong>E-mail:</strong> agenda.beleza.contato@gmail.com</li>
+      <li>🕒 <strong>Horário:</strong> Seg–Sex 09h–19h • Sáb 09h–16h</li>
     </ul>
 
-    <div class="mapa">
+    <h3 class="map-heading">📍 Encontra-nos aqui</h3>
+    <div class="contact-map">
       <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d347.98649439530896!2d-7.8390885!3d37.047288!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd1aca9f39a6b3e7%3A0x7a9349e4d70ccbb2!2sR.%20Alves%20Redol%2032%2C%208700-274%20Olh%C3%A3o!5e0!3m2!1spt-PT!2spt!4v1730826752000!5m2!1spt-PT!2spt"
         width="100%"
-        height="250"
-        frameborder="0"
-        scrolling="no"
-        marginheight="0"
-        marginwidth="0"
-        src="https://www.openstreetmap.org/export/embed.html?bbox=-9.1446%2C38.713%2C-9.1346%2C38.718&amp;layer=mapnik&amp;marker=38.715%2C-9.140">
+        height="230"
+        style="border:0; border-radius:15px;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
       </iframe>
+
+      <a href="https://www.google.com/maps/place/R.+Alves+Redol+32,+8700-274+Olh%C3%A3o/"
+         class="map-link" target="_blank">
+        📍 Ver no Google Maps
+      </a>
     </div>
   </div>
 
-  <!-- 💌 Formulário -->
-  <div class="card contato-form">
-    <h2>💌 Envie-nos uma mensagem</h2>
-    <form method="POST" action="{{ url_for('contato') }}">
-      <div class="form-row">
-        <label for="assunto">Assunto</label>
-        <input id="assunto" name="assunto" type="text" placeholder="Quero saber sobre..." required>
-      </div>
-
-      <div class="form-row grid-2">
+  <!-- 💌 FORMULÁRIO DE CONTACTO -->
+  <div class="contact-form card lift">
+    <h2 class="section-title">Envie uma mensagem</h2>
+    <form method="POST" action="{{ url_for('contato') }}" class="form">
+      <div class="form-row two">
         <div>
+          <div class="form-row">
+            <label for="assunto">Assunto</label>
+            <input type="text" id="assunto" name="assunto" placeholder="Ex: Pedido de marcação" required>
+          </div>
+
           <label for="nome">Nome</label>
-          <input id="nome" name="nome" type="text" placeholder="O seu nome" required>
+          <input type="text" id="nome" name="nome" placeholder="O seu nome" required>
         </div>
         <div>
           <label for="email">E-mail</label>
-          <input id="email" name="email" type="email" placeholder="exemplo@email.com" required>
+          <input type="email" id="email" name="email" placeholder="exemplo@email.com" required>
         </div>
       </div>
 
@@ -58,139 +63,180 @@
         <textarea id="mensagem" name="mensagem" rows="5" placeholder="Escreva a sua mensagem aqui..." required></textarea>
       </div>
 
-      <button class="btn btn-primary" type="submit">✨ Enviar mensagem</button>
+      <div class="form-row">
+        <button type="submit" class="btn btn-primary">✨ Enviar mensagem</button>
+      </div>
     </form>
   </div>
 </section>
 
+<!-- 🌸 ESTILOS PERSONALIZADOS -->
 <style>
-  /* GRID */
-  .contato-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
-    gap: 2.5rem;
-    align-items: start;
+/* 🎀 Estrutura */
+.soft-gradient {
+  background: linear-gradient(135deg, #ffeaf4, #ffd8eb);
+  padding: 3.5rem 1rem 2.5rem;
+}
+.contact-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+@media (max-width: 880px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
   }
+}
 
-  /* CARTÕES */
-  .card {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 2px 10px rgba(255, 174, 185, 0.15);
-    padding: 2rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
+/* 🎀 Cartões */
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid #f7c9da;
+  box-shadow: 0 6px 18px rgba(247, 182, 194, 0.25);
+  transition: all 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(247, 182, 194, 0.28);
+}
 
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(255, 174, 185, 0.25);
-  }
+/* ✨ Títulos */
+.section-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #252525;
+  position: relative;
+}
+.section-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #f7b6c2, #f9a8d4);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+.map-heading {
+  margin: 1.5rem 0 0.6rem;
+  color: #a6487a;
+  font-weight: 600;
+  font-size: 1rem;
+}
 
-  /* LISTA DE INFO */
-  .info-list {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0 2rem 0;
-  }
+/* 📞 Lista de contactos */
+.contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+.contact-list li {
+  background: #fff7fa;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  font-size: 0.96rem;
+  color: #333;
+  border: 1px solid #fad0e0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.25s;
+}
+.contact-list li:hover {
+  background: #fff0f7;
+}
+.contact-list strong {
+  color: #a6487a;
+  font-weight: 600;
+}
 
-  .info-list li {
-    background: #fff7f8;
-    padding: 0.8rem 1.2rem;
-    border-radius: 12px;
-    margin-block-end: 0.7rem;
-    line-height: 1.6;
-    border-inline-start: 4px solid #ffb3c6;
-    font-size: 1rem;
-  }
+/* 🗺️ Mapa */
+.contact-map {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(247, 182, 194, 0.3);
+  border: 1px solid #fbcfe8;
+  background: #fff;
+}
+.contact-map iframe {
+  display: block;
+  border: none;
+  border-radius: 16px 16px 0 0;
+}
+.contact-map .map-link {
+  display: block;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #a6487a;
+  text-decoration: none;
+  background: linear-gradient(90deg, #ffe4ec, #fff0f7);
+  padding: 10px 0;
+  border-top: 1px solid #f9c5d8;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.contact-map .map-link:hover {
+  background: linear-gradient(90deg, #fbcfe8, #f7b6c2);
+  color: white;
+}
 
-  .info-list strong {
-    color: #333;
-  }
-
-  .mapa iframe {
-    border-radius: 14px;
-    inline-size: 100%;
-  }
-
-  /* FORMULÁRIO */
-  .contato-form h2 {
-    margin-block-end: 1.5rem;
-  }
-
-  .contato-form form {
-    display: flex;
+/* 💌 Formulário */
+.form label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+}
+.form input,
+.form textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #f5c2d1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #fffafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form input:focus,
+.form textarea:focus {
+  border-color: #f7b6c2;
+  box-shadow: 0 0 6px rgba(247, 182, 194, 0.3);
+  outline: none;
+}
+.form-row {
+  margin-bottom: 1rem;
+}
+.form-row.two {
+  display: flex;
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .form-row.two {
     flex-direction: column;
-    gap: 1.2rem;
   }
+}
 
-  .form-row label {
-    font-weight: 600;
-    color: #333;
-    margin-block-end: 0.4rem;
-    display: block;
-  }
-
-  .contato-form input,
-  .contato-form textarea {
-    inline-size: 100%;
-    border: 1.5px solid #f3c6ce;
-    border-radius: 12px;
-    padding: 0.9rem 1.2rem;
-    transition: all 0.2s ease;
-    font-size: 1rem;
-    font-family: "Poppins", sans-serif;
-    color: #444;
-    resize: none;
-  }
-
-  .contato-form input::placeholder,
-  .contato-form textarea::placeholder {
-    color: #bbb;
-  }
-
-  .contato-form input:focus,
-  .contato-form textarea:focus {
-    border-color: #ff9cb5;
-    box-shadow: 0 0 0 3px #ffe4ec;
-    outline: none;
-  }
-
-  /* GRID DOS CAMPOS */
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  @media (max-inline-size: 700px) {
-    .grid-2 {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* BOTÃO */
-  .contato-form button {
-    align-self: flex-start;
-    background: linear-gradient(90deg, #ffb3c6, #ff9cb5);
-    color: #fff;
-    font-weight: 600;
-    border: none;
-    border-radius: 14px;
-    padding: 0.9rem 2rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 10px rgba(255, 180, 190, 0.3);
-  }
-
-  .contato-form button:hover {
-    background: linear-gradient(90deg, #ff9cb5, #ff82a3);
-    transform: translateY(-1px);
-  }
-
-  .contato-form button:active {
-    transform: scale(0.98);
-  }
+/* ✨ Botão */
+.btn.btn-primary {
+  background: linear-gradient(90deg, #f7b6c2, #f9a8d4);
+  border: none;
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(247, 182, 194, 0.35);
+}
+.btn.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(247, 182, 194, 0.45);
+}
 </style>
-
 {% endblock %}

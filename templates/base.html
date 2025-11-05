@@ -129,10 +129,7 @@
         <a href="{{ url_for('servicos') }}">Serviços</a>
         <a href="{{ url_for('sobre') }}">Sobre</a>
         <a href="{{ url_for('contato') }}">Contacto</a>
-
-        {% if is_admin %}
-          <a href="{{ url_for('admin_marcacoes') }}">⚙️ Área Administrativa</a>
-        {% endif %}
+        <a href="{{ url_for('listar_feedbacks') }}">Feedbacks</a>
 
         {% if session.get('user_id') %}
           <div class="user-menu">
@@ -146,9 +143,11 @@
               {% if is_admin %}
                 <div class="header">🌸 Administração</div>
                 <a href="{{ url_for('admin_marcacoes') }}">⚙️ Painel Administrativo</a>
+                <a href="{{ url_for('admin_mensagens') }}">📨 Mensagens Recebidas</a>
               {% else %}
                 <a href="{{ url_for('marcacoes') }}">🗓️ Agendar</a>
                 <a href="{{ url_for('minhas_marcacoes') }}">📋 Minhas Marcações</a>
+                <a href="{{ url_for('feedback') }}">💬 Dar Feedback</a>
               {% endif %}
               <div class="divider"></div>
               <a href="{{ url_for('logout') }}" class="logout">🚪 Sair</a>
@@ -190,7 +189,7 @@
         <ul class="list-unstyled">
           <li>📍 Olhão, Portugal</li>
           <li>📞 +351 966 115 222</li>
-          <li>✉️ contato@agendabeleza.pt</li>
+          <li>✉️ agenda.beleza.contato@gmail.com</li>
         </ul>
       </div>
       <div>

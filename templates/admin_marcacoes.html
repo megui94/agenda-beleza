@@ -5,7 +5,7 @@
 <section class="page-hero soft-gradient">
   <div class="container text-center">
     <h1 class="mb-3 font-semibold text-4xl text-gray-800 tracking-tight">Gestão de Marcações</h1>
-    <p class="text-gray-600 text-sm">Acompanhe, aprove e rejeite marcações de forma organizada e elegante.</p>
+    <p class="text-gray-600 text-sm">Acompanhe, aprove e rejeite marcações com clareza e profissionalismo.</p>
   </div>
 </section>
 
@@ -46,7 +46,7 @@
             <th>Serviço</th>
             <th>Data/Hora</th>
             <th>Estado</th>
-            <th>Obs.</th>
+            <th>Observações</th>
             <th class="center">Ações</th>
           </tr>
         </thead>
@@ -55,16 +55,16 @@
             {% for m in marcacoes %}
             <tr>
               <td>{{ loop.index }}</td>
-              <td>{{ m[1] }}</td>
+              <td><strong>{{ m[1] }}</strong></td>
               <td>{{ m[2] }}</td>
               <td>{{ m[3].strftime('%d/%m/%Y %H:%M') }}</td>
               <td>
                 {% if m[4] == 'Aprovado' %}
-                  <span class="estado aprovado">● Aprovado</span>
+                  <span class="estado aprovado">✔ Aprovado</span>
                 {% elif m[4] == 'Rejeitado' %}
-                  <span class="estado rejeitado">● Rejeitado</span>
+                  <span class="estado rejeitado">✖ Rejeitado</span>
                 {% else %}
-                  <span class="estado pendente">● Pendente</span>
+                  <span class="estado pendente">⏳ Pendente</span>
                 {% endif %}
               </td>
               <td class="obs">{{ m[5] or '—' }}</td>
@@ -85,7 +85,13 @@
             </tr>
             {% endfor %}
           {% else %}
-            <tr><td colspan="7" class="no-results">Nenhuma marcação encontrada.</td></tr>
+            <tr>
+              <td colspan="7" class="no-results">
+                <div class="empty-state">
+                  <p>Nenhuma marcação encontrada</p>
+                </div>
+              </td>
+            </tr>
           {% endif %}
         </tbody>
       </table>
@@ -106,6 +112,7 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  box-shadow: 0 6px 25px rgba(255, 150, 190, 0.15);
 }
 
 /* 🔹 FILTROS */
@@ -116,32 +123,24 @@
   gap: 1.2rem;
   align-items: center;
 }
-.filter-left, .filter-right {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
 .label {
   font-weight: 600;
-  color: #444;
+  color: #a6487a;
 }
 .select, .search {
   padding: 10px 14px;
   border-radius: 12px;
-  border: 1px solid #ddd;
-  outline: none;
+  border: 1px solid #f2bdd8;
   font-size: 0.95rem;
   background: #fff;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.select:hover, .search:hover {
-  border-color: #f472b6;
-}
-.search {
-  min-inline-size: 270px;
+.select:focus, .search:focus {
+  border-color: #ff9ac8;
+  box-shadow: 0 0 0 3px rgba(255, 154, 200, 0.25);
 }
 .btn-search {
-  background: linear-gradient(90deg, #ec4899, #f472b6);
+  background: #ff9ac8;
   color: white;
   border: none;
   padding: 10px 18px;
@@ -151,8 +150,8 @@
   transition: all 0.25s ease;
 }
 .btn-search:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  background: #ff7ab6;
+  transform: scale(1.05);
 }
 
 /* 🔹 TABELA */
@@ -164,28 +163,27 @@
   padding: 1rem;
 }
 .admin-table {
-  inline-size: 100%;
+  width: 100%;
   border-collapse: separate;
-  border-spacing: 0 10px;
+  border-spacing: 0 8px;
 }
 .admin-table th {
   text-align: start;
-  padding: 14px 16px;
+  padding: 12px 14px;
   font-size: 0.9rem;
-  color: #444;
-  text-transform: uppercase;
+  color: #a6487a;
   background: #ffe4ec;
   font-weight: 700;
 }
 .admin-table td {
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: #fff;
-  border-block-end: 1px solid #f2f2f2;
+  border-bottom: 1px solid #f5d6e6;
   font-size: 0.95rem;
   color: #333;
 }
 .admin-table tr:hover td {
-  background-color: #fff5f8;
+  background-color: #fff5f9;
 }
 .center {
   text-align: center;
@@ -230,7 +228,6 @@
 .btn.approve {
   background-color: #16a34a;
   color: white;
-  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
 }
 .btn.approve:hover {
   background-color: #15803d;
@@ -245,9 +242,24 @@
 }
 .no-results {
   text-align: center;
-  padding: 2rem 0;
-  color: #777;
-  font-style: italic;
+  padding: 3rem 0;
+}
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  color: #a6487a;
+  opacity: 0.8;
+}
+.empty-state img {
+  width: 100px;
+  opacity: 0.8;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 </style>
 {% endblock %}

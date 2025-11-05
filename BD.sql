@@ -43,17 +43,16 @@ CREATE TABLE IF NOT EXISTS MensagensContato (
 );
 
 -- Tabela de Feedback
-CREATE TABLE IF NOT EXISTS Feedback (
+CREATE TABLE IF NOT EXISTS Feedbacks (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Cliente_id INT NOT NULL,
-    Avaliacao INT CHECK (Avaliacao BETWEEN 1 AND 5),
-    Comentario TEXT,
-    DataEnvio DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Publicado BOOLEAN DEFAULT FALSE,
+    NomeCliente VARCHAR(100) NOT NULL,
+    Classificacao INT CHECK (Classificacao BETWEEN 1 AND 5),
+    Comentario TEXT NOT NULL,
+    Aprovado BOOLEAN DEFAULT FALSE,
+    DataEnvio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (Cliente_id) REFERENCES Utilizador(Id) ON DELETE CASCADE
 );
 
-
 select * from Utilizador;
 
-ALTER TABLE Marcacoes ADD COLUMN LembreteEnviado BOOLEAN DEFAULT 0;

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Feedbacks • {{ super() }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Feedbacks dos nossos clientes 💬</h1>
+    <p>Veja o que as pessoas estão a dizer sobre a Agenda Beleza.</p>
+  </div>
+</section>
+
+<section class="section container">
+  {% if feedbacks %}
+    <div class="grid cards-3">
+      {% for f in feedbacks %}
+      <article class="card lift">
+        <div class="card-body">
+          <h3>{{ f[0] }}</h3>
+          <p>⭐ {{ f[1] }}/5</p>
+          <blockquote>“{{ f[2] }}”</blockquote>
+          <small>{{ f[3].strftime('%d/%m/%Y %H:%M') }}</small>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted" style="text-align:center;">Ainda não existem feedbacks disponíveis.</p>
+  {% endif %}
+</section>
+{% endblock %}

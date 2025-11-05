@@ -21,6 +21,7 @@ from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "segredo-super-seguro")
+serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Logging (ficheiro)
 os.makedirs("logs", exist_ok=True)
@@ -52,16 +53,33 @@ def _send_async(app, msg):
         except Exception as e:
             app.logger.error(f"[MAIL] falhou: {type(e).__name__}: {e}")
 
-def send_email(subject, recipients, html, reply_to=None):
-    """Função genérica segura para envio de e-mails."""
-    sender_email = app.config.get("MAIL_DEFAULT_SENDER") or app.config.get("MAIL_USERNAME")
+def send_email(subject, recipients, html_body, reply_to=None):
+    """Função genérica segura para envio de e-mails em HTML."""
+    sender_email = (
+        app.config.get("MAIL_DEFAULT_SENDER")
+        or app.config.get("MAIL_USERNAME")
+    )
     if not sender_email:
         app.logger.error("[MAIL] Remetente não definido (MAIL_DEFAULT_SENDER/MAIL_USERNAME).")
         return
-    msg = Message(subject=subject, recipients=recipients, sender=("Agenda de Beleza", sender_email), html=html)
-    if reply_to:
-        msg.reply_to = reply_to
-    Thread(target=_send_async, args=(app, msg), daemon=True).start()
+
+    try:
+        msg = Message(
+            subject=subject,
+            recipients=recipients,
+            sender=("Agenda de Beleza 💅", sender_email)
+        )
+        msg.html = html_body  # 👈 garante que o Gmail lê como HTML completo
+        msg.body = "Versão simplificada da mensagem. Por favor, ative a visualização em HTML."  # fallback
+
+        if reply_to:
+            msg.reply_to = reply_to
+
+        Thread(target=_send_async, args=(app, msg), daemon=True).start()
+        app.logger.info(f"[MAIL] E-mail HTML enviado com sucesso para {recipients}")
+
+    except Exception as e:
+        app.logger.error(f"[MAIL] Falha ao enviar e-mail: {e}")
 
 # ==========================================
 # 💾 MySQL (Render / Aiven)
@@ -120,6 +138,11 @@ def internal_error(_):
     app.logger.error(traceback.format_exc())
     return "Ocorreu um erro interno no servidor.", 500
 
+@app.context_processor
+def inject_user():
+    return dict(is_admin=session.get("is_admin", False))
+
+
 # ==========================================
 # 👥 Autenticação
 # ==========================================
@@ -129,18 +152,34 @@ def login():
         email = (request.form.get("email") or "").strip().lower()
         password = request.form.get("password") or ""
 
-        conn = get_db_connection(); cur = conn.cursor()
-        cur.execute("SELECT Id, Password, Nome, IsAdmin FROM Utilizador WHERE Email=%s", (email,))
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT Id, Password, Nome, IsAdmin, EmailVerificado FROM Utilizador WHERE Email=%s", (email,))
         user = cur.fetchone()
         conn.close()
 
         if user and bcrypt.check_password_hash(user[1], password):
-            session.update({"user_id": user[0], "email": email, "nome": user[2], "is_admin": bool(user[3])})
+            # 🛑 Verificar se o e-mail foi confirmado
+            if not user[4]:
+                flash("Por favor, confirme o seu e-mail antes de iniciar sessão.", "warning")
+                return redirect(url_for("login"))
+
+            # ✅ Login autorizado
+            session.update({
+                "user_id": user[0],
+                "email": email,
+                "nome": user[2],
+                "is_admin": bool(user[3])
+            })
             flash(f"Bem-vindo(a), {user[2]}!", "success")
+
             next_page = session.pop("next", None)
             return redirect(url_for(next_page)) if next_page else redirect(url_for("index"))
+
         flash("E-mail ou senha incorretos.", "error")
+
     return render_template("login.html")
+
 
 @app.route("/logout")
 def logout():
@@ -163,19 +202,139 @@ def registar():
             flash("A senha deve ter 8+ caracteres, 1 maiúscula e 1 número.", "error"); return redirect(url_for("registar"))
 
         hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
+
         try:
             conn = get_db_connection(); cur = conn.cursor()
             cur.execute(
                 "INSERT INTO Utilizador (Nome, Email, Telefone, Password) VALUES (%s,%s,%s,%s)",
                 (nome, email, telefone, hashed_pw)
             )
-            conn.commit(); flash("Conta criada com sucesso!", "success")
+            conn.commit()
+
+            # 🔹 GERAR LINK DE CONFIRMAÇÃO
+            token = serializer.dumps(email, salt="email-confirm")
+            link = url_for("confirmar_email", token=token, _external=True)
+
+            # ========================
+            # ✉️ E-MAIL PARA O CLIENTE
+            # ========================
+            html_cliente = f"""
+            <div style="background-color:#fff9fb;font-family:'Poppins',Arial,sans-serif;padding:40px 0;text-align:center;">
+              <div style="max-width:600px;margin:0 auto;background:white;border-radius:20px;padding:40px;box-shadow:0 8px 25px rgba(246,182,194,0.3);">
+                <h1 style="color:#a6487a;font-size:28px;margin-bottom:10px;">🌸 Bem-vinda à Agenda Beleza!</h1>
+                <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:25px;">
+                  Olá, <b>{nome}</b>!<br>
+                  Obrigada por se registar na <b>Agenda Beleza</b>.<br>
+                  Para ativar a sua conta, confirme o seu endereço de e-mail clicando no botão abaixo:
+                </p>
+
+                <a href="{link}" style="
+                  background-color:#ff9ac8;
+                  color:white;
+                  padding:14px 26px;
+                  border-radius:40px;
+                  font-weight:600;
+                  text-decoration:none;
+                  display:inline-block;
+                  margin-bottom:30px;
+                  transition:background-color 0.3s ease;">
+                  Confirmar E-mail
+                </a>
+
+                <p style="color:#666;font-size:14px;margin-top:10px;">
+                  Este link é válido por <b>1 hora</b>.<br>
+                  Se não criou esta conta, ignore este e-mail.
+                </p>
+
+                <hr style="margin:35px 0;border:none;border-top:1px solid #ffe3ef;">
+
+                <p style="font-size:13px;color:#999;">
+                  💕 Agenda Beleza · Olhão, Portugal<br>
+                  <a href="mailto:agenda.beleza.contato@gmail.com" style="color:#a6487a;text-decoration:none;">agenda.beleza.contato@gmail.com</a>
+                </p>
+              </div>
+            </div>
+            """
+            send_email("📧 Confirme o seu e-mail • Agenda Beleza", [email], html_cliente)
+
+            # ========================
+            # 💌 E-MAIL PARA O ADMIN
+            # ========================
+            html_admin = f"""
+            <div style="background-color:#fff9fb;font-family:'Poppins',Arial,sans-serif;padding:40px 0;text-align:center;">
+              <div style="max-width:600px;margin:0 auto;background:white;border-radius:20px;padding:40px;box-shadow:0 8px 25px rgba(246,182,194,0.3);">
+                <h1 style="color:#a6487a;font-size:26px;margin-bottom:10px;">
+                  👤 Nova Utilizadora Registada
+                </h1>
+
+                <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:25px;">
+                  Uma nova cliente acabou de criar uma conta na <b>Agenda Beleza</b>.<br>
+                  Aqui estão os detalhes do registo:
+                </p>
+
+                <div style="text-align:left;background:#fff4f8;border-radius:14px;padding:18px 24px;margin:0 auto;max-width:420px;border:1px solid #ffd6e5;">
+                  <p style="margin:8px 0;font-size:15px;color:#333;"><b>👩 Nome:</b> {nome}</p>
+                  <p style="margin:8px 0;font-size:15px;color:#333;"><b>📧 E-mail:</b> {email}</p>
+                  <p style="margin:8px 0;font-size:15px;color:#333;"><b>📞 Telefone:</b> {telefone or 'Não informado'}</p>
+                  <p style="margin:8px 0;font-size:15px;color:#333;"><b>📅 Data de Registo:</b> {datetime.now().strftime("%d/%m/%Y %H:%M")}</p>
+                </div>
+
+                <a href="https://agenda-beleza.onrender.com/admin_marcacoes" style="
+                  background-color:#ff9ac8;
+                  color:white;
+                  padding:12px 24px;
+                  border-radius:40px;
+                  font-weight:600;
+                  text-decoration:none;
+                  display:inline-block;
+                  margin:32px 0;
+                  transition:background-color 0.3s ease;">
+                  Abrir Painel Administrativo
+                </a>
+
+                <p style="color:#666;font-size:14px;">
+                  Este é um alerta automático. Não é necessário responder.
+                </p>
+
+                <hr style="margin:35px 0;border:none;border-top:1px solid #ffe3ef;">
+                <p style="font-size:13px;color:#999;">
+                  💕 Agenda Beleza · Olhão, Portugal<br>
+                  <a href="mailto:agenda.beleza.contato@gmail.com" style="color:#a6487a;text-decoration:none;">agenda.beleza.contato@gmail.com</a>
+                </p>
+              </div>
+            </div>
+            """
+            send_email("👤 Nova cliente registada • Agenda Beleza", ["agenda.beleza.contato@gmail.com"], html_admin)
+
+            flash("Conta criada com sucesso! Verifique o seu e-mail para confirmar.", "success")
+
         except Exception as e:
             flash(f"Erro ao criar conta: {e}", "error")
         finally:
             conn.close()
+
         return redirect(url_for("login"))
+
     return render_template("registar.html")
+
+
+@app.route("/confirmar_email/<token>")
+def confirmar_email(token):
+    try:
+        email = serializer.loads(token, salt="email-confirm", max_age=3600)
+    except SignatureExpired:
+        flash("O link de confirmação expirou. Faça login e solicite novo envio.", "error")
+        return redirect(url_for("login"))
+    except BadSignature:
+        flash("Link de confirmação inválido.", "error")
+        return redirect(url_for("login"))
+
+    conn = get_db_connection(); cur = conn.cursor()
+    cur.execute("UPDATE Utilizador SET EmailVerificado = 1 WHERE Email = %s", (email,))
+    conn.commit(); conn.close()
+
+    flash("E-mail confirmado com sucesso! Já pode iniciar sessão.", "success")
+    return redirect(url_for("login"))
 
 # ==========================================
 # 🔄 Recuperação de senha
@@ -385,6 +544,56 @@ def admin_update_marcacao():
     flash(f"Marcação {acao.lower()} com sucesso!", "success")
     return redirect(url_for("admin_marcacoes"))
 
+@app.route("/admin/mensagens")
+def admin_mensagens():
+    if not session.get("is_admin"):
+        flash("Acesso restrito à administração.", "error")
+        return redirect(url_for("index"))
+
+    q = (request.args.get("q") or "").strip()
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if q:
+        cur.execute("""
+            SELECT Id, Nome, Email, Assunto, Mensagem, DataEnvio
+            FROM MensagensContato
+            WHERE Nome LIKE %s OR Email LIKE %s OR Assunto LIKE %s
+            ORDER BY DataEnvio DESC
+        """, (f"%{q}%", f"%{q}%", f"%{q}%"))
+    else:
+        cur.execute("""
+            SELECT Id, Nome, Email, Assunto, Mensagem, DataEnvio
+            FROM MensagensContato
+            ORDER BY DataEnvio DESC
+        """)
+    mensagens = cur.fetchall()
+    conn.close()
+
+    return render_template("admin_mensagens.html", mensagens=mensagens, q=q)
+
+
+
+@app.route("/admin/mensagens/eliminar/<int:id>", methods=["POST"])
+def admin_eliminar_mensagem(id):
+    """Permite ao administrador apagar uma mensagem de contacto."""
+    if not session.get("is_admin"):
+        flash("Acesso restrito à administração.", "error")
+        return redirect(url_for("index"))
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM MensagensContato WHERE Id = %s", (id,))
+        conn.commit()
+        conn.close()
+        flash("Mensagem eliminada com sucesso!", "success")
+    except Exception as e:
+        app.logger.error(f"Erro ao eliminar mensagem: {e}")
+        flash("Erro ao eliminar mensagem.", "error")
+
+    return redirect(url_for("admin_mensagens"))
 
 # ==========================================
 # 🌐 Páginas gerais
@@ -394,7 +603,7 @@ def index():
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("""
-        SELECT Id, Nome, Classificacao, Comentario, Aprovado, DataEnvio
+        SELECT Id, NomeCliente, Classificacao, Comentario, Aprovado, DataEnvio
         FROM Feedbacks
         WHERE Aprovado = TRUE
         ORDER BY DataEnvio DESC
@@ -428,119 +637,156 @@ def contato():
         email = (request.form.get("email") or "").strip()
         mensagem = (request.form.get("mensagem") or "").strip()
 
+        # Validação de campos obrigatórios
         if not (assunto and nome and email and mensagem):
             flash("Por favor, preencha todos os campos antes de enviar.", "error")
             return redirect(url_for("contato"))
 
+        # Guarda a mensagem na base de dados
         try:
-            conn = get_db_connection(); cur = conn.cursor()
+            conn = get_db_connection()
+            cur = conn.cursor()
             cur.execute("""
                 INSERT INTO MensagensContato (Nome, Email, Assunto, Mensagem)
                 VALUES (%s, %s, %s, %s)
             """, (nome, email, assunto, mensagem))
-            conn.commit(); conn.close()
+            conn.commit()
+            conn.close()
         except Exception as e:
             app.logger.error(f"Erro ao guardar mensagem: {e}")
             flash("Erro ao enviar mensagem. Tente novamente.", "error")
             return redirect(url_for("contato"))
 
-        send_email("📩 Novo contacto recebido", [os.getenv("MAIL_USERNAME")],
-                   f"<p><b>{nome}</b> ({email}) escreveu:<br>{mensagem}</p>")
-        send_email("📬 Recebemos a sua mensagem • Agenda Beleza", [email],
-                   f"<p>Olá {nome}, recebemos a sua mensagem sobre <b>{assunto}</b>. Em breve entraremos em contacto.</p>")
+        # --- Envia e-mail para o administrador ---
+        try:
+            send_email(
+                "📥 Novo contacto recebido • Agenda Beleza",
+                [os.getenv("ADMIN_EMAIL")],
+                render_template(
+                    "emails/admin/novo_contato.html",
+                    nome=nome,
+                    email=email,
+                    assunto=assunto,
+                    mensagem=mensagem,
+                    now=datetime.utcnow
+                )
+            )
+        except Exception as e:
+            app.logger.error(f"Erro ao enviar e-mail para o admin: {e}")
+
+        # --- Envia e-mail de confirmação ao cliente ---
+        try:
+            send_email(
+                "📩 Recebemos a sua mensagem • Agenda Beleza",
+                [email],
+                render_template(
+                    "emails/clientes/confirmacao_contato.html",
+                    nome=nome,
+                    assunto=assunto,
+                    now=datetime.utcnow
+                )
+            )
+        except Exception as e:
+            app.logger.error(f"Erro ao enviar e-mail de confirmação: {e}")
 
         flash("Mensagem enviada com sucesso!", "success")
         return redirect(url_for("contato"))
+
     return render_template("contato.html")
 
-# ==========================================
-# 💬 FEEDBACK DOS CLIENTES
-# ==========================================
 
+# ==========================================
+# 💬 Feedback dos Clientes
+# ==========================================
 @app.route("/feedback", methods=["GET", "POST"])
 def feedback():
     if request.method == "POST":
-        if not session.get("user_id"):
-            flash("Faça login para enviar o seu feedback.", "info")
-            return redirect(url_for("login"))
-
-        classificacao = int(request.form.get("classificacao", 0))
-        comentario = (request.form.get("comentario") or "").strip()
-
-        if classificacao < 1 or classificacao > 5 or not comentario:
-            flash("Por favor, insira uma classificação e um comentário.", "error")
-            return redirect(url_for("feedback"))
-
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO Feedbacks (Cliente_id, Nome, Classificacao, Comentario)
-            VALUES (%s, %s, %s, %s)
-        """, (session["user_id"], session["nome"], classificacao, comentario))
-        conn.commit()
-        conn.close()
-
-        # (Opcional) Enviar email ao admin
+        nome = session.get("nome")
+        classificacao = request.form["classificacao"]
+        comentario = request.form["comentario"]
         try:
-            html = f"""
-                <h3>💬 Novo feedback recebido!</h3>
-                <p><b>Nome:</b> {session['nome']}</p>
-                <p><b>Classificação:</b> ⭐ {classificacao}/5</p>
-                <p><b>Comentário:</b><br>{comentario}</p>
-            """
-            send_email("💬 Novo Feedback Recebido", [os.getenv("MAIL_USERNAME")], html)
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO Feedbacks (NomeCliente, Cliente_id, Classificacao, Comentario)
+                VALUES (%s, %s, %s, %s)
+            """, (nome, session.get("user_id"), classificacao, comentario))
+            conn.commit()
+            conn.close()
+            flash("Feedback enviado com sucesso! 🌸", "success")
+            return redirect(url_for("listar_feedbacks"))
         except Exception as e:
-            app.logger.error(f"Erro ao enviar email de feedback: {e}")
-
-        flash("Obrigado pelo seu feedback! Será exibido após aprovação.", "success")
-        return redirect(url_for("index"))
-
+            app.logger.error(f"Erro ao enviar feedback: {e}")
+            flash("Erro ao enviar o feedback.", "error")
     return render_template("feedback.html")
 
 
 # ==========================================
-# 👩‍💼 ADMIN - GESTÃO DE FEEDBACKS
+# 💬 Página com todos os feedbacks
 # ==========================================
+@app.route("/feedbacks")
+def listar_feedbacks():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT NomeCliente, Classificacao, Comentario, DataEnvio
+            FROM Feedbacks
+            WHERE Aprovado = 1 OR Aprovado IS NULL
+            ORDER BY DataEnvio DESC
+        """)
+        feedbacks = cur.fetchall()
+        conn.close()
+        return render_template("feedbacks.html", feedbacks=feedbacks)
+    except Exception as e:
+        app.logger.error(f"Erro ao carregar feedbacks: {e}")
+        flash("Erro ao carregar os feedbacks.", "error")
+        return redirect(url_for("index"))
 
-@app.route("/admin/feedbacks")
+
+@app.route("/admin_feedbacks")
 def admin_feedbacks():
     if not session.get("is_admin"):
-        flash("Acesso restrito: apenas administradores.", "error")
+        flash("Acesso restrito aos administradores.", "error")
         return redirect(url_for("index"))
 
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("""
-        SELECT Id, Nome, Classificacao, Comentario, Aprovado, DataEnvio
-        FROM Feedbacks
-        ORDER BY DataEnvio DESC
-    """)
+    cur.execute("SELECT * FROM Feedbacks ORDER BY DataCriacao DESC")
     feedbacks = cur.fetchall()
     conn.close()
     return render_template("admin_feedbacks.html", feedbacks=feedbacks)
 
 
-@app.route("/admin/feedbacks/update", methods=["POST"])
-def admin_feedbacks_update():
+@app.route("/aprovar_feedback/<int:id>")
+def aprovar_feedback(id):
     if not session.get("is_admin"):
-        flash("Acesso restrito.", "error")
+        flash("Acesso negado.", "error")
         return redirect(url_for("index"))
-
-    feedback_id = request.form.get("id")
-    acao = request.form.get("acao")
 
     conn = get_db_connection()
     cur = conn.cursor()
-
-    if acao == "aprovar":
-        cur.execute("UPDATE Feedbacks SET Aprovado = TRUE WHERE Id = %s", (feedback_id,))
-        flash("Feedback aprovado com sucesso!", "success")
-    elif acao == "rejeitar":
-        cur.execute("DELETE FROM Feedbacks WHERE Id = %s", (feedback_id,))
-        flash("Feedback removido.", "info")
-
+    cur.execute("UPDATE Feedbacks SET Aprovado = TRUE WHERE Id = %s", (id,))
     conn.commit()
     conn.close()
+
+    flash("Feedback aprovado com sucesso!", "success")
+    return redirect(url_for("admin_feedbacks"))
+
+
+@app.route("/remover_feedback/<int:id>")
+def remover_feedback(id):
+    if not session.get("is_admin"):
+        flash("Acesso negado.", "error")
+        return redirect(url_for("index"))
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM Feedbacks WHERE Id = %s", (id,))
+    conn.commit()
+    conn.close()
+
+    flash("Feedback removido com sucesso.", "info")
     return redirect(url_for("admin_feedbacks"))
 
 # ==========================================
