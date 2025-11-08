@@ -23,6 +23,18 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "segredo-super-seguro")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
+# =========================
+# 🔍 Verificação do Brevo API
+# =========================
+if not os.getenv("BREVO_API_KEY"):
+    print("❌ ERRO: A variável de ambiente 'BREVO_API_KEY' não está definida!")
+    print("➡️  Vá até Render → Settings → Environment e adicione:")
+    print("   BREVO_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    exit(1)
+else:
+    print("✅ BREVO_API_KEY encontrado — envio de e-mails via Brevo ativado.")
+
+
 # Logging (ficheiro)
 os.makedirs("logs", exist_ok=True)
 handler = RotatingFileHandler("logs/app.log", maxBytes=1_000_000, backupCount=5, encoding="utf-8")
@@ -67,8 +79,9 @@ def send_email(subject, recipients, html_body, reply_to=None):
 
     # Inicializar configuração da API
     configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = api_key
+    configuration.api_key['api-key'] = os.getenv("BREVO_API_KEY")
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    print("API Key:", os.getenv("BREVO_API_KEY"))
 
     # Preparar mensagem
     sender = {"name": "Agenda de Beleza 💅", "email": sender_email}
@@ -250,7 +263,7 @@ def registar():
                 </a>
 
                 <p style="color:#666;font-size:14px;margin-top:10px;">
-                  Este link é válido por <b>1 hora</b>.<br>
+                  Este link é válido por <b>30 minutos</b>.<br>
                   Se não criou esta conta, ignore este e-mail.
                 </p>
 
@@ -329,7 +342,7 @@ def registar():
 @app.route("/confirmar_email/<token>")
 def confirmar_email(token):
     try:
-        email = serializer.loads(token, salt="email-confirm", max_age=3600)
+        email = serializer.loads(token, salt="email-confirm", max_age=1800)
     except SignatureExpired:
         flash("O link de confirmação expirou. Faça login e solicite novo envio.", "error")
         return redirect(url_for("login"))
@@ -370,7 +383,7 @@ def reset_request():
 @app.route("/reset/<token>", methods=["GET", "POST"])
 def reset_token(token):
     try:
-        email = serializer.loads(token, salt="reset-salt", max_age=3600)
+        email = serializer.loads(token, salt="reset-salt", max_age=1800)
     except (SignatureExpired, BadSignature):
         flash("O link expirou ou é inválido.", "error")
         return redirect(url_for("reset_request"))
