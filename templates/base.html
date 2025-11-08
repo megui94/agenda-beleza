@@ -11,6 +11,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
+  <!-- 🗓️ Flatpickr (calendário moderno) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/material_pink.css">
+
   <!-- ✨ ANIMAÇÃO + SOMBRA + BRILHO -->
   <style>
     .user-menu {
@@ -107,7 +111,6 @@
       color: white;
       transform: scale(1.05);
     }
-
   </style>
 </head>
 
@@ -206,6 +209,9 @@
   </footer>
 
   <!-- 🌿 SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       /* === MENU DO UTILIZADOR === */
@@ -236,6 +242,29 @@
           setTimeout(() => alert.remove(), 600);
         }, 3000);
       });
+
+      /* === CALENDÁRIO FLATPICKR === */
+      const datetimeInput = document.querySelector("#datahora");
+      if (datetimeInput) {
+        flatpickr(datetimeInput, {
+          enableTime: true,
+          time_24hr: true,
+          minDate: "today",
+          locale: "pt",
+          minuteIncrement: 15,
+          dateFormat: "Y-m-d H:i",
+          disable: [
+            function(date) {
+              // Desativar domingos
+              return (date.getDay() === 0);
+            }
+          ],
+          onReady: function(selectedDates, dateStr, instance) {
+            instance.calendarContainer.style.borderRadius = "10px";
+            instance.calendarContainer.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
+          }
+        });
+      }
     });
   </script>
 </body>
