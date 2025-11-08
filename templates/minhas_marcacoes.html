@@ -1,19 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Minhas Marcações • {{ super() }}{% endblock %}
+
 {% block content %}
-<section class="page-hero">
-  <div class="container">
-    <h1>Minhas Marcações</h1>
-    <p>Veja todas as suas marcações feitas.</p>
+<section class="page-hero soft-gradient">
+  <div class="container text-center">
+    <h1 class="mb-2 font-semibold text-4xl text-gray-800 tracking-tight">Minhas Marcações</h1>
+    <p class="text-gray-600 text-sm">Veja todas as suas marcações feitas e o estado de aprovação.</p>
   </div>
 </section>
 
 <section class="section container">
+
+  <!-- ✅ Bloco de mensagens (único, sem duplicação) -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <div class="flash-messages">
         {% for category, message in messages %}
-          <div class="alert {{ category }}">{{ message }}</div>
+          <div class="alert alert-{{ category }}">{{ message }}</div>
         {% endfor %}
       </div>
     {% endif %}
@@ -22,18 +25,106 @@
   {% if marcacoes %}
   <div class="grid">
     {% for m in marcacoes %}
-    <div class="card">
+    <div class="card marcacao-card">
       <div class="card-body">
-        <h3>{{ m[1] }}</h3>
-        <p><strong>Data:</strong> {{ m[2].strftime('%d/%m/%Y %H:%M') }}</p>
-        <p><strong>Estado:</strong> {{ m[3] }}</p>
-        {% if m[4] %}<p><strong>Obs:</strong> {{ m[4] }}</p>{% endif %}
+        <h3 class="titulo-servico">{{ m[1] }}</h3>
+        <p><strong>📅 Data:</strong> {{ m[2].strftime('%d/%m/%Y %H:%M') }}</p>
+        <p>
+          <strong>📌 Estado:</strong>
+          {% if m[3] == "Aprovado" %}
+            <span class="estado aprovado">Aprovado</span>
+          {% elif m[3] == "Rejeitado" %}
+            <span class="estado rejeitado">Rejeitado</span>
+          {% else %}
+            <span class="estado pendente">Pendente</span>
+          {% endif %}
+        </p>
+        {% if m[4] %}<p><strong>📝 Obs:</strong> {{ m[4] }}</p>{% endif %}
       </div>
     </div>
     {% endfor %}
   </div>
   {% else %}
-  <p>Não há marcações registadas ainda.</p>
+  <p class="no-results">Ainda não existem marcações registadas.</p>
   {% endif %}
 </section>
+
+<style>
+/* 🔹 Hero Section */
+.soft-gradient {
+  background: linear-gradient(135deg, #ffeaf4, #ffd8eb);
+  padding: 3rem 1rem 2rem;
+}
+
+/* 🔹 Alertas */
+.flash-messages {
+  margin-block-end: 1.5rem;
+}
+.alert {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 500;
+  text-align: center;
+  margin-block-end: 15px;
+  border: 1px solid transparent;
+}
+.alert-success {
+  background-color: #dcfce7;
+  color: #065f46;
+  border-color: #86efac;
+}
+.alert-error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+/* 🔹 Cards */
+.marcacao-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-block-end: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  border: 1px solid #fbcfe8;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.marcacao-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+.titulo-servico {
+  color: #a6487a;
+  font-size: 1.2rem;
+  margin-block-end: 8px;
+}
+
+/* 🔹 Estados */
+.estado {
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+.estado.aprovado {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+.estado.rejeitado {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+.estado.pendente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* 🔹 Outros */
+.no-results {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 2rem 0;
+}
+</style>
 {% endblock %}
