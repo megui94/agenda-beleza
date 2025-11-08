@@ -2,14 +2,13 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>📧 Confirme o seu e-mail • Agenda Beleza</title>
+  <title>🔁 Reenvio de Confirmação • Agenda Beleza</title>
   <style>
     body {
       background-color: #fff9fb;
       font-family: 'Poppins', Arial, sans-serif;
       text-align: center;
       padding: 40px 0;
-      margin: 0;
     }
     .container {
       max-inline-size: 600px;
@@ -31,7 +30,7 @@
     }
     .button {
       background-color: #ff9ac8;
-      color: white !important;
+      color: white;
       padding: 14px 26px;
       border-radius: 40px;
       font-weight: 600;
@@ -41,43 +40,42 @@
       transition: background-color 0.3s ease;
     }
     .button:hover {
-      background-color: #ff7ab6;
+      background-color: #ff7ab8;
+    }
+    .footer {
+      font-size: 13px;
+      color: #999;
+      margin-block-start: 30px;
     }
     hr {
       margin: 35px 0;
       border: none;
       border-block-start: 1px solid #ffe3ef;
     }
-    .footer {
-      font-size: 13px;
-      color: #999;
-    }
-    .footer a {
-      color: #a6487a;
-      text-decoration: none;
-    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🌸 Bem-vinda à Agenda Beleza!</h1>
-
-    <p>Olá, <b>{{ nome }}</b>!<br>
-      Obrigada por se registar na <b>Agenda Beleza</b>.<br>
-      Para ativar a sua conta, confirme o seu endereço de e-mail clicando no botão abaixo:
+    <h1>🔁 Reenvio de Confirmação</h1>
+    <p>Olá, <b>{{ nome }}</b>! 👋</p>
+    <p>
+      Verificámos que ainda não confirmou a sua conta na <b>Agenda Beleza</b>.<br>
+      Clique no botão abaixo para confirmar o seu endereço de e-mail e ativar a sua conta.
     </p>
 
     <a href="{{ confirm_url }}" class="button">Confirmar E-mail</a>
 
-    <p style="color:#666;font-size:14px;">
+    <p style="color:#666; font-size:14px;">
       Este link é válido por <b>30 minutos</b>.<br>
-      Se não criou esta conta, ignore este e-mail.
+      Se não criou esta conta, pode ignorar este e-mail.
     </p>
 
     <hr>
     <p class="footer">
       💕 Agenda Beleza · Olhão, Portugal<br>
-      <a href="mailto:agenda.beleza.contato@gmail.com">agenda.beleza.contato@gmail.com</a>
+      <a href="mailto:agenda.beleza.contato@gmail.com" style="color:#a6487a;text-decoration:none;">
+        agenda.beleza.contato@gmail.com
+      </a>
     </p>
   </div>
 </body>

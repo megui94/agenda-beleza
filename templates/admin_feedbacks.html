@@ -10,7 +10,7 @@
 </section>
 
 <section class="section container">
-  <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+  <table style="inline-size:100%;border-collapse:collapse;margin-block-start:20px;">
     <thead>
       <tr style="background:#f7b6c2;color:#fff;">
         <th style="padding:10px;">ID</th>
@@ -23,7 +23,7 @@
     </thead>
     <tbody>
       {% for f in feedbacks %}
-      <tr style="border-bottom:1px solid #eee;text-align:center;">
+      <tr style="border-block-end:1px solid #eee;text-align:center;">
         <td>{{ f[0] }}</td>
         <td>{{ f[1] }}</td>
         <td>⭐ {{ f[2] }}/5</td>

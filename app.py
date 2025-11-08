@@ -217,114 +217,72 @@ def registar():
         password = request.form.get("password") or ""
         confirm = request.form.get("confirm_password") or ""
 
+        # 🔒 Validações
         if password != confirm:
-            flash("As senhas não coincidem.", "error"); return redirect(url_for("registar"))
-        if not re.match(r"^(?=.*[A-Z])(?=.*\d).{8,}$", password):
-            flash("A senha deve ter 8+ caracteres, 1 maiúscula e 1 número.", "error"); return redirect(url_for("registar"))
+            flash("As senhas não coincidem.", "error")
+            return redirect(url_for("registar"))
 
+        if not re.match(r"^(?=.*[A-Z])(?=.*\d).{8,}$", password):
+            flash("A senha deve ter pelo menos 8 caracteres, incluindo uma maiúscula e um número.", "error")
+            return redirect(url_for("registar"))
+
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.execute("SELECT * FROM Utilizador WHERE Email = %s", (email,))
+        existing = cur.fetchone()
+
+        # 🔁 Se já existe e ainda não confirmou o e-mail
+        if existing:
+            if not existing.get("EmailVerificado"):
+                token = serializer.dumps(email, salt="email-confirm")
+                link = url_for("confirmar_email", token=token, _external=True)
+
+                # ✉️ Reenvio do e-mail de confirmação (usando template HTML)
+                html_cliente = render_template(
+                    "emails/clientes/reenviar_confirmacao.html",
+                    nome=existing["Nome"],
+                    confirm_url=link
+                )
+
+                send_email("🔁 Confirmação pendente • Agenda Beleza", [email], html_cliente)
+                flash("Já existe uma conta com este e-mail, mas ainda não foi verificada. Enviámos novamente o e-mail de confirmação.", "info")
+                conn.close()
+                return redirect(url_for("login"))
+            else:
+                flash("Já existe uma conta registada com este e-mail.", "error")
+                conn.close()
+                return redirect(url_for("login"))
+
+        # ✅ Cria nova conta
         hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
 
         try:
-            conn = get_db_connection(); cur = conn.cursor()
             cur.execute(
-                "INSERT INTO Utilizador (Nome, Email, Telefone, Password) VALUES (%s,%s,%s,%s)",
+                "INSERT INTO Utilizador (Nome, Email, Telefone, Password) VALUES (%s, %s, %s, %s)",
                 (nome, email, telefone, hashed_pw)
             )
             conn.commit()
 
-            # 🔹 GERAR LINK DE CONFIRMAÇÃO
+            # 🔹 Gera link de confirmação (válido por 30 min)
             token = serializer.dumps(email, salt="email-confirm")
             link = url_for("confirmar_email", token=token, _external=True)
 
-            # ========================
-            # ✉️ E-MAIL PARA O CLIENTE
-            # ========================
-            html_cliente = f"""
-            <div style="background-color:#fff9fb;font-family:'Poppins',Arial,sans-serif;padding:40px 0;text-align:center;">
-              <div style="max-width:600px;margin:0 auto;background:white;border-radius:20px;padding:40px;box-shadow:0 8px 25px rgba(246,182,194,0.3);">
-                <h1 style="color:#a6487a;font-size:28px;margin-bottom:10px;">🌸 Bem-vinda à Agenda Beleza!</h1>
-                <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:25px;">
-                  Olá, <b>{nome}</b>!<br>
-                  Obrigada por se registar na <b>Agenda Beleza</b>.<br>
-                  Para ativar a sua conta, confirme o seu endereço de e-mail clicando no botão abaixo:
-                </p>
-
-                <a href="{link}" style="
-                  background-color:#ff9ac8;
-                  color:white;
-                  padding:14px 26px;
-                  border-radius:40px;
-                  font-weight:600;
-                  text-decoration:none;
-                  display:inline-block;
-                  margin-bottom:30px;
-                  transition:background-color 0.3s ease;">
-                  Confirmar E-mail
-                </a>
-
-                <p style="color:#666;font-size:14px;margin-top:10px;">
-                  Este link é válido por <b>30 minutos</b>.<br>
-                  Se não criou esta conta, ignore este e-mail.
-                </p>
-
-                <hr style="margin:35px 0;border:none;border-top:1px solid #ffe3ef;">
-
-                <p style="font-size:13px;color:#999;">
-                  💕 Agenda Beleza · Olhão, Portugal<br>
-                  <a href="mailto:agenda.beleza.contato@gmail.com" style="color:#a6487a;text-decoration:none;">agenda.beleza.contato@gmail.com</a>
-                </p>
-              </div>
-            </div>
-            """
+            # ✉️ E-mail para o cliente (confirmação de conta)
+            html_cliente = render_template(
+                "emails/clientes/confirmacao_email.html",
+                nome=nome,
+                confirm_url=link
+            )
             send_email("📧 Confirme o seu e-mail • Agenda Beleza", [email], html_cliente)
 
-            # ========================
-            # 💌 E-MAIL PARA O ADMIN
-            # ========================
-            html_admin = f"""
-            <div style="background-color:#fff9fb;font-family:'Poppins',Arial,sans-serif;padding:40px 0;text-align:center;">
-              <div style="max-width:600px;margin:0 auto;background:white;border-radius:20px;padding:40px;box-shadow:0 8px 25px rgba(246,182,194,0.3);">
-                <h1 style="color:#a6487a;font-size:26px;margin-bottom:10px;">
-                  👤 Nova Utilizadora Registada
-                </h1>
-
-                <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:25px;">
-                  Uma nova cliente acabou de criar uma conta na <b>Agenda Beleza</b>.<br>
-                  Aqui estão os detalhes do registo:
-                </p>
-
-                <div style="text-align:left;background:#fff4f8;border-radius:14px;padding:18px 24px;margin:0 auto;max-width:420px;border:1px solid #ffd6e5;">
-                  <p style="margin:8px 0;font-size:15px;color:#333;"><b>👩 Nome:</b> {nome}</p>
-                  <p style="margin:8px 0;font-size:15px;color:#333;"><b>📧 E-mail:</b> {email}</p>
-                  <p style="margin:8px 0;font-size:15px;color:#333;"><b>📞 Telefone:</b> {telefone or 'Não informado'}</p>
-                  <p style="margin:8px 0;font-size:15px;color:#333;"><b>📅 Data de Registo:</b> {datetime.now().strftime("%d/%m/%Y %H:%M")}</p>
-                </div>
-
-                <a href="https://agenda-beleza.onrender.com/admin_marcacoes" style="
-                  background-color:#ff9ac8;
-                  color:white;
-                  padding:12px 24px;
-                  border-radius:40px;
-                  font-weight:600;
-                  text-decoration:none;
-                  display:inline-block;
-                  margin:32px 0;
-                  transition:background-color 0.3s ease;">
-                  Abrir Painel Administrativo
-                </a>
-
-                <p style="color:#666;font-size:14px;">
-                  Este é um alerta automático. Não é necessário responder.
-                </p>
-
-                <hr style="margin:35px 0;border:none;border-top:1px solid #ffe3ef;">
-                <p style="font-size:13px;color:#999;">
-                  💕 Agenda Beleza · Olhão, Portugal<br>
-                  <a href="mailto:agenda.beleza.contato@gmail.com" style="color:#a6487a;text-decoration:none;">agenda.beleza.contato@gmail.com</a>
-                </p>
-              </div>
-            </div>
-            """
+            # 💌 E-mail para o admin (notificação de novo registo)
+            html_admin = render_template(
+                "emails/admin/novo_registo_admin.html",
+                nome=nome,
+                email=email,
+                telefone=telefone,
+                data=datetime.now().strftime("%d/%m/%Y %H:%M")
+            )
             send_email("👤 Nova cliente registada • Agenda Beleza", ["agenda.beleza.contato@gmail.com"], html_admin)
 
             flash("Conta criada com sucesso! Verifique o seu e-mail para confirmar.", "success")
@@ -338,11 +296,10 @@ def registar():
 
     return render_template("registar.html")
 
-
 @app.route("/confirmar_email/<token>")
 def confirmar_email(token):
     try:
-        email = serializer.loads(token, salt="email-confirm", max_age=1800)
+        email = serializer.loads(token, salt="email-confirm", max_age=1800) #30 min
     except SignatureExpired:
         flash("O link de confirmação expirou. Faça login e solicite novo envio.", "error")
         return redirect(url_for("login"))
@@ -444,7 +401,7 @@ def marcacoes():
 
             # Email para o cliente
             html_cliente = render_template(
-                "emails/clientes/confirmacao_email.html",
+                "emails/clientes/marcacao_email.html",
                 nome=session.get("nome", "Cliente"),
                 datahora=datahora_obj.strftime("%d/%m/%Y %H:%M"),
                 servico=servico_nome
