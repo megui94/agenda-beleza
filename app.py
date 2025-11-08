@@ -53,33 +53,41 @@ def _send_async(app, msg):
         except Exception as e:
             app.logger.error(f"[MAIL] falhou: {type(e).__name__}: {e}")
 
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
+
 def send_email(subject, recipients, html_body, reply_to=None):
-    """Função genérica segura para envio de e-mails em HTML."""
-    sender_email = (
-        app.config.get("MAIL_DEFAULT_SENDER")
-        or app.config.get("MAIL_USERNAME")
-    )
-    if not sender_email:
-        app.logger.error("[MAIL] Remetente não definido (MAIL_DEFAULT_SENDER/MAIL_USERNAME).")
+    """Envia e-mails via API do Brevo (sem SMTP)"""
+    api_key = os.getenv("BREVO_API_KEY")
+    sender_email = os.getenv("MAIL_DEFAULT_SENDER", "agenda.beleza.contato@gmail.com")
+
+    if not api_key:
+        app.logger.error("[BREVO] Falha: BREVO_API_KEY não configurada.")
         return
 
+    # Inicializar configuração da API
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = api_key
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+
+    # Preparar mensagem
+    sender = {"name": "Agenda de Beleza 💅", "email": sender_email}
+    to_list = [{"email": r} for r in recipients]
+
+    email_data = sib_api_v3_sdk.SendSmtpEmail(
+        to=to_list,
+        sender=sender,
+        subject=subject,
+        html_content=html_body,
+        reply_to={"email": reply_to} if reply_to else None,
+    )
+
     try:
-        msg = Message(
-            subject=subject,
-            recipients=recipients,
-            sender=("Agenda de Beleza 💅", sender_email)
-        )
-        msg.html = html_body  # 👈 garante que o Gmail lê como HTML completo
-        msg.body = "Versão simplificada da mensagem. Por favor, ative a visualização em HTML."  # fallback
+        response = api_instance.send_transac_email(email_data)
+        app.logger.info(f"[BREVO] E-mail enviado com sucesso → {recipients}")
+    except ApiException as e:
+        app.logger.error(f"[BREVO] Erro ao enviar e-mail: {e}")
 
-        if reply_to:
-            msg.reply_to = reply_to
-
-        Thread(target=_send_async, args=(app, msg), daemon=True).start()
-        app.logger.info(f"[MAIL] E-mail HTML enviado com sucesso para {recipients}")
-
-    except Exception as e:
-        app.logger.error(f"[MAIL] Falha ao enviar e-mail: {e}")
 
 # ==========================================
 # 💾 MySQL (Render / Aiven)
