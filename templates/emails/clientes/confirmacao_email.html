@@ -1,10 +1,99 @@
-{% extends "emails/base_email.html" %}
-{% block conteudo %}
-<p>Olá <strong>{{ nome }}</strong>,</p>
-<p>Verificámos que ainda não confirmou o seu e-mail na <strong>Agenda Beleza</strong>.</p>
-<p>Clique abaixo para confirmar a sua conta:</p>
-<p style="text-align:center;">
-  <a href="{{ link }}" class="cta">Confirmar E-mail</a>
-</p>
-<p>Este link é válido por <strong>30 minutos</strong>.<br>Se não criou esta conta, ignore este e-mail.</p>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirme o seu e-mail • Agenda Beleza</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-inline-size: 600px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .header {
+      background: linear-gradient(90deg, #f48fb1, #ec407a);
+      color: #fff;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    .content {
+      padding: 35px 40px;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .cta {
+      display: inline-block;
+      background: #ec407a;
+      color: #fff !important;
+      text-decoration: none;
+      padding: 12px 26px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-block: 20px;
+      transition: background .2s ease;
+    }
+
+    .cta:hover {
+      background: #d81b60;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #777;
+      padding: 20px;
+      border-block-start: 1px solid #eee;
+    }
+
+    @media (max-inline-size: 600px) {
+      .content { padding: 25px 20px; }
+      .cta { inline-size: 100%; display: block; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>Agenda Beleza 💅</h1></div>
+
+    <div class="content">
+      <p>Olá <strong>{{ nome }}</strong>,</p>
+
+      <p>
+        Verificámos que ainda não confirmou o seu e-mail na <strong>Agenda Beleza</strong>.<br>
+        Clique abaixo para confirmar a sua conta:
+      </p>
+
+      <p style="text-align:center;">
+        <a href="{{ confirm_url }}" class="cta" target="_blank">Confirmar E-mail</a>
+      </p>
+
+      <p>
+        Este link é válido por <strong>30 minutos</strong>.<br>
+        Se não criou esta conta, ignore este e-mail.
+      </p>
+    </div>
+
+    <div class="footer">
+      © {{ current_year }} Agenda Beleza — Cuidar de si é essencial 💅
+    </div>
+  </div>
+</body>
+</html>

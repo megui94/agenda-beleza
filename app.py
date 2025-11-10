@@ -23,6 +23,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "segredo-super-seguro")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
+
+# 🔹 Configura domínio base para gerar URLs externas corretamente
+app.config["PREFERRED_URL_SCHEME"] = "https"
+app.config["SERVER_NAME"] = "agenda-beleza-ipca.onrender.com"
 # =========================
 # 🔍 Verificação do Brevo API
 # =========================
@@ -235,7 +239,7 @@ def registar():
         if existing:
             if not existing.get("EmailVerificado"):
                 token = serializer.dumps(email, salt="email-confirm")
-                link = url_for("confirmar_email", token=token, _external=True)
+                link = url_for("confirmar_email", token=token, _external=True, _scheme="https")
 
                 # ✉️ Reenvio do e-mail de confirmação (usando template HTML)
                 html_cliente = render_template(
@@ -265,7 +269,7 @@ def registar():
 
             # 🔹 Gera link de confirmação (válido por 30 min)
             token = serializer.dumps(email, salt="email-confirm")
-            link = url_for("confirmar_email", token=token, _external=True)
+            link = url_for("confirmar_email", token=token, _external=True, _scheme="https")
 
             # ✉️ E-mail para o cliente (confirmação de conta)
             html_cliente = render_template(
@@ -387,7 +391,9 @@ def marcacoes():
             return redirect(url_for("marcacoes"))
 
         try:
+            # ✅ Corrigido: formato com o “T” do datetime-local
             datahora_obj = datetime.strptime(datahora, "%Y-%m-%dT%H:%M")
+
             conn = get_db_connection(); cur = conn.cursor()
             cur.execute("""
                 INSERT INTO Marcacoes (Cliente_id, Servico_id, DataHora, Estado, Observacoes)
@@ -420,18 +426,24 @@ def marcacoes():
             send_email("📢 Nova marcação pendente", [admin_email], html_admin, reply_to=session["email"])
 
             conn.close()
+
             if "marcacao_sucesso" not in session:
                 flash("Marcação enviada com sucesso!", "success")
                 session["marcacao_sucesso"] = True
+
+        except ValueError:
+            flash("Formato de data e hora inválido. Por favor, escolha novamente.", "error")
         except Exception as e:
             app.logger.error(f"Erro ao criar marcação: {e}")
             flash("Ocorreu um erro ao criar a marcação.", "error")
+
         return redirect(url_for("minhas_marcacoes"))
 
     conn = get_db_connection(); cur = conn.cursor()
     cur.execute("SELECT Id, Nome FROM Servicos")
     servicos = cur.fetchall(); conn.close()
     return render_template("marcacoes.html", servicos=servicos)
+
 
 @app.route("/minhas_marcacoes")
 def minhas_marcacoes():

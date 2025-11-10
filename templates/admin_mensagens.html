@@ -149,7 +149,7 @@
   padding: 1rem;
 }
 .admin-table {
-  width: 100%;
+  inline-size: 100%;
   border-collapse: separate;
   border-spacing: 0 10px;
 }
@@ -164,7 +164,7 @@
 .admin-table td {
   padding: 14px 16px;
   background: #fff;
-  border-bottom: 1px solid #f2f2f2;
+  border-block-end: 1px solid #f2f2f2;
   font-size: 0.95rem;
 }
 .admin-table tr:hover td {
@@ -172,7 +172,7 @@
 }
 .center { text-align: center; }
 .mensagem {
-  max-width: 350px;
+  max-inline-size: 350px;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -216,18 +216,18 @@
   background: #fff;
   border-radius: 18px;
   padding: 2rem;
-  max-width: 400px;
-  width: 90%;
+  max-inline-size: 400px;
+  inline-size: 90%;
   text-align: center;
   box-shadow: 0 10px 30px rgba(255, 182, 206, 0.3);
   animation: popIn 0.25s ease;
 }
-.modal-content h3 { color: #a6487a; margin-bottom: 1rem; }
+.modal-content h3 { color: #a6487a; margin-block-end: 1rem; }
 .modal-actions {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-block-start: 1.5rem;
 }
 .btn-confirm {
   background: linear-gradient(90deg, #ec4899, #f472b6);

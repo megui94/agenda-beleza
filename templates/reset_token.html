@@ -9,7 +9,7 @@
   </div>
 </section>
 
-<section class="section container" style="max-width:520px;">
+<section class="section container" style="max-inline-size:520px;">
   <form class="form card form-book" method="POST" action="{{ url_for('reset_token', token=token) }}">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -44,15 +44,15 @@
 </section>
 
 <style>
-.alert{padding:12px 15px;border-radius:8px;margin-bottom:15px;font-size:.95rem;text-align:center;font-weight:500;}
+.alert{padding:12px 15px;border-radius:8px;margin-block-end:15px;font-size:.95rem;text-align:center;font-weight:500;}
 .alert-error{background:#ffe0e0;color:#c00000;border:1px solid #ffb3b3;}
 .alert-success{background:#e0ffe4;color:#0a7a23;border:1px solid #b3ffca;}
-.password-hint{display:block;margin-top:5px;font-size:.85rem;color:#777;}
+.password-hint{display:block;margin-block-start:5px;font-size:.85rem;color:#777;}
 .password-hint.invalid{color:#d11;}
 .password-hint.valid{color:#090;}
-.password-strength-bar{width:100%;height:6px;background:#eee;border-radius:4px;margin-top:5px;overflow:hidden;}
-.password-strength-bar div{height:100%;width:0;border-radius:4px;transition:width .3s ease,background-color .3s ease;}
-.show-password{position:absolute;right:10px;top:35px;background:none;border:none;cursor:pointer;font-size:1.2rem;}
+.password-strength-bar{inline-size:100%;block-size:6px;background:#eee;border-radius:4px;margin-block-start:5px;overflow:hidden;}
+.password-strength-bar div{block-size:100%;inline-size:0;border-radius:4px;transition:width .3s ease,background-color .3s ease;}
+.show-password{position:absolute;inset-inline-end:10px;inset-block-start:35px;background:none;border:none;cursor:pointer;font-size:1.2rem;}
 .show-password:hover{opacity:.7;}
 </style>
 

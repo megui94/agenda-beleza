@@ -9,7 +9,7 @@
   </div>
 </section>
 
-<section class="section container" style="max-width: 520px;">
+<section class="section container" style="max-inline-size: 520px;">
   <form class="form card form-register" method="POST" action="{{ url_for('registar') }}" onsubmit="return validarSenha(event)">
     
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -75,11 +75,11 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
-.w-full { width: 100%; }
+.w-full { inline-size: 100%; }
 
 .register-prompt {
   text-align: center;
-  margin-top: 1.5rem;
+  margin-block-start: 1.5rem;
   color: #555;
 }
 .register-prompt a {
@@ -94,12 +94,12 @@
   align-items: center;
 }
 .input-with-icon input {
-  width: 100%;
-  padding-right: 2.5rem;
+  inline-size: 100%;
+  padding-inline-end: 2.5rem;
 }
 .toggle-password {
   position: absolute;
-  right: 0.75rem;
+  inset-inline-end: 0.75rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -111,23 +111,23 @@
 
 /* --- Força da senha --- */
 .password-strength-bar {
-  width: 100%;
-  height: 6px;
+  inline-size: 100%;
+  block-size: 6px;
   background: #eee;
   border-radius: 4px;
-  margin-top: 6px;
+  margin-block-start: 6px;
   overflow: hidden;
 }
 .password-strength-bar div {
-  height: 100%;
-  width: 0;
+  block-size: 100%;
+  inline-size: 0;
   border-radius: 4px;
   transition: width .3s ease, background-color .3s ease;
 }
 
 .password-hint {
   display: block;
-  margin-top: 5px;
+  margin-block-start: 5px;
   font-size: .85rem;
   color: #777;
   transition: color .3s ease;
@@ -139,7 +139,7 @@
 .alert {
   padding: 12px 15px;
   border-radius: 8px;
-  margin-bottom: 15px;
+  margin-block-end: 15px;
   font-size: .95rem;
   text-align: center;
   font-weight: 500;

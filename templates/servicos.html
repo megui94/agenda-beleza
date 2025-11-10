@@ -10,7 +10,7 @@
 </section>
 
 <section class="section container">
-  <form method="GET" action="{{ url_for('servicos') }}" class="search-box" style="margin-bottom: 30px;">
+  <form method="GET" action="{{ url_for('servicos') }}" class="search-box" style="margin-block-end: 30px;">
     <input type="text" name="q" placeholder="Pesquisar serviços..." value="{{ request.args.get('q', '') }}">
   </form>
 
