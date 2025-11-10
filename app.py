@@ -391,21 +391,25 @@ def marcacoes():
             return redirect(url_for("marcacoes"))
 
         try:
-            # ✅ Corrigido: formato com o “T” do datetime-local
-            datahora_obj = datetime.strptime(datahora, "%Y-%m-%dT%H:%M")
+            # ✅ Aceita ambos formatos: com ou sem segundos
+            try:
+                datahora_obj = datetime.strptime(datahora, "%Y-%m-%dT%H:%M")
+            except ValueError:
+                datahora_obj = datetime.strptime(datahora, "%Y-%m-%dT%H:%M:%S")
 
-            conn = get_db_connection(); cur = conn.cursor()
+            conn = get_db_connection()
+            cur = conn.cursor()
             cur.execute("""
                 INSERT INTO Marcacoes (Cliente_id, Servico_id, DataHora, Estado, Observacoes)
                 VALUES (%s,%s,%s,'Pendente',%s)
             """, (session["user_id"], servico_id, datahora_obj, observacoes))
             conn.commit()
 
-            # Nome do serviço
+            # 🔹 Nome do serviço
             cur.execute("SELECT Nome FROM Servicos WHERE Id=%s", (servico_id,))
             servico_nome = (cur.fetchone() or ["—"])[0]
 
-            # Email para o cliente
+            # 💌 Email para o cliente
             html_cliente = render_template(
                 "emails/clientes/marcacao_email.html",
                 nome=session.get("nome", "Cliente"),
@@ -414,7 +418,7 @@ def marcacoes():
             )
             send_email("🗓️ Marcação registada com sucesso", [session["email"]], html_cliente)
 
-            # Email para admin
+            # 💼 Email para o admin
             html_admin = render_template(
                 "emails/admin/nova_marcacao_admin.html",
                 nome_cliente=session.get("nome", "Cliente"),
@@ -439,9 +443,12 @@ def marcacoes():
 
         return redirect(url_for("minhas_marcacoes"))
 
-    conn = get_db_connection(); cur = conn.cursor()
+    conn = get_db_connection()
+    cur = conn.cursor()
     cur.execute("SELECT Id, Nome FROM Servicos")
-    servicos = cur.fetchall(); conn.close()
+    servicos = cur.fetchall()
+    conn.close()
+
     return render_template("marcacoes.html", servicos=servicos)
 
 
