@@ -375,6 +375,10 @@ def agendar_redirect():
         return redirect(url_for("login"))
     return redirect(url_for("marcacoes"))
 
+from datetime import datetime
+import os
+from flask import render_template, request, redirect, url_for, flash, session
+
 @app.route("/marcacoes", methods=["GET", "POST"])
 def marcacoes():
     if request.method == "POST":
@@ -391,25 +395,41 @@ def marcacoes():
             return redirect(url_for("marcacoes"))
 
         try:
-            # ✅ Aceita ambos formatos: com ou sem segundos
-            try:
-                datahora_obj = datetime.strptime(datahora, "%Y-%m-%dT%H:%M")
-            except ValueError:
-                datahora_obj = datetime.strptime(datahora, "%Y-%m-%dT%H:%M:%S")
+            # ✅ Aceita todos os formatos possíveis do input datetime-local
+            formatos = [
+                "%Y-%m-%dT%H:%M",
+                "%Y-%m-%d %H:%M",
+                "%Y-%m-%dT%H:%M:%S",
+                "%Y-%m-%d %H:%M:%S",
+                "%Y-%m-%dT%H:%M:%S.%f",
+                "%Y-%m-%d %H:%M:%S.%f"
+            ]
 
+            datahora_obj = None
+            for fmt in formatos:
+                try:
+                    datahora_obj = datetime.strptime(datahora.strip(), fmt)
+                    break
+                except ValueError:
+                    continue
+
+            if not datahora_obj:
+                raise ValueError("Formato inválido")
+
+            # ✅ Inserir marcação na BD
             conn = get_db_connection()
             cur = conn.cursor()
             cur.execute("""
                 INSERT INTO Marcacoes (Cliente_id, Servico_id, DataHora, Estado, Observacoes)
-                VALUES (%s,%s,%s,'Pendente',%s)
+                VALUES (%s, %s, %s, 'Pendente', %s)
             """, (session["user_id"], servico_id, datahora_obj, observacoes))
             conn.commit()
 
-            # 🔹 Nome do serviço
+            # 🔹 Buscar nome do serviço
             cur.execute("SELECT Nome FROM Servicos WHERE Id=%s", (servico_id,))
             servico_nome = (cur.fetchone() or ["—"])[0]
 
-            # 💌 Email para o cliente
+            # 💌 Enviar e-mail ao cliente
             html_cliente = render_template(
                 "emails/clientes/marcacao_email.html",
                 nome=session.get("nome", "Cliente"),
@@ -418,7 +438,7 @@ def marcacoes():
             )
             send_email("🗓️ Marcação registada com sucesso", [session["email"]], html_cliente)
 
-            # 💼 Email para o admin
+            # 💼 Enviar e-mail ao admin
             html_admin = render_template(
                 "emails/admin/nova_marcacao_admin.html",
                 nome_cliente=session.get("nome", "Cliente"),
@@ -431,18 +451,18 @@ def marcacoes():
 
             conn.close()
 
-            if "marcacao_sucesso" not in session:
-                flash("Marcação enviada com sucesso!", "success")
-                session["marcacao_sucesso"] = True
+            flash("Marcação enviada com sucesso!", "success")
 
         except ValueError:
             flash("Formato de data e hora inválido. Por favor, escolha novamente.", "error")
+
         except Exception as e:
             app.logger.error(f"Erro ao criar marcação: {e}")
             flash("Ocorreu um erro ao criar a marcação.", "error")
 
         return redirect(url_for("minhas_marcacoes"))
 
+    # 🗂️ Mostrar os serviços disponíveis
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT Id, Nome FROM Servicos")
