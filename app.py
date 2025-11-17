@@ -23,7 +23,6 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "segredo-super-seguro")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
-
 # 🔹 Configura domínio base para gerar URLs externas corretamente
 app.config["PREFERRED_URL_SCHEME"] = "https"
 app.config["SERVER_NAME"] = "agenda-beleza-ipca.onrender.com"
@@ -37,7 +36,6 @@ if not os.getenv("BREVO_API_KEY"):
     exit(1)
 else:
     print("✅ BREVO_API_KEY encontrado — envio de e-mails via Brevo ativado.")
-
 
 # Logging (ficheiro)
 os.makedirs("logs", exist_ok=True)
@@ -104,10 +102,6 @@ def send_email(subject, recipients, html_body, reply_to=None):
         app.logger.info(f"[BREVO] E-mail enviado com sucesso → {recipients}")
     except ApiException as e:
         app.logger.error(f"[BREVO] Erro ao enviar e-mail: {e}")
-
-@app.context_processor
-def inject_year():
-    return {"current_year": datetime.now().year}
 
 # ==========================================
 # 💾 MySQL (Render / Aiven)
