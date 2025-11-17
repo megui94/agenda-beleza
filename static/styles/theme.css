@@ -547,3 +547,80 @@ body{
   display: block;
 }
 
+/* ----------------------------------------------------------
+   🔔 ALERTAS GLOBAIS – Agenda Beleza
+----------------------------------------------------------- */
+
+.flash-wrapper {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.alert {
+    padding: 14px 18px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    animation: fadeSlideIn 0.45s ease-out forwards;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid transparent;
+}
+
+.alert-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+/* Sucesso */
+.alert-success {
+    background-color: #d1fae5;
+    border-color: #10b981;
+    color: #065f46;
+}
+.alert-success .alert-icon::before {
+    content: "✔";
+}
+
+/* Erro */
+.alert-error {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+.alert-error .alert-icon::before {
+    content: "✖";
+}
+
+/* Aviso */
+.alert-warning {
+    background-color: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
+}
+.alert-warning .alert-icon::before {
+    content: "⚠";
+}
+
+/* Informação */
+.alert-info {
+    background-color: #dbeafe;
+    border-color: #3b82f6;
+    color: #1e3a8a;
+}
+.alert-info .alert-icon::before {
+    content: "ℹ";
+}
+
+/* Animação */
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

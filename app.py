@@ -105,6 +105,9 @@ def send_email(subject, recipients, html_body, reply_to=None):
     except ApiException as e:
         app.logger.error(f"[BREVO] Erro ao enviar e-mail: {e}")
 
+@app.context_processor
+def inject_year():
+    return {"current_year": datetime.now().year}
 
 # ==========================================
 # 💾 MySQL (Render / Aiven)
