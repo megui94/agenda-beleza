@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+
+{% block conteudo %}
+  <p>Olá 👋</p>
+
+  <p>Recebeu um <strong>novo feedback</strong> na Agenda Beleza.</p>
+
+  <div style="border-radius: 12px; padding: 12px 16px; background: #ffe9f3; margin: 12px 0;">
+    <p><strong>Cliente:</strong> {{ nome }}</p>
+    {% if email_cliente %}
+      <p><strong>E-mail:</strong> {{ email_cliente }}</p>
+    {% endif %}
+    <p><strong>Classificação:</strong> {{ classificacao }}/5 ⭐</p>
+    <p><strong>Comentário:</strong></p>
+    <p>{{ comentario }}</p>
+    <p><strong>Data de envio:</strong> {{ data_envio.strftime("%d/%m/%Y %H:%M") }}</p>
+  </div>
+
+  <p>Pode gerir este feedback (aprovar/rejeitar) na área de administração:</p>
+
+  <p style="text-align:center;">
+    <a href="{{ url_for('admin_feedbacks', _external=True) }}" class="cta">
+      Abrir painel de feedbacks
+    </a>
+  </p>
+
+  <p>— Sistema Agenda Beleza</p>
+{% endblock %}

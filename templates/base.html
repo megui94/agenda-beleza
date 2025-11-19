@@ -99,22 +99,58 @@
             <span class="user-greet">Olá, {{ session['nome'].split(' ')[0] }} 👋</span>
           </button>
 
-          <div id="userDropdown" class="user-dropdown">
+<div id="userDropdown" class="user-dropdown">
 
-            {% if is_admin %}
-              <div class="header">Administração</div>
-              <a href="{{ url_for('admin_marcacoes') }}">⚙️ Painel Administrativo</a>
-              <a href="{{ url_for('admin_mensagens') }}">📨 Mensagens Recebidas</a>
-            {% else %}
-              <a href="{{ url_for('marcacoes') }}">🗓️ Agendar</a>
-              <a href="{{ url_for('minhas_marcacoes') }}">📋 Minhas Marcações</a>
-              <a href="{{ url_for('feedback') }}">💬 Dar Feedback</a>
-            {% endif %}
+  {% if is_admin %}
+    <!-- MENU DO ADMIN -->
+    <div class="dropdown-section">
+      <p class="dropdown-section-title">Administração</p>
 
-            <a href="{{ url_for('logout') }}" class="logout">🚪 Sair</a>
-          </div>
-        </div>
+      <a class="dropdown-link" href="{{ url_for('admin_marcacoes') }}">
+        <span class="dropdown-icon">🗓️</span>
+        <span class="dropdown-text">Gerir Marcações</span>
+      </a>
 
+      <a class="dropdown-link" href="{{ url_for('admin_mensagens') }}">
+        <span class="dropdown-icon">📨</span>
+        <span class="dropdown-text">Mensagens Recebidas</span>
+      </a>
+
+      <a class="dropdown-link" href="{{ url_for('admin_feedbacks') }}">
+        <span class="dropdown-icon">💬</span>
+        <span class="dropdown-text">Gerir Feedbacks</span>
+      </a>
+    </div>
+
+  {% else %}
+    <!-- MENU DO UTILIZADOR NORMAL -->
+    <div class="dropdown-section">
+      <p class="dropdown-section-title">Área Pessoal</p>
+
+      <a class="dropdown-link" href="{{ url_for('marcacoes') }}">
+        <span class="dropdown-icon">📅</span>
+        <span class="dropdown-text">Agendar Serviço</span>
+      </a>
+
+      <a class="dropdown-link" href="{{ url_for('minhas_marcacoes') }}">
+        <span class="dropdown-icon">🧾</span>
+        <span class="dropdown-text">Minhas Marcações</span>
+      </a>
+
+      <a class="dropdown-link" href="{{ url_for('feedback') }}">
+        <span class="dropdown-icon">💖</span>
+        <span class="dropdown-text">Feedbacks</span>
+      </a>
+    </div>
+  {% endif %}
+
+  <div class="dropdown-footer">
+    <a class="dropdown-link dropdown-logout" href="{{ url_for('logout') }}">
+      <span class="dropdown-icon">🚪</span>
+      <span class="dropdown-text">Sair</span>
+    </a>
+  </div>
+</div>
         {% else %}
           <a href="{{ url_for('login') }}" class="btn btn-outline">Entrar</a>
           <a href="{{ url_for('registar') }}" class="btn btn-primary">Registar</a>

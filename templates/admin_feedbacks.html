@@ -1,44 +1,36 @@
 {% extends "base.html" %}
-{% block title %}Feedbacks • Administração{% endblock %}
+{% block title %}Gerir Feedbacks{% endblock %}
+
 {% block content %}
+<div class="container-feedbacks">
+  <h2 class="feedbacks-title">💬 Gerir Feedbacks</h2>
 
-<section class="page-hero">
-  <div class="container">
-    <h1>Gestão de Feedbacks</h1>
-    <p>Aprovar, remover e gerir opiniões de clientes.</p>
-  </div>
-</section>
+  {% for fb in feedbacks %}
+    <div class="feedback-card">
+      <div class="feedback-header">
+        <p class="feedback-author">
+          <strong>{{ fb.NomeCliente }}</strong>
+          — <em>{{ fb.DataEnvio.strftime("%d/%m/%Y") }}</em>
+        </p>
+        {% if fb.Classificacao %}
+        <p class="feedback-stars">⭐ {{ fb.Classificacao }}/5</p>
+        {% endif %}
+      </div>
 
-<section class="section container">
-  <table style="inline-size:100%;border-collapse:collapse;margin-block-start:20px;">
-    <thead>
-      <tr style="background:#f7b6c2;color:#fff;">
-        <th style="padding:10px;">ID</th>
-        <th>Nome</th>
-        <th>Classificação</th>
-        <th>Comentário</th>
-        <th>Data</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for f in feedbacks %}
-      <tr style="border-block-end:1px solid #eee;text-align:center;">
-        <td>{{ f[0] }}</td>
-        <td>{{ f[1] }}</td>
-        <td>⭐ {{ f[2] }}/5</td>
-        <td>{{ f[3] or '—' }}</td>
-        <td>{{ f[4].strftime('%d/%m/%Y %H:%M') }}</td>
-        <td>
-          {% if not f[5] %}
-          <a href="{{ url_for('aprovar_feedback', id=f[0]) }}" class="btn btn-primary" style="padding:6px 10px;">Aprovar</a>
-          {% endif %}
-          <a href="{{ url_for('remover_feedback', id=f[0]) }}" class="btn btn-outline" style="padding:6px 10px;">Remover</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</section>
+      <!-- 💬 MENSAGEM DO UTILIZADOR -->
+      <p class="feedback-comment">
+        {{ fb.Comentario }}
+      </p>
 
+      <div class="feedback-actions">
+        <form action="{{ url_for('aprovar_feedback', id=fb.Id) }}" method="post">
+          <button type="submit" class="btn-approve">✅ Aprovar</button>
+        </form>
+        <form action="{{ url_for('rejeitar_feedback', id=fb.Id) }}" method="post">
+          <button type="submit" class="btn-reject">❌ Rejeitar</button>
+        </form>
+      </div>
+    </div>
+  {% endfor %}
+</div>
 {% endblock %}

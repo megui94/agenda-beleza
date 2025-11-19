@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Feedbacks • {{ super() }}{% endblock %}
+
 {% block content %}
 <section class="page-hero">
   <div class="container">
@@ -8,22 +9,124 @@
   </div>
 </section>
 
-<section class="section container">
-  {% if feedbacks %}
-    <div class="grid cards-3">
-      {% for f in feedbacks %}
-      <article class="card lift">
-        <div class="card-body">
-          <h3>{{ f[0] }}</h3>
-          <p>⭐ {{ f[1] }}/5</p>
-          <blockquote>“{{ f[2] }}”</blockquote>
-          <small>{{ f[3].strftime('%d/%m/%Y %H:%M') }}</small>
+<section class="section container feedbacks-section">
+
+  {% if feedbacks and feedbacks|length > 0 %}
+
+    <div class="feedback-slider" id="feedbackSlider">
+      <!-- Botão anterior -->
+      <button class="slider-arrow slider-prev" type="button" aria-label="Feedback anterior">
+        ‹
+      </button>
+
+      <!-- Track com os slides -->
+      <div class="feedback-slider-window">
+        <div class="feedback-slider-track">
+          {% for f in feedbacks %}
+          <article class="feedback-card">
+            <!-- topo: utilizador + rating -->
+            <header class="feedback-card-header">
+              <div class="feedback-user">
+                <div class="feedback-avatar">
+                  {{ f.NomeCliente[0] }}
+                </div>
+                <div class="feedback-user-info">
+                  <p class="feedback-name">{{ f.NomeCliente }}</p>
+                  <p class="feedback-tag">Cliente Agenda Beleza</p>
+                </div>
+              </div>
+
+              {% if f.Classificacao %}
+              <div class="feedback-rating">
+                <div class="feedback-stars">
+                  {% for i in range(1, 6) %}
+                    <span class="star{% if f.Classificacao >= i %} filled{% endif %}">★</span>
+                  {% endfor %}
+                </div>
+                <span class="feedback-rating-value">{{ f.Classificacao }}/5</span>
+              </div>
+              {% endif %}
+            </header>
+
+            <!-- corpo: comentário -->
+            <div class="feedback-card-body">
+              <p class="feedback-comment">
+                {{ f.Comentario | replace('\n', '<br>') | safe }}
+              </p>
+            </div>
+
+            <!-- rodapé: data -->
+            <footer class="feedback-card-footer">
+              <span class="feedback-date">
+                {{ f.DataEnvio.strftime('%d/%m/%Y %H:%M') }}
+              </span>
+            </footer>
+          </article>
+          {% endfor %}
         </div>
-      </article>
+      </div>
+
+      <!-- Botão seguinte -->
+      <button class="slider-arrow slider-next" type="button" aria-label="Próximo feedback">
+        ›
+      </button>
+    </div>
+
+    <!-- Pontinhos do carrossel -->
+    <div class="slider-dots">
+      {% for f in feedbacks %}
+        <button
+          type="button"
+          class="slider-dot{% if loop.index0 == 0 %} active{% endif %}"
+          data-index="{{ loop.index0 }}"
+          aria-label="Ir para feedback {{ loop.index }}">
+        </button>
       {% endfor %}
     </div>
+
   {% else %}
-    <p class="text-muted" style="text-align:center;">Ainda não existem feedbacks disponíveis.</p>
+    <p class="text-muted" style="text-align:center;">
+      Ainda não existem feedbacks disponíveis.
+    </p>
   {% endif %}
+
 </section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const slider = document.getElementById("feedbackSlider");
+  if (!slider) return;
+
+  const track = slider.querySelector(".feedback-slider-track");
+  const slides = slider.querySelectorAll(".feedback-card");
+  const prevBtn = slider.querySelector(".slider-prev");
+  const nextBtn = slider.querySelector(".slider-next");
+  const dots = document.querySelectorAll(".slider-dot");
+
+  if (!slides.length) return;
+
+  let current = 0;
+
+  function goTo(index) {
+    const total = slides.length;
+    current = (index + total) % total;  // looping infinito
+    track.style.transform = "translateX(-" + (current * 100) + "%)";
+
+    dots.forEach((dot, i) => {
+      dot.classList.toggle("active", i === current);
+    });
+  }
+
+  prevBtn.addEventListener("click", () => goTo(current - 1));
+  nextBtn.addEventListener("click", () => goTo(current + 1));
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener("click", () => goTo(i));
+  });
+
+  // (Opcional) autoplay suave
+  // setInterval(() => goTo(current + 1), 8000);
+});
+</script>
+
 {% endblock %}

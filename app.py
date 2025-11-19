@@ -713,17 +713,31 @@ def contato():
 
     return render_template("contato.html")
 
+# ==========================================
+# 💬 Feedback dos Clientes/Admins
+# ==========================================
+from datetime import datetime  # garante que tens isto no topo do ficheiro
 
-# ==========================================
-# 💬 Feedback dos Clientes
-# ==========================================
 @app.route("/feedback", methods=["GET", "POST"])
 def feedback():
+    # Só deixa enviar feedback se estiver autenticado
+    if "user_id" not in session:
+        flash("Tem de iniciar sessão para enviar feedback.", "warning")
+        return redirect(url_for("login"))
+
     if request.method == "POST":
-        nome = session.get("nome")
-        classificacao = request.form["classificacao"]
-        comentario = request.form["comentario"]
+        nome = session.get("nome") or "Cliente"
+        email_cliente = session.get("email")
+        classificacao = request.form.get("classificacao")
+        comentario = request.form.get("comentario")
+
+        # validação simples
+        if not classificacao or not comentario:
+            flash("Por favor, preencha a classificação e o comentário.", "warning")
+            return redirect(url_for("feedback"))
+
         try:
+            # 🔹 1) Gravar na base de dados
             conn = get_db_connection()
             cur = conn.cursor()
             cur.execute("""
@@ -732,12 +746,99 @@ def feedback():
             """, (nome, session.get("user_id"), classificacao, comentario))
             conn.commit()
             conn.close()
+
+            # 🔹 2) E-mail para o CLIENTE
+            try:
+                if email_cliente:
+                    html_cliente = render_template(
+                        "emails/clientes/feedback_confirmacao.html",
+                        nome=nome,
+                        classificacao=classificacao,
+                        comentario=comentario,
+                        data_envio=datetime.now()
+                    )
+
+                    # usa a mesma função send_email que já usas para registo/marcações
+                    send_email(
+                        "💬 Recebemos o seu feedback • Agenda Beleza",
+                        [email_cliente],
+                        html_cliente
+                    )
+
+                    app.logger.info(
+                        f"E-mail de confirmação de feedback enviado para {email_cliente}"
+                    )
+                else:
+                    app.logger.warning(
+                        "Feedback enviado mas não há email na sessão para enviar confirmação."
+                    )
+            except Exception as e:
+                app.logger.error(f"Erro ao enviar e-mail de confirmação de feedback: {e}")
+
+            # 🔹 3) E-mail para o ADMIN
+            try:
+                # usa a mesma config que já usas noutros emails para o admin
+                # se já tens ADMIN_EMAIL no config.py, podes fazer: admin_email = ADMIN_EMAIL
+                admin_email = app.config.get(
+                    "ADMIN_EMAIL",
+                    "agenda.beleza.contato@gmail.com"  # fallback se não existir config
+                )
+
+                html_admin = render_template(
+                    "emails/admin/novo_feedback.html",
+                    nome=nome,
+                    email_cliente=email_cliente,
+                    classificacao=classificacao,
+                    comentario=comentario,
+                    data_envio=datetime.now()
+                )
+
+                send_email(
+                    "📥 Novo feedback recebido • Agenda Beleza",
+                    [admin_email],
+                    html_admin
+                )
+
+                app.logger.info(
+                    f"E-mail de novo feedback enviado para admin ({admin_email})"
+                )
+            except Exception as e:
+                app.logger.error(
+                    f"Erro ao enviar e-mail de novo feedback para admin: {e}"
+                )
+
+            # 🔹 4) Mensagem no site + redirect
             flash("Feedback enviado com sucesso! 🌸", "success")
-            return redirect(url_for("listar_feedbacks"))
+            # se o teu endpoint público se chama diferente, troca "feedbacks" pelo nome certo
+            return redirect(url_for("feedbacks"))
+
         except Exception as e:
             app.logger.error(f"Erro ao enviar feedback: {e}")
             flash("Erro ao enviar o feedback.", "error")
+            return redirect(url_for("feedback"))
+
+    # GET → mostra o formulário
     return render_template("feedback.html")
+
+
+
+# ==========================================
+# 💬 Feedback dos Clientes no site
+# ==========================================
+@app.route("/feedbacks")
+def feedbacks():
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute("""
+        SELECT NomeCliente, Comentario, Classificacao, DataEnvio
+        FROM Feedbacks
+        WHERE Aprovado = TRUE
+        ORDER BY DataEnvio DESC
+    """)
+    feedbacks = cur.fetchall()
+    conn.close()
+
+    return render_template("feedbacks.html", feedbacks=feedbacks)
 
 
 # ==========================================
@@ -763,24 +864,27 @@ def listar_feedbacks():
         return redirect(url_for("index"))
 
 
-@app.route("/admin_feedbacks")
+# 🔹 Ver feedbacks (apenas admin)
+@app.route("/admin/feedbacks")
 def admin_feedbacks():
     if not session.get("is_admin"):
-        flash("Acesso restrito aos administradores.", "error")
+        flash("Acesso restrito a administradores.", "warning")
         return redirect(url_for("index"))
 
     conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM Feedbacks ORDER BY DataCriacao DESC")
+    cur = conn.cursor(dictionary=True)
+    cur.execute("SELECT * FROM Feedbacks ORDER BY DataEnvio DESC")
     feedbacks = cur.fetchall()
     conn.close()
+
     return render_template("admin_feedbacks.html", feedbacks=feedbacks)
 
 
-@app.route("/aprovar_feedback/<int:id>")
+# 🔹 Aprovar feedback
+@app.route("/admin/feedbacks/aprovar/<int:id>", methods=["POST"])
 def aprovar_feedback(id):
     if not session.get("is_admin"):
-        flash("Acesso negado.", "error")
+        flash("Acesso restrito a administradores.", "warning")
         return redirect(url_for("index"))
 
     conn = get_db_connection()
@@ -793,10 +897,11 @@ def aprovar_feedback(id):
     return redirect(url_for("admin_feedbacks"))
 
 
-@app.route("/remover_feedback/<int:id>")
-def remover_feedback(id):
+# 🔹 Rejeitar (apagar) feedback
+@app.route("/admin/feedbacks/rejeitar/<int:id>", methods=["POST"])
+def rejeitar_feedback(id):
     if not session.get("is_admin"):
-        flash("Acesso negado.", "error")
+        flash("Acesso restrito a administradores.", "warning")
         return redirect(url_for("index"))
 
     conn = get_db_connection()
@@ -805,8 +910,9 @@ def remover_feedback(id):
     conn.commit()
     conn.close()
 
-    flash("Feedback removido com sucesso.", "info")
+    flash("Feedback rejeitado e removido.", "info")
     return redirect(url_for("admin_feedbacks"))
+
 
 # ==========================================
 # ⏰ Lembretes automáticos (1h antes)
