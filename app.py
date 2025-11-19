@@ -175,31 +175,40 @@ def login():
         password = request.form.get("password") or ""
 
         conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT Id, Password, Nome, IsAdmin, EmailVerificado FROM Utilizador WHERE Email=%s", (email,))
+        cur = conn.cursor(dictionary=True)
+        cur.execute(
+            "SELECT Id, Password, Nome, IsAdmin, EmailVerificado FROM Utilizador WHERE Email=%s",
+            (email,),
+        )
         user = cur.fetchone()
         conn.close()
 
-        if user and bcrypt.check_password_hash(user[1], password):
-            # 🛑 Verificar se o e-mail foi confirmado
-            if not user[4]:
+        # ✅ Utilizador existe e password correta?
+        if user and bcrypt.check_password_hash(user["Password"], password):
+
+            # ✅ Verificação de e-mail
+            if not user.get("EmailVerificado"):
                 flash("Por favor, confirme o seu e-mail antes de iniciar sessão.", "warning")
                 return redirect(url_for("login"))
 
-            # ✅ Login autorizado
+            # ✅ Guardar dados na sessão
             session.update({
-                "user_id": user[0],
+                "user_id": user["Id"],
                 "email": email,
-                "nome": user[2],
-                "is_admin": bool(user[3])
+                "nome": user["Nome"],
+                "is_admin": bool(user["IsAdmin"]),
             })
-            flash(f"Bem-vindo(a), {user[2]}!", "success")
+
+            flash(f"Bem-vindo(a), {user['Nome']}!", "success")
 
             next_page = session.pop("next", None)
             return redirect(url_for(next_page)) if next_page else redirect(url_for("index"))
 
+        # Falhou login
         flash("E-mail ou senha incorretos.", "error")
+        return render_template("login.html")
 
+    # GET → só mostra o formulário
     return render_template("login.html")
 
 
@@ -372,9 +381,6 @@ def agendar_redirect():
         return redirect(url_for("login"))
     return redirect(url_for("marcacoes"))
 
-from datetime import datetime
-import os
-from flask import render_template, request, redirect, url_for, flash, session
 
 @app.route("/marcacoes", methods=["GET", "POST"])
 def marcacoes():
@@ -586,7 +592,6 @@ def admin_mensagens():
     conn.close()
 
     return render_template("admin_mensagens.html", mensagens=mensagens, q=q)
-
 
 
 @app.route("/admin/mensagens/eliminar/<int:id>", methods=["POST"])

@@ -1,96 +1,209 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Agenda Beleza{% endblock %}</title>
 
-    <title>{% block title %}Agenda Beleza{% endblock %}</title>
+  <!-- 🌸 ESTILOS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/theme.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- 📅 FLATPICKR CALENDAR -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-    <!-- CSS principal -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <style>
+    .user-menu {
+      position: relative;
+    }
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      inset-block-start: 60px;
+      inset-inline-end: 0;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+      min-inline-size: 220px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all .3s ease;
+      z-index: 999;
+    }
+    .user-dropdown.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .user-dropdown a {
+      display: block;
+      padding: 12px 18px;
+      text-decoration: none;
+      color: #333;
+      transition: .2s;
+    }
+    .user-dropdown a:hover {
+      background: #fce4ef;
+      color: #a6487a;
+    }
+    .logout:hover {
+      background: #ffe3e6;
+      color: #d60000 !important;
+    }
 
-    <!-- Ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    /* ✨ Fade dos alertas */
+    .alert {
+      animation: fadeIn .3s ease-out;
+    }
+    .fade-out {
+      opacity: 0;
+      transition: opacity .5s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+  </style>
 </head>
 
 <body>
-    <!-- ===========================
-             🌸 HEADER / NAVBAR
-    ============================ -->
-    <header class="navbar">
-        <div class="container nav-container">
 
-            <a href="{{ url_for('home') }}" class="logo">
-                <strong>Agenda Beleza</strong>
-                <span>Cuidar de si é essencial</span>
-            </a>
+  <!-- 🌸 HEADER -->
+  <header class="site-header">
+    <div class="container nav-wrapper">
 
-            <nav class="nav-links">
-                <a href="{{ url_for('home') }}">Início</a>
-                <a href="{{ url_for('servicos') }}">Serviços</a>
-                <a href="{{ url_for('sobre') }}">Sobre</a>
-                <a href="{{ url_for('contacto') }}">Contacto</a>
-                <a href="{{ url_for('feedbacks') }}">Feedbacks</a>
-            </nav>
+      <a href="{{ url_for('index') }}" class="brand">
+        <span class="brand-mark">Agenda Beleza</span>
+        <span class="brand-sub">Cuidar de si é essencial</span>
+      </a>
 
-            <!-- Menu utilizador -->
-            {% if session.get("user_id") %}
-                <div class="user-menu">
-                    <span class="user-circle">{{ session["user_name"][0] }}</span>
-                    <span class="user-name">Olá, {{ session["user_name"] }} 👋</span>
-                    <div class="dropdown">
-                        <a href="{{ url_for('minhas_marcacoes') }}">Minhas Marcações</a>
-                        <a href="{{ url_for('logout') }}">Terminar Sessão</a>
-                    </div>
-                </div>
+      <!-- Mobile menu -->
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <label for="nav-toggle" class="hamburger"><span></span></label>
+
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">Início</a>
+        <a href="{{ url_for('servicos') }}">Serviços</a>
+        <a href="{{ url_for('sobre') }}">Sobre</a>
+        <a href="{{ url_for('contato') }}">Contacto</a>
+        <a href="{{ url_for('listar_feedbacks') }}">Feedbacks</a>
+
+        {% if session.get('user_id') %}
+
+        <div class="user-menu">
+          <button class="user-toggle" id="userToggle">
+            <div class="avatar">{{ session['nome'][0]|upper }}</div>
+            <span class="user-greet">Olá, {{ session['nome'].split(' ')[0] }} 👋</span>
+          </button>
+
+          <div id="userDropdown" class="user-dropdown">
+
+            {% if is_admin %}
+              <div class="header">Administração</div>
+              <a href="{{ url_for('admin_marcacoes') }}">⚙️ Painel Administrativo</a>
+              <a href="{{ url_for('admin_mensagens') }}">📨 Mensagens Recebidas</a>
             {% else %}
-                <div class="auth-buttons">
-                    <a class="btn-login" href="{{ url_for('login') }}">Entrar</a>
-                    <a class="btn-registar" href="{{ url_for('register') }}">Registar</a>
-                </div>
+              <a href="{{ url_for('marcacoes') }}">🗓️ Agendar</a>
+              <a href="{{ url_for('minhas_marcacoes') }}">📋 Minhas Marcações</a>
+              <a href="{{ url_for('feedback') }}">💬 Dar Feedback</a>
             {% endif %}
+
+            <a href="{{ url_for('logout') }}" class="logout">🚪 Sair</a>
+          </div>
         </div>
-    </header>
 
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-outline">Entrar</a>
+          <a href="{{ url_for('registar') }}" class="btn btn-primary">Registar</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
 
+  <!-- 🔔 FLASH MESSAGES -->
+  <div class="container">
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% if msgs %}
+        {% for category, msg in msgs %}
+          <div class="alert {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
 
-    <!-- ===========================
-             🔔 ALERTAS GLOBAIS
-    ============================ -->
-    <div class="flash-wrapper">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        <span class="alert-icon"></span>
-                        <span>{{ message }}</span>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+  <!-- 🔥 CONTENT -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- 👣 FOOTER -->
+  <footer class="site-footer">
+    <div class="container grid footer-grid">
+      <div>
+        <h4>Agenda Beleza</h4>
+        <p>O seu espaço de beleza e bem-estar.</p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <ul>
+          <li>📍 Olhão, Portugal</li>
+          <li>📞 +351 966 115 222</li>
+          <li>✉️ agenda.beleza.contato@gmail.com</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Horário</h4>
+        <ul>
+          <li>Seg - Sex: 09h00 - 19h00</li>
+          <li>Sábado: 09h00 - 14h00</li>
+        </ul>
+      </div>
     </div>
 
-
-
-    <!-- ===========================
-                📌 CONTEÚDO
-    ============================ -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-
-
-
-    <!-- ===========================
-                🌙 FOOTER
-    ============================ -->
-    <footer class="footer">
-    <div class="container footer-content">
-        <p>© {{ current_year }} Agenda Beleza — Todos os direitos reservados.</p>
+    <div class="copyright">
+      &copy; {{ current_year }} Agenda Beleza — Todos os direitos reservados.
     </div>
-    </footer>
+  </footer>
+
+  <!-- 📅 FLATPICKR SCRIPT -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <script>
+    /* MENU DROPDOWN */
+    const toggle = document.getElementById("userToggle");
+    const dropdown = document.getElementById("userDropdown");
+
+    if (toggle) {
+      toggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle("show");
+      });
+
+      document.addEventListener("click", () => {
+        dropdown.classList.remove("show");
+      });
+    }
+
+    /* FLASH ALERTS */
+    document.querySelectorAll(".alert").forEach(el => {
+      setTimeout(() => {
+        el.classList.add("fade-out");
+        setTimeout(() => el.remove(), 600);
+      }, 3000);
+    });
+
+    /* ATIVA O FLATPICKR SE EXISTIR NO HTML */
+    if (document.querySelector("#datahora")) {
+      flatpickr("#datahora", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        time_24hr: true,
+        minDate: "today"
+      });
+    }
+  </script>
 </body>
 </html>
