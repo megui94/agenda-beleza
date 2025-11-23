@@ -1,47 +1,54 @@
 {% extends "base.html" %}
-{% block title %}Minhas marcações • {{ super() }}{% endblock %}
+{% block title %}Minhas Marcações • {{ super() }}{% endblock %}
 
 {% block content %}
 
-<!-- HERO -->
 <section class="page-hero">
-  <div class="container">
-    <h1>Minhas marcações</h1>
-    <p>Acompanhe o estado das suas marcações e, se necessário, cancele com antecedência.</p>
+  <div class="container text-center">
+    <h1 class="hero-title">O Meu Histórico</h1>
+    <p class="hero-subtitle">Consulte os seus agendamentos e gira o seu tempo.</p>
   </div>
 </section>
 
-<section class="section container">
+<section class="container main-section">
+  <div class="floating-card">
 
-  {% if marcacoes and marcacoes|length > 0 %}
-    <div class="card admin-panel">
-      <h2 style="margin-top:0; margin-bottom:18px;">📋 Histórico de marcações</h2>
+    <div class="card-header-flex">
+        <h2 class="card-title">📅 Agendamentos</h2>
+        <a href="{{ url_for('marcacoes') }}" class="btn-new-schedule">
+            + Novo Agendamento
+        </a>
+    </div>
 
-      <div class="table-container">
-        <table class="admin-table">
+    {% if marcacoes and marcacoes|length > 0 %}
+      <div class="table-responsive">
+        <table class="elegant-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Serviço</th>
-              <th>Data / Hora</th>
+              <th class="text-center" width="50">#</th>
+              <th width="25%">Serviço</th>
+              <th>Data</th>
               <th>Estado</th>
               <th>Observações</th>
-              <th class="center">Ações</th>
+              <th class="text-end">Ações</th>
             </tr>
           </thead>
           <tbody>
-          {# cada registo: m[0]=Id, m[1]=NomeServico, m[2]=DataHora, m[3]=Estado, m[4]=Observações #}
-          {% for m in marcacoes %}
+            {% for m in marcacoes %}
+            {# m[0]=Id, m[1]=Servico, m[2]=DataHora, m[3]=Estado, m[4]=Obs #}
             <tr>
-              <td>{{ loop.index }}</td>
+              <td class="text-center index-col">{{ loop.index }}</td>
 
               <td>
-                <strong>{{ m[1] }}</strong>
+                <span class="service-name">{{ m[1] }}</span>
               </td>
 
               <td>
                 {% if m[2] %}
-                  {{ m[2].strftime('%d/%m/%Y %H:%M') }}
+                  <div class="date-wrapper">
+                      <span class="date-day">{{ m[2].strftime('%d/%m') }}</span>
+                      <span class="date-time">{{ m[2].strftime('%H:%M') }}</span>
+                  </div>
                 {% else %}
                   —
                 {% endif %}
@@ -49,204 +56,141 @@
 
               <td>
                 {% if m[3] == "Aprovado" %}
-                  <span class="estado aprovado">✔ Aprovada</span>
+                  <span class="status-pill green">Aprovado</span>
                 {% elif m[3] == "Pendente" %}
-                  <span class="estado pendente">⏳ Pendente</span>
-                {% elif m[3] == "Rejeitado" %}
-                  <span class="estado rejeitado">✖ Rejeitada</span>
+                  <span class="status-pill orange">Pendente</span>
+                {% elif m[3] == "Rejeitado" or m[3] == "Rejeitada" %}
+                  <span class="status-pill red">Rejeitado</span>
                 {% elif m[3] == "Cancelada" %}
-                  <span class="estado neutro">❌ Cancelada</span>
+                  <span class="status-pill gray">Cancelada</span>
                 {% else %}
-                  <span class="estado neutro">{{ m[3] }}</span>
+                  <span class="status-pill gray">{{ m[3] }}</span>
                 {% endif %}
               </td>
 
-              <td style="max-inline-size:260px;">
-                <span class="comment-text">{{ m[4] or "—" }}</span>
+              <td class="obs-col" title="{{ m[4] }}">
+                {{ m[4] or "—" }}
               </td>
 
-              <td class="center actions-cell">
-                {# botão cancelar só se ainda não foi cancelada / rejeitada e for no futuro #}
-                {% if m[3] not in ["Cancelada", "Rejeitado"] and m[2] and m[2] > now %}
-                  <button
-                    type="button"
-                    class="btn btn-outline btn-sm btn-cancelar-marcacao"
-                    data-url="{{ url_for('cancelar_marcacao', id=m[0]) }}"
-                    data-servico="{{ m[1] }}"
-                    data-datahora="{{ m[2].strftime('%d/%m/%Y %H:%M') }}"
-                  >
+              <td class="text-end">
+                {% if m[3] not in ["Cancelada", "Rejeitado", "Rejeitada"] and m[2] and m[2] > now %}
+                  <button type="button" 
+                          class="btn-cancel btn-open-modal"
+                          data-url="{{ url_for('cancelar_marcacao', id=m[0]) }}"
+                          data-servico="{{ m[1] }}"
+                          data-datahora="{{ m[2].strftime('%d/%m às %H:%M') }}">
                     Cancelar
                   </button>
-                  <small class="nota-cancelamento">* Pode cancelar até 4 horas antes.</small>
                 {% else %}
-                  <span class="text-muted" style="font-size:0.8rem;">Sem ações disponíveis</span>
+                  <span class="no-action">—</span>
                 {% endif %}
               </td>
             </tr>
-          {% endfor %}
+            {% endfor %}
           </tbody>
         </table>
       </div>
-    </div>
+      
+      <div class="table-footer-note">
+        * Pode cancelar marcações até 4 horas antes do horário agendado.
+      </div>
 
-  {% else %}
-    <div class="card admin-panel" style="text-align:center;">
-      <p style="margin:0 0 12px 0;">Ainda não tem marcações registadas.</p>
-      <a href="{{ url_for('marcacoes') }}" class="btn btn-primary">
-        💅 Fazer a minha primeira marcação
-      </a>
-    </div>
-  {% endif %}
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3>Ainda não tem marcações.</h3>
+        <p>Que tal cuidar de si hoje?</p>
+        <a href="{{ url_for('marcacoes') }}" class="btn-cta">Agendar Agora</a>
+      </div>
+    {% endif %}
 
+  </div>
 </section>
 
-<!-- 🌸 MODAL DE CONFIRMAÇÃO DE CANCELAMENTO -->
-<div id="modalCancelarMarcacao" class="modal-overlay">
+<div id="modalCancelarMarcacao" class="modal-backdrop" style="display:none;">
   <div class="modal-card">
-    <h2>Cancelar marcação</h2>
+    <div class="modal-icon">⚠️</div>
+    <h3>Cancelar Marcação?</h3>
     <p>
-      Tem a certeza que quer cancelar a marcação para
-      <strong id="modalServico">este serviço</strong>
-      no dia <strong id="modalDataHora"></strong>?
-      <br>
-      <small style="color:var(--muted);">
-        Lembre-se: só é possível cancelar até 4 horas antes da hora marcada.
-      </small>
+      Tem a certeza que deseja cancelar<br>
+      <strong><span id="modalServico"></span></strong><br>
+      para o dia <strong id="modalDataHora"></strong>?
     </p>
-
     <div class="modal-actions">
-      <button type="button" class="btn btn-outline" id="btnCancelarFechar">
-        Voltar
-      </button>
-
-      <form method="POST" id="formCancelarMarcacao" action="">
-        <button type="submit" class="btn btn-primary">
-          Sim, cancelar marcação
-        </button>
+      <button type="button" class="btn-modal cancel" id="btnCancelarFechar">Voltar</button>
+      <form method="POST" id="formCancelarMarcacao">
+        <button type="submit" class="btn-modal confirm">Sim, cancelar</button>
       </form>
     </div>
   </div>
 </div>
 
 <style>
-.admin-panel{
-  border-radius:24px;
-}
+  /* Layout & Hero */
+  .page-hero { padding: 40px 0 20px; }
+  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 2rem; }
+  .hero-subtitle { color: #6c757d; font-size: 0.95rem; margin: 0; }
+  .main-section { margin: 20px auto 60px; max-width: 1000px; }
 
-/* tabela reaproveitando estilos de admin */
-.table-container{
-  inline-size:100%;
-  overflow-x:auto;
-}
-.admin-table{
-  inline-size:100%;
-  border-collapse:collapse;
-  font-size:.9rem;
-}
-.admin-table th,
-.admin-table td{
-  padding:10px 12px;
-  border-block-end:1px solid #f1d8e2;
-}
-.admin-table th{
-  text-align:start;
-  background:#fff7fb;
-}
-.admin-table tr:hover{
-  background:#fff9fc;
-}
-.admin-table .center{
-  text-align:center;
-}
+  /* Card Header */
+  .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+  .card-title { font-size: 1.2rem; font-weight: 700; margin: 0; color: #333; }
+  .btn-new-schedule { background: #d63384; color: white; text-decoration: none; padding: 8px 18px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; transition: 0.3s; }
+  .btn-new-schedule:hover { background: #ad1457; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(214, 51, 132, 0.2); }
 
-/* texto / observações */
-.comment-text{
-  display:block;
-  font-size:.9rem;
-  color:#4b5563;
-  line-height:1.5;
-}
+  /* Floating Card */
+  .floating-card { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(180,180,200,0.15); border: 1px solid rgba(255,255,255,0.8); }
 
-/* estado badges */
-.estado{
-  display:inline-flex;
-  align-items:center;
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:.8rem;
-  font-weight:600;
-}
-.estado.aprovado{
-  background:#d1fae5;
-  color:#065f46;
-}
-.estado.pendente{
-  background:#fef3c7;
-  color:#92400e;
-}
-.estado.rejeitado{
-  background:#fee2e2;
-  color:#991b1b;
-}
-.estado.neutro{
-  background:#e5e7eb;
-  color:#374151;
-}
+  /* Table Styles */
+  .table-responsive { overflow-x: auto; }
+  .elegant-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .elegant-table th { text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #adb5bd; font-weight: 700; padding: 15px; border-bottom: 1px solid #f1f3f5; letter-spacing: 0.5px; }
+  .elegant-table td { padding: 16px 15px; vertical-align: middle; border-bottom: 1px solid #f8f9fa; font-size: 0.95rem; background: #fff; }
+  .elegant-table tr:hover td { background-color: #fffbfd; }
+  
+  /* Columns */
+  .service-name { font-weight: 600; color: #333; }
+  .date-wrapper { display: flex; flex-direction: column; line-height: 1.3; }
+  .date-day { font-weight: 600; color: #343a40; }
+  .date-time { font-size: 0.8rem; color: #adb5bd; }
+  .obs-col { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6c757d; font-size: 0.9rem; }
+  .table-footer-note { margin-top: 15px; font-size: 0.8rem; color: #adb5bd; text-align: right; font-style: italic; }
 
-/* botões */
-.btn-sm{
-  padding:6px 10px;
-  font-size:.8rem;
-}
-.actions-cell{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-.nota-cancelamento{
-  color:#9ca3af;
-}
+  /* Status Pills */
+  .status-pill { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
+  .status-pill.green { background: #e6fffa; color: #047857; }
+  .status-pill.orange { background: #fffaf0; color: #c05621; }
+  .status-pill.red { background: #fff5f5; color: #c53030; }
+  .status-pill.gray { background: #f7f7f7; color: #718096; }
 
-/* ========= MODAL ========= */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-.modal-overlay.show {
-  display: flex;
-}
-.modal-card {
-  background: #fff;
-  border-radius: 24px;
-  padding: 24px 26px;
-  max-width: 420px;
-  width: 90%;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.18);
-  border: 1px solid var(--border);
-}
-.modal-card h2 {
-  margin: 0 0 8px 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-.modal-card p {
-  margin: 0 0 20px 0;
-  color: var(--muted);
-  line-height: 1.5;
-}
-.modal-card strong {
-  color: var(--ink);
-}
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
+  /* Action Buttons */
+  .btn-cancel { border: 1px solid #fecaca; background: #fff; color: #ef4444; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+  .btn-cancel:hover { background: #fef2f2; border-color: #ef4444; }
+  .no-action { color: #e5e7eb; }
+
+  /* Empty State */
+  .empty-state { text-align: center; padding: 40px 20px; }
+  .empty-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.5; }
+  .empty-state h3 { margin: 0 0 5px; color: #333; font-weight: 600; }
+  .empty-state p { color: #666; margin-bottom: 20px; }
+  .btn-cta { display: inline-block; background: #333; color: #fff; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: 0.2s; }
+  .btn-cta:hover { background: #d63384; }
+
+  /* Modal */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); }
+  .modal-card { background: #fff; padding: 30px; border-radius: 20px; inline-size: 90%; max-inline-size: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+  .modal-icon { font-size: 2.5rem; margin-block-end: 10px; }
+  .modal-card h3 { margin: 0 0 15px; font-size: 1.2rem; font-weight: 700; color: #333; }
+  .modal-card p { color: #666; margin-block-end: 25px; font-size: 0.95rem; line-height: 1.6; }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; }
+  .btn-modal { border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+  .btn-modal.cancel { background: #f1f3f5; color: #666; } .btn-modal.cancel:hover { background: #e9ecef; }
+  .btn-modal.confirm { background: #d63384; color: #fff; } .btn-modal.confirm:hover { background: #b01b65; }
+
+  @media (max-inline-size: 768px) { 
+      .card-header-flex { flex-direction: column; text-align: center; } 
+      .btn-new-schedule { inline-size: 100%; text-align: center; }
+  }
 </style>
 
 {% endblock %}
@@ -262,32 +206,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!modal) return;
 
-  // quando clicar no botão "Cancelar" da tabela
-  document.querySelectorAll(".btn-cancelar-marcacao").forEach(btn => {
+  document.querySelectorAll(".btn-open-modal").forEach(btn => {
     btn.addEventListener("click", () => {
-      const url = btn.dataset.url;
-      const servico = btn.dataset.servico || "este serviço";
-      const datahora = btn.dataset.datahora || "";
-
-      form.action = url;
-      servicoSpan.textContent = servico;
-      dataSpan.textContent = datahora;
-
-      modal.classList.add("show");
+      form.action = btn.dataset.url;
+      servicoSpan.textContent = btn.dataset.servico;
+      dataSpan.textContent = btn.dataset.datahora;
+      modal.style.display = "flex";
     });
   });
 
-  // fechar modal
-  btnFechar.addEventListener("click", () => {
-    modal.classList.remove("show");
-  });
-
-  // fechar ao clicar fora do cartão
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.classList.remove("show");
-    }
-  });
+  btnFechar.addEventListener("click", () => modal.style.display = "none");
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 });
 </script>
 {% endblock %}

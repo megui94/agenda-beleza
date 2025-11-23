@@ -5,125 +5,79 @@
   <title>{% block title %}Agenda Beleza{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Flatpickr CSS (calendário) -->
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-  <!-- CSS principal -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/theme.css') }}">
 
   {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-  <!-- 🌸 HEADER -->
-  <header class="site-header">
-    <div class="container nav-wrapper">
+  <header class="site-header" style="width: 100%; background: rgba(255, 255, 255, 0.95); border-bottom: 1px solid #f2dfe4;">
+    
+    <div class="nav-wrapper" style="width: 92%; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; gap: 50px;">
 
-      <!-- Marca / Logo -->
-      <a href="{{ url_for('index') }}" class="brand">
-        <span class="brand-mark">Agenda Beleza</span>
-        <span class="brand-sub">Cuidar de si é essencial</span>
+      <a href="{{ url_for('index') }}" class="brand" style="flex-shrink: 0; text-decoration: none;">
+        <span class="brand-mark" style="font-weight: 700; font-size: 20px; color: #262525;">Agenda Beleza</span>
+        <span class="brand-sub" style="font-size: 12px; color: #6f6a6a; display: block;">Cuidar de si é essencial</span>
       </a>
 
-      <!-- Menu mobile -->
-      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" style="display: none;">
       <label for="nav-toggle" class="hamburger"><span></span></label>
 
-      <!-- Navegação principal -->
-      <nav class="nav">
-        <a href="{{ url_for('index') }}"
-           class="nav-link {% if request.endpoint == 'index' %}nav-link-active{% endif %}">
-          Início
-        </a>
-
-        <a href="{{ url_for('servicos') }}"
-           class="nav-link {% if request.endpoint == 'servicos' %}nav-link-active{% endif %}">
-          Serviços
-        </a>
-
-        <a href="{{ url_for('listar_feedbacks') }}"
-           class="nav-link {% if request.endpoint == 'listar_feedbacks' %}nav-link-active{% endif %}">
-          Feedbacks
-        </a>
-
-        <a href="{{ url_for('contato') }}"
-           class="nav-link {% if request.endpoint == 'contato' %}nav-link-active{% endif %}">
-          Contacto
-        </a>
+      <nav class="nav" style="display: flex; align-items: center; gap: 10px;">
+        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}nav-link-active{% endif %}">Início</a>
+        <a href="{{ url_for('servicos') }}" class="nav-link {% if request.endpoint == 'servicos' %}nav-link-active{% endif %}">Serviços</a>
+        <a href="{{ url_for('listar_feedbacks') }}" class="nav-link {% if request.endpoint == 'listar_feedbacks' %}nav-link-active{% endif %}">Feedbacks</a>
+        <a href="{{ url_for('contato') }}" class="nav-link {% if request.endpoint == 'contato' %}nav-link-active{% endif %}">Contacto</a>
 
         {% if session.get('user_id') %}
-
-          <!-- Menu utilizador -->
           <div class="user-menu">
             <button class="user-toggle" id="userToggle">
               <div class="avatar">{{ session['nome'][0]|upper }}</div>
-              <span class="user-greet">Olá, {{ session['nome'].split(' ')[0] }} 👋</span>
+              <span class="user-greet">Olá, {{ session['nome'].split(' ')[0] }}</span>
             </button>
 
             <div id="userDropdown" class="user-dropdown">
               <div class="dropdown-section">
                 <div class="dropdown-section-title">Conta</div>
-
                 {% if is_admin %}
                   <a href="{{ url_for('admin_dashboard') }}" class="dropdown-link">
                     <span class="dropdown-icon">⚙️</span>
-                    <span class="dropdown-text">Área de administração</span>
-                    <span class="dropdown-tag">Admin</span>
+                    <span class="dropdown-text">Área Admin</span>
                   </a>
                 {% else %}
                   <a href="{{ url_for('marcacoes') }}" class="dropdown-link">
                     <span class="dropdown-icon">🗓️</span>
-                    <span class="dropdown-text">Agendar serviço</span>
+                    <span class="dropdown-text">Agendar</span>
                   </a>
-
                   <a href="{{ url_for('minhas_marcacoes') }}" class="dropdown-link">
                     <span class="dropdown-icon">📋</span>
-                    <span class="dropdown-text">Minhas marcações</span>
-                  </a>
-
-                  <a href="{{ url_for('feedback') }}" class="dropdown-link">
-                    <span class="dropdown-icon">💬</span>
-                    <span class="dropdown-text">Dar feedback</span>
+                    <span class="dropdown-text">Minhas Marcações</span>
                   </a>
                 {% endif %}
               </div>
-
               <div class="dropdown-divider"></div>
-
               <div class="dropdown-footer">
-                <a href="{{ url_for('logout') }}"
-                   class="dropdown-link dropdown-logout">
+                <a href="{{ url_for('logout') }}" class="dropdown-link dropdown-logout">
                   <span class="dropdown-icon">🚪</span>
-                  <span class="dropdown-text">Sair da conta</span>
+                  <span class="dropdown-text">Sair</span>
                 </a>
               </div>
             </div>
           </div>
-
         {% else %}
-          <!-- Entrar / Registar para visitantes -->
-          <a href="{{ url_for('login') }}" class="btn btn-outline">
-            Entrar
-          </a>
-
-          <a href="{{ url_for('registar') }}" class="btn btn-primary">
-            Registar
-          </a>
+          <a href="{{ url_for('login') }}" class="btn btn-outline">Entrar</a>
+          <a href="{{ url_for('registar') }}" class="btn btn-primary">Registar</a>
         {% endif %}
-
       </nav>
     </div>
   </header>
 
-  <!-- 🔔 FLASH MESSAGES -->
   <div class="container">
     {% with msgs = get_flashed_messages(with_categories=true) %}
       {% if msgs %}
@@ -134,7 +88,6 @@
     {% endwith %}
   </div>
 
-  <!-- Banner de próxima marcação (se existir) -->
   {% if g.proxima_marcacao %}
   <div class="container">
     <div class="alert info proxima-marcacao">
@@ -145,79 +98,153 @@
   </div>
   {% endif %}
 
-  <!-- 🔥 CONTEÚDO -->
   <main>
     {% block content %}{% endblock %}
   </main>
 
-  <!-- 👣 FOOTER -->
   <footer class="site-footer">
-    <div class="container grid footer-grid">
-      <div>
-        <h4>Agenda Beleza</h4>
-        <p>O seu espaço de beleza e bem-estar.</p>
-      </div>
+    <div class="container">
+      <div class="footer-grid">
+        
+        <div class="footer-col brand-col">
+          <h4 class="footer-brand">Agenda Beleza</h4>
+          <p class="footer-desc">O seu espaço de eleição para beleza e bem-estar. Cuidamos de si com profissionalismo e dedicação.</p>
+        </div>
 
-      <div>
-        <h4>Contacto</h4>
-        <ul>
-          <li>📍 Olhão, Portugal</li>
-          <li>📞 +351 966 115 222</li>
-          <li>✉️ agenda.beleza.contato@gmail.com</li>
-        </ul>
-      </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Contacto</h4>
+          <ul class="footer-list">
+            <li><span>📍</span> Olhão, Portugal</li>
+            <li><span>📞</span> +351 966 115 222</li>
+            <li><span>✉️</span> agenda.beleza.contato@gmail.com</li>
+          </ul>
+        </div>
 
-      <div>
-        <h4>Horário</h4>
-        <ul>
-          <li>Seg - Sex: 09h00 - 19h00</li>
-          <li>Sábado: 09h00 - 14h00</li>
-        </ul>
-      </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Horário</h4>
+          <ul class="footer-list">
+            <li><strong>Seg - Sex:</strong> 09h00 – 19h00</li>
+            <li><strong>Sábado:</strong> 09h00 – 14h00</li>
+            <li><strong>Domingo:</strong> Encerrado</li>
+          </ul>
+        </div>
 
-      <div>
-        <h4>Informação</h4>
-        <ul class="footer-info-links">
-          <li>
-            <a href="{{ url_for('politica_privacidade') }}">
-              🔒 Política de Privacidade
-            </a>
-          </li>
-          <li>
-            <a href="{{ url_for('termos') }}">
-              📄 Termos &amp; Condições
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Legal</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('politica_privacidade') }}">🔒 Política de Privacidade</a></li>
+            <li><a href="{{ url_for('termos') }}">📄 Termos & Condições</a></li>
+            <li><a href="{{ url_for('contato') }}">💬 Apoio ao Cliente</a></li>
+          </ul>
+        </div>
 
-    <div class="copyright">
-      &copy; {{ current_year if current_year is defined else 2025 }}
-      Agenda Beleza — Todos os direitos reservados.
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; {{ current_year if current_year is defined else 2025 }} Agenda Beleza — Todos os direitos reservados.</p>
+      </div>
     </div>
   </footer>
 
-  <!-- 📅 Flatpickr JS -->
+  <style>
+    .site-footer {
+        background-color: #f9fafb;
+        border-top: 1px solid #eaeaea;
+        padding-top: 60px;
+        margin-top: 80px;
+        font-size: 0.9rem;
+        color: #555;
+    }
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 50px;
+    }
+    .footer-heading {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .footer-brand {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: #d63384;
+        margin-bottom: 15px;
+    }
+    .footer-desc {
+        line-height: 1.6;
+        color: #666;
+        max-width: 300px;
+    }
+    .footer-list, .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .footer-list li {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        line-height: 1.5;
+    }
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+    .footer-links a {
+        text-decoration: none;
+        color: #555;
+        transition: color 0.2s;
+    }
+    .footer-links a:hover {
+        color: #d63384;
+    }
+    .footer-bottom {
+        border-top: 1px solid #eaeaea;
+        padding: 25px 0;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #888;
+    }
+    @media (max-width: 900px) {
+        .footer-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+    }
+    @media (max-width: 600px) {
+        .footer-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        .footer-list li {
+            justify-content: center;
+        }
+        .footer-desc {
+            margin: 0 auto;
+        }
+    }
+  </style>
+
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <script>
-    // Dropdown do utilizador
+    // Toggle User Menu
     const toggle = document.getElementById("userToggle");
     const dropdown = document.getElementById("userDropdown");
-
     if (toggle && dropdown) {
       toggle.addEventListener("click", (e) => {
         e.stopPropagation();
         dropdown.classList.toggle("show");
       });
-
-      document.addEventListener("click", () => {
-        dropdown.classList.remove("show");
-      });
+      document.addEventListener("click", () => dropdown.classList.remove("show"));
     }
 
-    // Fechar menu mobile ao clicar num link
+    // Toggle Mobile Nav
     document.querySelectorAll(".nav a").forEach(link => {
       link.addEventListener("click", () => {
         const navToggle = document.getElementById("nav-toggle");
@@ -225,7 +252,7 @@
       });
     });
 
-    // Desvanecer alerts
+    // Fade Alerts
     document.querySelectorAll(".alert").forEach(el => {
       setTimeout(() => {
         el.classList.add("fade-out");
@@ -233,7 +260,7 @@
       }, 3000);
     });
 
-    // ✅ Flatpickr no campo de data/hora, se existir
+    // Flatpickr
     document.addEventListener("DOMContentLoaded", function () {
       const campoData = document.querySelector("#datahora");
       if (campoData) {

@@ -677,7 +677,6 @@ def cancelar_marcacao(id):
 # =============================================================================
 # 👩‍💼 ADMIN — GESTÃO DE MARCAÇÕES, MENSAGENS E DASHBOARD
 # =============================================================================
-
 @app.route("/admin/marcacoes", methods=["GET"])
 def admin_marcacoes():
     if not session.get("is_admin"):
@@ -691,17 +690,17 @@ def admin_marcacoes():
     cur = conn.cursor(dictionary=True)
 
     query = """
-        SELECT
-            m.Id,
-            u.Nome      AS Cliente,
-            s.Nome      AS Servico,
-            m.DataHora  AS DataHora,
-            m.Estado    AS Estado,
+        SELECT 
+            m.Id, 
+            u.Nome      AS Nome,       -- <--- MUDEI AQUI (de 'Cliente' para 'Nome')
+            s.Nome      AS Servico, 
+            m.DataHora  AS DataHora, 
+            m.Estado    AS Estado, 
             m.Observacoes AS Observacoes,
             u.Email     AS Email
         FROM Marcacoes m
         JOIN Utilizador u ON m.Cliente_id = u.Id
-        JOIN Servicos  s  ON m.Servico_id = s.Id
+        JOIN Servicos   s  ON m.Servico_id = s.Id
         WHERE 1 = 1
     """
 
@@ -727,7 +726,6 @@ def admin_marcacoes():
         estado=estado,
         termo=termo,
     )
-
 @app.route("/admin/update_marcacao", methods=["POST"])
 def admin_update_marcacao():
     """Atualiza estado de uma marcação (Aprovado / Rejeitado) e notifica cliente."""
@@ -963,6 +961,8 @@ def admin_eliminar_mensagem(id):
 @app.route("/admin/dashboard")
 def admin_dashboard():
     """Dashboard de resumo para administrador (KPIs principais)."""
+    
+    # Verificação de segurança
     if not session.get("is_admin"):
         flash("Acesso restrito: apenas administradores.", "error")
         return redirect(url_for("index"))
@@ -970,33 +970,29 @@ def admin_dashboard():
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # Total de marcações
+    # 1. Total de marcações (Geral)
     cur.execute("SELECT COUNT(*) FROM Marcacoes")
     total_marcacoes = cur.fetchone()[0]
 
-    # Pendentes hoje
-    cur.execute(
-        "SELECT COUNT(*) FROM Marcacoes WHERE DATE(DataHora) = CURDATE() AND Estado = 'Pendente'"
-    )
-    pendentes_hoje = cur.fetchone()[0]
+    # 2. Total Pendentes (CORRIGIDO: Removido o filtro de data)
+    cur.execute("SELECT COUNT(*) FROM Marcacoes WHERE Estado = 'Pendente'")
+    pendentes = cur.fetchone()[0]
 
-    # Aprovadas hoje
-    cur.execute(
-        "SELECT COUNT(*) FROM Marcacoes WHERE DATE(DataHora) = CURDATE() AND Estado = 'Aprovado'"
-    )
-    aprovadas_hoje = cur.fetchone()[0]
+    # 3. Total Aprovadas (CORRIGIDO: Removido o filtro de data)
+    cur.execute("SELECT COUNT(*) FROM Marcacoes WHERE Estado = 'Aprovado'")
+    aprovadas = cur.fetchone()[0]
 
-    # Total de clientes (não admin)
+    # 4. Total de clientes
     cur.execute(
         "SELECT COUNT(*) FROM Utilizador WHERE IsAdmin = FALSE OR IsAdmin IS NULL"
     )
     total_clientes = cur.fetchone()[0]
 
-    # Feedbacks aprovados
+    # 5. Feedbacks aprovados
     cur.execute("SELECT COUNT(*) FROM Feedbacks WHERE Aprovado = TRUE")
     total_feedbacks_aprovados = cur.fetchone()[0]
 
-    # Serviço mais marcado
+    # 6. Serviço mais marcado
     cur.execute(
         """
         SELECT s.Nome, COUNT(*) AS total
@@ -1015,18 +1011,17 @@ def admin_dashboard():
     else:
         servico_top, servico_top_qtd = None, 0
 
+    # Enviar para o HTML com os novos nomes de variáveis
     return render_template(
         "admin_dashboard.html",
         total_marcacoes=total_marcacoes,
-        pendentes_hoje=pendentes_hoje,
-        aprovadas_hoje=aprovadas_hoje,
+        pendentes=pendentes,        # Mudou de pendentes_hoje para pendentes
+        aprovadas=aprovadas,        # Mudou de aprovadas_hoje para aprovadas
         total_clientes=total_clientes,
         total_feedbacks_aprovados=total_feedbacks_aprovados,
         servico_top=servico_top,
         servico_top_qtd=servico_top_qtd,
     )
-
-
 # =============================================================================
 # 🌐 PÁGINAS GERAIS (INÍCIO, SOBRE, SERVIÇOS, CONTACTO)
 # =============================================================================

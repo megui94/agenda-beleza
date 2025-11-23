@@ -1,32 +1,198 @@
 {% extends "base.html" %}
 {% block title %}Serviços • {{ super() }}{% endblock %}
+
 {% block content %}
 
-<section class="page-hero">
-  <div class="container">
-    <h1>Serviços</h1>
-    <p>Explore os nossos serviços e encontre o ideal para si.</p>
+<section class="page-hero soft-gradient">
+  <div class="container text-center">
+    <h1 class="hero-title">Os Nossos Serviços</h1>
+    <p class="hero-subtitle">Explore o menu e encontre o cuidado ideal para si.</p>
   </div>
 </section>
 
 <section class="section container">
-  <form method="GET" action="{{ url_for('servicos') }}" class="search-box" style="margin-block-end: 30px;">
-    <input type="text" name="q" placeholder="Pesquisar serviços..." value="{{ request.args.get('q', '') }}">
-  </form>
+  
+  <div class="search-container">
+    <form method="GET" action="{{ url_for('servicos') }}" class="search-form">
+      <input type="text" name="q" class="search-input" 
+             placeholder="O que procura hoje? (ex: Manicure)" 
+             value="{{ request.args.get('q', '') }}">
+      <button type="submit" class="search-btn">
+        🔍
+      </button>
+    </form>
+  </div>
 
-  <div class="grid cards-3">
+  <div class="services-grid">
     {% for servico in servicos %}
-    <div class="card lift">
-    <img src="{{ url_for('static', filename='imagens/unhas.png') }}" alt="Serviço">
-      <div class="card-body">
-        <h3>{{ servico[1] }}</h3>
-        <p>{{ servico[2] or "Descrição breve do serviço." }}</p>
-        <p class="price-line"><strong>{{ "%.2f"|format(servico[3]) }}€</strong> • {{ servico[4] }} min</p>
+    <article class="card service-card lift">
+      <div class="card-img-wrapper">
+        <img src="{{ url_for('static', filename='imagens/unhas.png') }}" alt="{{ servico[1] }}">
       </div>
-    </div>
+      
+      <div class="card-body">
+        <div class="card-header">
+            <h3>{{ servico[1] }}</h3>
+            <span class="price-tag">{{ "%.2f"|format(servico[3]) }}€</span>
+        </div>
+        
+        <p class="description">{{ servico[2] or "Cuidado profissional e dedicado para realçar a sua beleza." }}</p>
+        
+        <div class="card-footer">
+            <span class="duration">⏱ {{ servico[4] }} min</span>
+            <a href="{{ url_for('marcacoes') }}" class="btn-book">Agendar</a>
+        </div>
+      </div>
+    </article>
     {% else %}
-    <p>Nenhum serviço encontrado.</p>
+    <div class="empty-state">
+        <p>😔 Nenhum serviço encontrado com esse nome.</p>
+        <a href="{{ url_for('servicos') }}" class="link">Ver todos</a>
+    </div>
     {% endfor %}
   </div>
+
 </section>
+
+<section class="features-section">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="icon">✨</div>
+                <h4>Material Esterilizado</h4>
+                <p>A sua segurança em primeiro lugar com autoclave.</p>
+            </div>
+            <div class="feature-item">
+                <div class="icon">🌿</div>
+                <h4>Produtos Premium</h4>
+                <p>Marcas de topo e hipoalergénicas.</p>
+            </div>
+            <div class="feature-item">
+                <div class="icon">💖</div>
+                <h4>Ambiente Relaxante</h4>
+                <p>Um espaço pensado para o seu bem-estar.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+  /* Barra de Pesquisa Bonita */
+  .search-container {
+      display: flex;
+      justify-content: center;
+      margin-block-start: -30px; /* Sobe um pouco para cima do Hero */
+      margin-block-end: 50px;
+      position: relative;
+      z-index: 10;
+  }
+
+  .search-form {
+      background: white;
+      padding: 10px;
+      border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      display: flex;
+      inline-size: 100%;
+      max-inline-size: 500px;
+      border: 1px solid #f1f1f1;
+  }
+
+  .search-input {
+      flex: 1;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      outline: none;
+      background: transparent;
+  }
+
+  .search-btn {
+      background-color: #d63384;
+      color: white;
+      border: none;
+      inline-size: 45px;
+      block-size: 45px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: 0.3s;
+  }
+  .search-btn:hover { background-color: #ad1457; transform: scale(1.05); }
+
+  /* Grelha Centralizada */
+  .services-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center; /* O SEGREDO: Centraliza os cartões se houver poucos */
+      gap: 30px;
+  }
+
+  /* Cartão de Serviço Melhorado */
+  .service-card {
+      inline-size: 100%;
+      max-inline-size: 350px; /* Tamanho fixo para ficarem elegantes */
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #f8f8f8;
+      background: white;
+  }
+
+  .card-img-wrapper {
+      block-size: 200px;
+      overflow: hidden;
+  }
+  .card-img-wrapper img {
+      inline-size: 100%;
+      block-size: 100%;
+      object-fit: cover;
+      transition: 0.5s;
+  }
+  .service-card:hover .card-img-wrapper img { transform: scale(1.05); }
+
+  .card-body { padding: 25px; }
+
+  .card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-block-end: 10px;
+  }
+  .card-header h3 { margin: 0; font-size: 1.2rem; color: #333; font-weight: 700; }
+  .price-tag { 
+      background: #fce4ec; color: #d63384; 
+      padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; 
+  }
+
+  .description { color: #666; font-size: 0.9rem; line-height: 1.5; margin-block-end: 20px; min-block-size: 40px; }
+
+  .card-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      border-block-start: 1px solid #f1f1f1; padding-block-start: 15px;
+  }
+  .duration { color: #999; font-size: 0.85rem; font-weight: 500; }
+  
+  .btn-book {
+      text-decoration: none; background: #333; color: white;
+      padding: 8px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      transition: 0.3s;
+  }
+  .btn-book:hover { background: #d63384; }
+
+  /* Secção de Diferenciais (Para encher a página) */
+  .features-section {
+      margin-block-start: 80px;
+      background-color: #fff9fb; /* Fundo rosa muito suave */
+      padding: 60px 0;
+      text-align: center;
+  }
+  .features-grid {
+      display: flex; justify-content: center; gap: 50px; flex-wrap: wrap;
+  }
+  .feature-item { max-inline-size: 250px; }
+  .feature-item .icon { font-size: 2.5rem; margin-block-end: 15px; }
+  .feature-item h4 { font-size: 1.1rem; margin-block-end: 10px; color: #333; }
+  .feature-item p { font-size: 0.9rem; color: #666; }
+
+  .empty-state { text-align: center; inline-size: 100%; padding: 40px; color: #777; }
+</style>
+
 {% endblock %}

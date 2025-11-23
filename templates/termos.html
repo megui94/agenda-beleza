@@ -2,37 +2,162 @@
 {% block title %}Termos & Condições • {{ super() }}{% endblock %}
 
 {% block content %}
+
 <section class="page-hero soft-gradient">
-  <div class="container">
-    <h1>Termos & Condições</h1>
-    <p>Condições de utilização da plataforma Agenda Beleza.</p>
+  <div class="container text-center">
+    <div class="hero-icon">📜</div>
+    <h1 class="hero-title">Termos & Condições</h1>
+    <p class="hero-subtitle">As regras essenciais para uma boa experiência na Agenda Beleza.</p>
   </div>
 </section>
 
-<section class="section container">
-  <article class="content-card">
-    <h2>1. Utilização da conta</h2>
-    <p>O utilizador é responsável pela confidencialidade da sua password e pela utilização da sua conta.</p>
+<section class="section container main-section">
+  <div class="terms-card">
+    
+    <div class="policy-item">
+      <div class="icon-box blue">
+        🔐
+      </div>
+      <div class="content-box">
+        <h2>1. Utilização da Conta</h2>
+        <p>A sua conta é pessoal e intransmissível. Para garantir a segurança dos seus dados:</p>
+        <ul class="policy-list">
+            <li>Mantenha a sua password confidencial.</li>
+            <li>Não partilhe as suas credenciais com terceiros.</li>
+            <li>É responsável por todas as atividades que ocorram na sua conta.</li>
+        </ul>
+      </div>
+    </div>
 
-    <h2>2. Marcações</h2>
-    <p>As marcações devem ser feitas com dados reais. O salão pode aprovar, reagendar ou cancelar marcações em função da disponibilidade.</p>
+    <hr class="divider">
 
-    <h2>3. Feedbacks</h2>
-    <p>Os feedbacks devem ser respeitosos. Comentários ofensivos ou inadequados podem ser removidos pela administração.</p>
-  </article>
+    <div class="policy-item">
+      <div class="icon-box pink">
+        📅
+      </div>
+      <div class="content-box">
+        <h2>2. Regras de Marcação</h2>
+        <p>Para garantir que o salão funciona sem imprevistos, pedimos que:</p>
+        <p class="highlight-text">
+            As marcações sejam feitas com dados reais e atualizados.
+        </p>
+        <div class="tags-container">
+            <span class="status-tag">✅ Aprovação</span>
+            <span class="status-tag">🔄 Reagendamento</span>
+            <span class="status-tag">❌ Cancelamento</span>
+        </div>
+        <p style="margin-block-start: 10px; font-size: 0.9rem; color: #666;">
+            *O salão reserva-se o direito de gerir a agenda conforme a disponibilidade.
+        </p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="policy-item">
+      <div class="icon-box orange">
+        🤝
+      </div>
+      <div class="content-box">
+        <h2>3. Feedbacks e Comunidade</h2>
+        <p>Valorizamos a sua opinião! No entanto, para manter um ambiente saudável:</p>
+        <ul class="policy-list">
+            <li>Seja respeitoso nos comentários.</li>
+            <li>Críticas construtivas são bem-vindas; insultos não.</li>
+        </ul>
+        <div class="warning-box">
+            ⚠️ Comentários ofensivos ou inadequados serão removidos permanentemente pela administração.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="terms-footer text-center">
+      Vigente desde: <span id="currentDate">Janeiro de 2024</span>
+  </div>
+
 </section>
 
 <style>
-.content-card{
-  background:#fff;
-  border-radius:18px;
-  padding:24px 26px;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
+/* --- ESTILOS GERAIS (Igual à Política de Privacidade) --- */
+.page-hero { padding: 50px 0 30px; }
+.hero-icon { font-size: 3rem; margin-block-end: 10px; animation: float 3s ease-in-out infinite; }
+.hero-title { font-family: 'Playfair Display', serif; font-weight: 700; color: #333; margin-block-end: 10px; }
+.hero-subtitle { color: #6c757d; font-size: 1rem; }
+.main-section { max-inline-size: 800px; margin: 0 auto 60px; }
+
+/* --- CARTÃO PRINCIPAL --- */
+.terms-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.03);
 }
-.content-card h2{
-  margin-block-start:1.4rem;
-  margin-block-end:.4rem;
+
+/* --- ITEM DA POLÍTICA --- */
+.policy-item { display: flex; gap: 25px; align-items: flex-start; }
+
+/* Ícones Coloridos */
+.icon-box {
+    inline-size: 50px; block-size: 50px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; flex-shrink: 0;
+}
+.icon-box.pink { background: #fce4ec; }
+.icon-box.blue { background: #e3f2fd; }
+.icon-box.orange { background: #fff3e0; }
+
+/* Conteúdo */
+.content-box h2 { margin: 0 0 10px; font-size: 1.25rem; font-weight: 700; color: #333; }
+.content-box p { color: #555; line-height: 1.6; margin-block-end: 10px; }
+
+/* Lista */
+.policy-list { list-style: none; padding: 0; margin: 0; }
+.policy-list li {
+    position: relative; padding-inline-start: 20px; margin-block-end: 8px; color: #555; font-size: 0.95rem;
+}
+.policy-list li::before {
+    content: "•"; color: #d63384; font-weight: bold; font-size: 1.2rem;
+    position: absolute; inset-inline-start: 0; inset-block-start: -2px;
+}
+
+/* Extras Visuais */
+.highlight-text { font-weight: 600; color: #333; border-inline-start: 3px solid #d63384; padding-inline-start: 10px; }
+
+.tags-container { display: flex; gap: 10px; flex-wrap: wrap; margin-block-start: 10px; }
+.status-tag { 
+    background: #f8f9fa; border: 1px solid #e9ecef; padding: 5px 12px; 
+    border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: #495057; 
+}
+
+.warning-box {
+    background: #fff3cd; color: #856404; padding: 10px 15px; border-radius: 8px;
+    font-size: 0.9rem; margin-block-start: 15px; border: 1px solid #ffeeba;
+}
+
+/* Divisória e Footer */
+.divider { border: 0; block-size: 1px; background: #f1f1f1; margin: 30px 0; }
+.terms-footer { margin-block-start: 20px; font-size: 0.85rem; color: #adb5bd; }
+
+/* Animação */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .policy-item { flex-direction: column; gap: 15px; }
+    .terms-card { padding: 25px; }
 }
 </style>
+
+<script>
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('pt-PT', options);
+</script>
+
 {% endblock %}

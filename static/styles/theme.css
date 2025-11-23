@@ -55,13 +55,33 @@ body {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: saturate(160%) blur(10px);
   border-bottom: 1px solid var(--border);
+  width: 100%;
 }
+
+/* --- CORREÇÃO CRÍTICA --- */
+/* Esta regra força o contentor do menu a ignorar o limite de 1120px
+   APENAS quando está dentro do cabeçalho. Isto garante que ele se estica
+   em todas as páginas, incluindo a administração. */
+.site-header .container.nav-wrapper {
+    width: 100%;
+    max-width: unset; /* Remove o limite máximo de largura */
+    padding-inline: 30px; /* Dá um espaço elegante nas laterais em ecrãs grandes */
+}
+
+/* Em ecrãs mais pequenos, reduzimos o espaço lateral */
+@media (max-width: 768px) {
+    .site-header .container.nav-wrapper {
+        padding-inline: 20px;
+    }
+}
+/* ------------------------- */
 
 .nav-wrapper {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
+  width: 100%;
 }
 
 /* Logo / marca */

@@ -3,354 +3,216 @@
 
 {% block content %}
 
-<section class="page-hero soft-gradient">
+<section class="page-hero">
   <div class="container text-center">
-    <h1 class="mb-3 font-semibold text-4xl text-gray-800 tracking-tight">
-      Mensagens de Contacto
-    </h1>
-    <p class="text-gray-600 text-sm">
-      Consulte e responda às mensagens recebidas através do formulário de contacto.
-    </p>
+    <h1 class="hero-title">Mensagens de Contacto</h1>
+    <p class="hero-subtitle">Consulte e responda às mensagens recebidas pelo site.</p>
   </div>
 </section>
 
-<!-- Navegação interna -->
-<div class="admin-tabs-wrapper">
-  <div class="container">
-    <nav class="admin-tabs">
-      <a href="{{ url_for('admin_dashboard') }}"
-         class="admin-tab {% if active_tab == 'dashboard' %}is-active{% endif %}">
-        <span class="admin-tab-icon">📊</span>
-        <span class="admin-tab-label">Dashboard</span>
-      </a>
-
-      <a href="{{ url_for('admin_marcacoes') }}"
-         class="admin-tab {% if active_tab == 'marcacoes' %}is-active{% endif %}">
-        <span class="admin-tab-icon">📅</span>
-        <span class="admin-tab-label">Marcações</span>
-      </a>
-
-      <a href="{{ url_for('admin_mensagens') }}"
-         class="admin-tab {% if active_tab == 'mensagens' %}is-active{% endif %}">
-        <span class="admin-tab-icon">✉️</span>
-        <span class="admin-tab-label">Mensagens</span>
-      </a>
-
-      <a href="{{ url_for('admin_feedbacks') }}"
-         class="admin-tab {% if active_tab == 'feedbacks' %}is-active{% endif %}">
-        <span class="admin-tab-icon">💬</span>
-        <span class="admin-tab-label">Feedbacks</span>
-      </a>
+<div class="container nav-wrapper">
+    <nav class="segmented-nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-segment">📊 <span class="d-none d-md-inline">Dashboard</span></a>
+        <a href="{{ url_for('admin_marcacoes') }}" class="nav-segment">📅 <span class="d-none d-md-inline">Marcações</span></a>
+        <a href="{{ url_for('admin_mensagens') }}" class="nav-segment active">✉️ <span class="d-none d-md-inline">Mensagens</span></a>
+        <a href="{{ url_for('admin_feedbacks') }}" class="nav-segment">💬 <span class="d-none d-md-inline">Feedbacks</span></a>
     </nav>
-  </div>
 </div>
 
+<section class="container main-section">
+  <div class="floating-card">
 
+    <div class="toolbar-header">
+        <h5 class="toolbar-title">Caixa de Entrada</h5>
+        
+        <form method="GET" action="{{ url_for('admin_mensagens') }}" class="filter-form">
+            <div class="input-wrapper search-wrapper">
+                <input type="text" name="q" class="modern-input text-input" 
+                       placeholder="Nome, email ou assunto..." value="{{ q or '' }}">
+                <button type="submit" class="search-btn">🔍</button>
+            </div>
+        </form>
+    </div>
 
-<section class="section container">
-  <div class="admin-panel shadow-2xl bg-white/80 backdrop-blur-md rounded-3xl p-10 border border-pink-100">
-
-    <!-- 🔍 PESQUISA -->
-    <form method="GET" action="{{ url_for('admin_mensagens') }}" class="filter-bar">
-      <div class="filter-group">
-        <label for="q">Pesquisar</label>
-        <input type="text" id="q" name="q"
-               placeholder="Nome, e-mail ou assunto"
-               value="{{ q or '' }}">
-      </div>
-
-      <button type="submit" class="btn btn-outline">Filtrar</button>
-    </form>
-
-    <!-- 📬 LISTA DE MENSAGENS -->
-    <div class="table-container">
-      <table class="admin-table">
+    <div class="table-responsive">
+      <table class="elegant-table">
         <thead>
-        <tr>
-          <th>#</th>
-          <th>Cliente</th>
-          <th>E-mail</th>
-          <th>Assunto</th>
-          <th>Mensagem</th>
-          <th>Data</th>
-          <th class="center">Ações</th>
-        </tr>
+          <tr>
+            <th class="text-center" width="50">#</th>
+            <th width="25%">Remetente</th>
+            <th width="20%">Email</th>
+            <th>Assunto</th>
+            <th width="30%">Mensagem</th>
+            <th>Data</th>
+            <th class="text-end">Ações</th>
+          </tr>
         </thead>
         <tbody>
-        {% if mensagens %}
-          {% for m in mensagens %}
-            {# m[0]=Id, m[1]=Nome, m[2]=Email, m[3]=Assunto, m[4]=Mensagem, m[5]=DataEnvio #}
+          {% if mensagens %}
+            {% for m in mensagens %}
+            {# m[0]=Id, m[1]=Nome, m[2]=Email, m[3]=Assunto, m[4]=Mensagem, m[5]=Data #}
             <tr>
-              <td>{{ loop.index }}</td>
+              <td class="text-center index-col">{{ loop.index }}</td>
 
               <td>
-                <div class="feedback-client">
-                  <div class="feedback-avatar-list">
-                    {{ (m[1] or '?')[0]|upper }}
-                  </div>
-                  <div class="feedback-client-info">
-                    <strong>{{ m[1] }}</strong>
-                  </div>
+                <div class="client-info">
+                  {% set nome = m[1] or 'Desconhecido' %}
+                  <div class="avatar-circle">{{ nome[0]|upper }}</div>
+                  <div class="client-name">{{ nome }}</div>
                 </div>
               </td>
 
               <td>
-                <a href="mailto:{{ m[2] }}" class="link">{{ m[2] }}</a>
+                <a href="mailto:{{ m[2] }}" class="email-link">{{ m[2] }}</a>
               </td>
 
               <td>
-                <span class="badge-assunto">{{ m[3] }}</span>
+                <span class="subject-badge">{{ m[3] }}</span>
               </td>
 
-              <td style="max-inline-size:320px;">
-                <span class="comment-text">{{ m[4] }}</span>
+              <td class="obs-col" title="{{ m[4] }}">
+                {{ m[4] }}
               </td>
 
               <td>
                 {% if m[5] %}
-                  {{ m[5].strftime('%d/%m/%Y %H:%M') }}
+                  <div class="date-wrapper">
+                      <span class="fw-bold">{{ m[5].strftime('%d/%m') }}</span>
+                      <span class="text-muted small">{{ m[5].strftime('%H:%M') }}</span>
+                  </div>
                 {% else %}
-                  —
+                  <span class="text-muted">—</span>
                 {% endif %}
               </td>
 
-              <td class="center actions-cell">
-                <button
-                  type="button"
-                  class="btn btn-outline btn-sm btn-remover-mensagem"
-                  data-url="{{ url_for('admin_eliminar_mensagem', id=m[0]) }}"
-                  data-nome="{{ m[1] }}"
-                  data-assunto="{{ m[3] }}"
-                >
-                  Remover
-                </button>
+              <td class="text-end">
+                  <div class="action-buttons">
+                    <button type="button" 
+                            class="btn-icon times btn-open-modal"
+                            data-url="{{ url_for('admin_eliminar_mensagem', id=m[0]) }}"
+                            data-nome="{{ m[1] }}"
+                            data-assunto="{{ m[3] }}"
+                            title="Remover">
+                        ✖
+                    </button>
+                  </div>
               </td>
             </tr>
-          {% endfor %}
-        {% else %}
-          <tr>
-            <td colspan="7" class="center text-muted">
-              Não existem mensagens para apresentar.
-            </td>
-          </tr>
-        {% endif %}
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="7" class="empty-state">Nenhuma mensagem recebida.</td></tr>
+          {% endif %}
         </tbody>
       </table>
     </div>
+
   </div>
 </section>
 
-<!-- 🌸 MODAL PARA REMOVER MENSAGEM -->
-<div id="modalRemoverMensagem" class="modal-overlay">
+<div id="confirmModal" class="modal-backdrop" style="display:none;">
   <div class="modal-card">
-    <h2>Remover mensagem</h2>
+    <div class="modal-icon">🗑️</div>
+    <h3>Apagar Mensagem</h3>
     <p>
-      Tem a certeza que quer remover a mensagem de
-      <strong id="modalMensagemNome">este cliente</strong>
-      com o assunto <strong id="modalMensagemAssunto"></strong>?
+      Quer remover a mensagem de <strong id="modalNome"></strong><br>
+      sobre "<span id="modalAssunto"></span>"?
     </p>
-
     <div class="modal-actions">
-      <button type="button" class="btn btn-outline" id="btnCancelarRemocaoMensagem">
-        Cancelar
-      </button>
-
-      <form method="POST" id="formRemoverMensagem" action="">
-        <button type="submit" class="btn btn-primary">
-          Sim, remover
-        </button>
+      <button type="button" class="btn-modal cancel" id="cancelModal">Cancelar</button>
+      <form method="POST" id="modalForm">
+        <button type="submit" class="btn-modal confirm">Apagar</button>
       </form>
     </div>
   </div>
 </div>
 
 <style>
-.admin-panel{
-  border-radius:24px;
-}
+  /* Layout & Hero */
+  .page-hero { padding: 40px 0 20px; }
+  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-block-end: 5px; }
+  .hero-subtitle { color: #6c757d; font-size: 0.95rem; margin: 0; }
+  .main-section { margin: 20px auto 60px; }
 
-/* Filtros */
-.filter-bar{
-  display:flex;
-  gap:18px;
-  align-items:flex-end;
-  margin-block-end:20px;
-  flex-wrap:wrap;
-}
-.filter-group{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-.filter-group label{
-  font-size:.85rem;
-  font-weight:600;
-  color:#6b7280;
-}
-.filter-group input{
-  padding:8px 10px;
-  border-radius:999px;
-  border:1px solid var(--border);
-  font-size:.9rem;
-}
+  /* Menu */
+  .nav-wrapper { display: flex; justify-content: center; margin-block-end: 10px; }
+  .segmented-nav { background: #f1f3f5; padding: 5px; border-radius: 50px; display: inline-flex; gap: 5px; }
+  .nav-segment { padding: 10px 25px; border-radius: 40px; text-decoration: none; color: #6c757d; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+  .nav-segment:hover { color: #333; background: rgba(255,255,255,0.6); }
+  .nav-segment.active { background: #fff; color: #d63384; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
 
-/* Tabela */
-.table-container{
-  inline-size:100%;
-  overflow-x:auto;
-}
-.admin-table{
-  inline-size:100%;
-  border-collapse:collapse;
-  font-size:.9rem;
-}
-.admin-table th,
-.admin-table td{
-  padding:10px 12px;
-  border-block-end:1px solid #f1d8e2;
-}
-.admin-table th{
-  text-align:start;
-  background:#fff7fb;
-}
-.admin-table tr:hover{
-  background:#fff9fc;
-}
-.admin-table .center{
-  text-align:center;
-}
+  /* Card & Filters */
+  .floating-card { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(180,180,200,0.15); border: 1px solid rgba(255,255,255,0.8); }
+  .toolbar-header { display: flex; justify-content: space-between; align-items: center; margin-block-end: 25px; gap: 15px; flex-wrap: wrap; }
+  .toolbar-title { font-weight: 700; color: #343a40; margin: 0; }
+  .filter-form { display: flex; gap: 10px; }
+  .modern-input { background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px 18px; border-radius: 50px; font-size: 0.9rem; outline: none; transition: 0.2s; }
+  .modern-input:focus { background: #fff; border-color: #fce4ec; box-shadow: 0 0 0 4px rgba(214, 51, 132, 0.1); }
+  .search-wrapper { position: relative; }
+  .search-btn { position: absolute; inset-inline-end: 5px; inset-block-start: 50%; transform: translateY(-50%); inline-size: 34px; block-size: 34px; border-radius: 50%; border: none; background: #d63384; color: white; cursor: pointer; }
+  
+  /* Table */
+  .elegant-table { inline-size: 100%; border-collapse: separate; border-spacing: 0; }
+  .elegant-table th { text-align: start; font-size: 0.75rem; text-transform: uppercase; color: #adb5bd; font-weight: 700; padding: 15px; border-block-end: 1px solid #f1f3f5; }
+  .elegant-table td { padding: 16px 15px; vertical-align: middle; border-block-end: 1px solid #f8f9fa; font-size: 0.95rem; background: #fff; }
+  .elegant-table tr:hover td { background-color: #fffbfd; }
+  
+  /* Elements */
+  .client-info { display: flex; align-items: center; gap: 15px; }
+  .avatar-circle { inline-size: 40px; block-size: 40px; background: linear-gradient(135deg, #fce4ec, #f8bbd0); color: #c2185b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+  .client-name { font-weight: 600; color: #343a40; }
+  
+  /* Específico Mensagens */
+  .email-link { color: #d63384; text-decoration: none; font-weight: 500; font-size: 0.85rem; }
+  .email-link:hover { text-decoration: underline; }
+  .subject-badge { background: #f3e5f5; color: #7b1fa2; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; }
+  .obs-col { max-inline-size: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6c757d; }
+  
+  .date-wrapper { display: flex; flex-direction: column; line-height: 1.3; }
+  .fw-bold { font-weight: 600; } .text-muted { color: #adb5bd; } .small { font-size: 0.8rem; }
+  
+  /* Buttons */
+  .action-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+  .btn-icon { inline-size: 32px; block-size: 32px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+  .btn-icon.times { background: #fff5f5; color: #c53030; } .btn-icon.times:hover { background: #c53030; color: #fff; }
+  .empty-state { text-align: center; padding: 50px; color: #adb5bd; }
 
-/* Cliente / avatar */
-.feedback-client{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.feedback-avatar-list{
-  inline-size:32px;
-  block-size:32px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#f7b6c2,#ffd9ec);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  font-weight:600;
-  font-size:14px;
-}
-.feedback-client-info{
-  display:flex;
-  flex-direction:column;
-}
+  /* Modal */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); }
+  .modal-card { background: #fff; padding: 30px; border-radius: 20px; inline-size: 90%; max-inline-size: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+  .modal-icon { font-size: 2rem; margin-block-end: 10px; }
+  .modal-card h3 { margin: 0 0 10px; font-size: 1.2rem; font-weight: 700; color: #333; }
+  .modal-card p { color: #666; margin-block-end: 25px; font-size: 0.95rem; line-height: 1.5; }
+  .modal-card strong { color: #333; }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; }
+  .btn-modal { border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+  .btn-modal.cancel { background: #f1f3f5; color: #666; } .btn-modal.cancel:hover { background: #e9ecef; }
+  .btn-modal.confirm { background: #d63384; color: #fff; } .btn-modal.confirm:hover { background: #b01b65; }
 
-/* Texto da mensagem */
-.comment-text{
-  display:block;
-  font-size:.9rem;
-  color:#4b5563;
-  line-height:1.5;
-}
-
-/* Assunto em badge */
-.badge-assunto{
-  display:inline-flex;
-  align-items:center;
-  padding:4px 10px;
-  border-radius:999px;
-  background:#fff2f7;
-  color:#9b1c5c;
-  font-size:.82rem;
-  font-weight:600;
-}
-
-/* Botões */
-.btn-sm{
-  padding:6px 10px;
-  font-size:.8rem;
-}
-.actions-cell{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-/* ==============================
-   🧼 Modal de confirmação
-   ============================== */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-.modal-overlay.show {
-  display: flex;
-}
-.modal-card {
-  background: #fff;
-  border-radius: 24px;
-  padding: 24px 26px;
-  max-inline-size: 420px;
-  inline-size: 90%;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.18);
-  border: 1px solid var(--border);
-}
-.modal-card h2 {
-  margin: 0 0 8px 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-.modal-card p {
-  margin: 0 0 20px 0;
-  color: var(--muted);
-  line-height: 1.5;
-}
-.modal-card strong {
-  color: var(--ink);
-}
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
+  @media (max-inline-size: 768px) { .filter-form { flex-direction: column; inline-size: 100%; } .modern-input { inline-size: 100%; } }
 </style>
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const modal = document.getElementById("modalRemoverMensagem");
-  const nomeSpan = document.getElementById("modalMensagemNome");
-  const assuntoSpan = document.getElementById("modalMensagemAssunto");
-  const form = document.getElementById("formRemoverMensagem");
-  const btnCancelar = document.getElementById("btnCancelarRemocaoMensagem");
+  const modal = document.getElementById("confirmModal");
+  const modalForm = document.getElementById("modalForm");
+  const modalNome = document.getElementById("modalNome");
+  const modalAssunto = document.getElementById("modalAssunto");
+  const cancelBtn = document.getElementById("cancelModal");
 
-  if (!modal) return;
-
-  document.querySelectorAll(".btn-remover-mensagem").forEach(btn => {
+  document.querySelectorAll(".btn-open-modal").forEach(btn => {
     btn.addEventListener("click", () => {
-      const url = btn.dataset.url;
-      const nome = btn.dataset.nome || "este cliente";
-      const assunto = btn.dataset.assunto || "(sem assunto)";
-
-      form.action = url;
-      nomeSpan.textContent = nome;
-      assuntoSpan.textContent = assunto;
-      modal.classList.add("show");
+      // Vai buscar os dados guardados no botão (data-url, data-nome, etc)
+      modalForm.action = btn.dataset.url;
+      modalNome.textContent = btn.dataset.nome || "Cliente";
+      modalAssunto.textContent = btn.dataset.assunto || "sem assunto";
+      
+      modal.style.display = "flex";
     });
   });
 
-  btnCancelar.addEventListener("click", () => {
-    modal.classList.remove("show");
-  });
-
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.classList.remove("show");
-  });
+  cancelBtn.addEventListener("click", () => modal.style.display = "none");
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 });
 </script>
+
 {% endblock %}

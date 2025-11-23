@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Início • {{ super() }}{% endblock %}
+
 {% block content %}
 
-<!-- 🌸 HERO -->
 <section class="hero">
   <div class="overlay"></div>
   <div class="container hero-content">
     <h1 class="display">Beleza que combina contigo</h1>
-    <p>Tratamentos relaxantes e resultados impecáveis com um toque de delicadeza.</p>
+    
+    <p>Unhas impecáveis e cuidado especializado para realçar a beleza das suas mãos.</p>
+    
     <div class="hero-actions">
       <a href="{{ url_for('agendar_redirect') }}" class="btn btn-pink">Agendar agora</a>
       <a href="{{ url_for('servicos') }}" class="btn btn-light">Ver serviços</a>
@@ -15,68 +17,71 @@
   </div>
 </section>
 
-<!-- 💅 SERVIÇOS EM DESTAQUE -->
 <section class="section container">
   <header class="section-header">
     <h2 class="section-title">Bem-vinda à nossa agenda</h2>
     <p class="section-subtitle">Experiência, segurança e um atendimento feito sob medida.</p>
   </header>
 
-  <div class="grid cards-3">
-    <article class="card lift">
-      <img src="{{ url_for('static', filename='imagens/inicio/massagem.png') }}" alt="Massagem relaxante" />
-      <div class="card-body">
-        <h3>Massagem Relaxante</h3>
-        <p>Alivie o stress do dia a dia com terapias manuais e aromas suaves.</p>
-        <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
+  <div class="featured-service-wrapper">
+    <article class="featured-card">
+      <div class="featured-image">
+        <img src="{{ url_for('static', filename='imagens/inicio/manicure.png') }}" alt="Manicure Profissional" />
       </div>
-    </article>
-
-    <article class="card lift">
-      <img src="{{ url_for('static', filename='imagens/inicio/skincare.png') }}" alt="Tratamento facial" />
-      <div class="card-body">
-        <h3>Skincare &amp; Facial</h3>
-        <p>Protocolos personalizados para cada tipo de pele, com ativos de alta performance.</p>
-        <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
-      </div>
-    </article>
-
-    <article class="card lift">
-      <img src="{{ url_for('static', filename='imagens/inicio/manicure.png') }}" alt="Manicure" />
-      <div class="card-body">
-        <h3>Manicure &amp; Pedicure</h3>
-        <p>Unhas impecáveis com esmaltes hipoalergénicos e esterilização rigorosa.</p>
-        <a href="{{ url_for('servicos') }}" class="link">Saiba mais →</a>
+      
+      <div class="featured-content">
+        <h3>Manicure Profissional</h3>
+        <p>
+          As suas mãos merecem o melhor cuidado. Utilizamos esmaltes hipoalergénicos de alta duração e seguimos rigorosos processos de esterilização.
+        </p>
+        <ul class="feature-list">
+            <li>✨ Cuticulagem perfeita</li>
+            <li>💅 Esmaltagem duradoura</li>
+            <li>🛡️ Material 100% esterilizado</li>
+        </ul>
+        <div class="featured-action">
+            <a href="{{ url_for('servicos') }}" class="btn-link-pink">
+              Ver Detalhes e Agendar <span class="arrow">→</span>
+            </a>
+        </div>
       </div>
     </article>
   </div>
 </section>
 
-<!-- 💬 FEEDBACK DOS CLIENTES -->
-{% if feedbacks %}
-<section class="section container">
-  <header class="section-header">
-    <h2 class="section-title">O que dizem as nossas clientes 💕</h2>
-    <p class="section-subtitle">Veja algumas das opiniões reais deixadas na plataforma.</p>
-  </header>
+<div class="section-divider">
+    <span class="line"></span>
+    <span class="icon">✨</span>
+    <span class="line"></span>
+</div>
 
-  <div class="grid cards-3">
-    {% for f in feedbacks %}
-      <article class="card lift">
-        <div class="card-body">
-          <p>⭐ {{ f[2] }}/5</p>
-          <blockquote>“{{ f[3] }}”</blockquote>
-          <small>– {{ f[1] }}</small>
+{% if feedbacks %}
+<section class="section bg-soft-pink">
+  <div class="container">
+    <header class="section-header">
+      <h2 class="section-title">O que dizem as nossas clientes 💕</h2>
+      <p class="section-subtitle">Veja algumas das opiniões reais deixadas na plataforma.</p>
+    </header>
+
+    <div class="grid cards-3">
+      {% for f in feedbacks %}
+        <article class="card lift feedback-card">
+          <div class="card-body">
+            <div class="rating">⭐ {{ f[2] }}/5</div>
+            <blockquote class="feedback-text">“{{ f[3] }}”</blockquote>
+            <small class="feedback-author">– {{ f[1] }}</small>
+          </div>
+        </article>
+      {% else %}
+        <div class="text-center" style="grid-column: 1 / -1;">
+          <p style="color:#777;">Ainda não há feedbacks disponíveis.</p>
         </div>
-      </article>
-    {% else %}
-      <p style="text-align:center;color:#777;">Ainda não há feedbacks disponíveis.</p>
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
 </section>
 {% endif %}
 
-<!-- 📅 CTA FINAL -->
 <section class="cta">
   <div class="container cta-inner">
     <h3>Quer um horário hoje?</h3>
@@ -84,5 +89,72 @@
     <a class="btn btn-dark" href="{{ url_for('marcacoes') }}">Fazer marcação</a>
   </div>
 </section>
+
+<style>
+  /* Wrapper para centrar o cartão */
+  .featured-service-wrapper {
+      display: flex; justify-content: center; padding: 20px 0;
+  }
+
+  /* Cartão Destaque Horizontal */
+  .featured-card {
+      display: flex; flex-direction: row;
+      background: #fff; border-radius: 24px; overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+      max-inline-size: 900px; inline-size: 100%; border: 1px solid #f8f8f8;
+      transition: transform 0.3s ease;
+  }
+  .featured-card:hover { transform: translateY(-5px); }
+
+  /* Imagem e Conteúdo */
+  .featured-image { flex: 1; min-block-size: 300px; }
+  .featured-image img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+  
+  .featured-content { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+  .featured-content h3 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #333; margin-block-end: 15px; }
+  .featured-content p { color: #666; line-height: 1.6; margin-block-end: 20px; }
+
+  /* Lista de Vantagens */
+  .feature-list { list-style: none; padding: 0; margin: 0 0 25px 0; }
+  .feature-list li { margin-block-end: 8px; color: #555; font-weight: 500; }
+
+  /* Link Rosa */
+  .btn-link-pink {
+      text-decoration: none; color: #d63384; font-weight: 700; font-size: 1rem;
+      display: inline-flex; align-items: center; gap: 8px; transition: gap 0.2s;
+  }
+  .btn-link-pink:hover { gap: 12px; color: #ad1457; }
+
+  /* ✨ DIVISÓRIA */
+  .section-divider {
+      display: flex; align-items: center; justify-content: center; gap: 15px;
+      margin: 40px auto 0; /* Espaço apenas em cima, o fundo rosa trata de baixo */
+      max-inline-size: 200px; opacity: 0.6;
+  }
+  .section-divider .line { block-size: 1px; background-color: #d63384; flex: 1; }
+  .section-divider .icon { font-size: 1.2rem; }
+
+  /* 🌸 NOVO: Fundo Rosa Suave para Feedbacks */
+  .bg-soft-pink {
+      background-color: #fff9fb; /* Rosa quase branco */
+      padding: 80px 0; /* Espaço interno generoso */
+      margin-block-start: 40px; /* Distância da divisória */
+      border-block-start: 1px solid #fff0f5;
+      border-block-end: 1px solid #fff0f5;
+  }
+
+  /* Feedback Cards */
+  .feedback-card { border-radius: 16px; background: #fff; border: 1px solid #f1f1f1; }
+  .feedback-text { font-style: italic; color: #555; margin: 10px 0; }
+  .feedback-author { font-weight: 600; color: #d63384; }
+
+  /* Mobile */
+  @media (max-inline-size: 768px) {
+      .featured-card { flex-direction: column; }
+      .featured-image { block-size: 250px; }
+      .featured-content { padding: 25px; }
+      .featured-content h3 { font-size: 1.5rem; }
+  }
+</style>
 
 {% endblock %}
