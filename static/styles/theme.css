@@ -1,6 +1,7 @@
 /* =========================================
    🎨 VARIÁVEIS & BASE
 ========================================= */
+
 :root {
   --pink: #f7b6c2;
   --pink-600: #eaa7b4;
@@ -30,6 +31,8 @@ body {
   background: linear-gradient(180deg, #fff, #fff8fb 80%);
   line-height: 1.65;
 }
+
+/* Layout base */
 
 .container {
   width: min(1120px, 92%);
@@ -61,6 +64,8 @@ body {
   padding: 12px 0;
 }
 
+/* Logo / marca */
+
 .brand {
   display: flex;
   flex-direction: column;
@@ -80,6 +85,8 @@ body {
   margin-top: -3px;
 }
 
+/* Links principais */
+
 .nav a {
   margin-left: 22px;
   text-decoration: none;
@@ -96,11 +103,12 @@ body {
 }
 
 /* destaca link ativo */
+
 .nav-link-active {
   background: #ffe6ee;
 }
 
-/* menu mobile */
+/* Menu mobile (hamburger) */
 
 .nav-toggle {
   display: none;
@@ -178,7 +186,7 @@ body {
 }
 
 /* =========================================
-   🦄 HERO / CTA INICIAL
+   🦄 HERO / HOME
 ========================================= */
 
 .hero {
@@ -292,6 +300,8 @@ body {
   margin: 8px 0 0 0;
 }
 
+/* Grids genéricos */
+
 .grid {
   display: grid;
   gap: 22px;
@@ -367,6 +377,8 @@ body {
   color: var(--ink);
 }
 
+/* Elevation */
+
 .lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -435,7 +447,7 @@ body {
 }
 
 /* =========================================
-   📝 FORMULÁRIOS
+   📝 FORMULÁRIOS (login, registo, etc.)
 ========================================= */
 
 .form {
@@ -504,7 +516,7 @@ body {
   transform: scale(1.15);
 }
 
-/* Campo de pesquisa estilizado */
+/* Campo de pesquisa estilizado (serviços, etc.) */
 
 .search-box {
   position: relative;
@@ -632,12 +644,7 @@ body {
   color: var(--muted);
 }
 
-.list-unstyled {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
+.list-unstyled,
 .footer-info-links {
   padding: 0;
   margin: 0;
@@ -662,7 +669,7 @@ body {
 }
 
 /* =========================================
-   🔔 ALERTAS / FLASH MESSAGES
+   🔔 ALERTAS / FLASH MESSAGES (Flask)
 ========================================= */
 
 .flash-messages,
@@ -732,7 +739,7 @@ body {
   transform: translateY(-10px);
 }
 
-/* animações */
+/* animação de entrada */
 
 @keyframes fadeSlideIn {
   from {
@@ -775,6 +782,8 @@ body {
   background: #ffdbe9;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
 }
+
+/* avatar genérico – também usado nas tabelas do admin */
 
 .avatar {
   inline-size: 30px;
@@ -965,7 +974,7 @@ body {
 }
 
 /* =========================================
-   💬 FEEDBACKS ADMIN
+   💬 FEEDBACKS ADMIN (lista)
 ========================================= */
 
 .container-feedbacks {
@@ -1087,7 +1096,7 @@ body {
   margin: 0 auto 3rem auto;
 }
 
-/* layout do slider */
+/* Layout do slider */
 
 .feedback-slider {
   position: relative;
@@ -1328,43 +1337,83 @@ body {
 }
 
 /* =========================================
-   🛠️ NAV ADMIN
+   🛠️ ÁREA ADMIN – TABS + MODAL
 ========================================= */
 
+/* 🔹 TABS DE ADMINISTRAÇÃO
+   Usa .admin-tabs no <nav> e .admin-tab em cada <a>.
+   .admin-nav e .admin-nav a estão aqui como "legado"
+   mas partilham o MESMO estilo → tudo fica alinhado. */
+
+.admin-tabs,
 .admin-nav {
   display: flex;
-  gap: 12px;
-  margin-block-end: 20px;
-  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 24px auto 10px;
 }
 
+/* Estilo dos botões das tabs */
+.admin-tab,
 .admin-nav a {
-  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  font-size: 0.85rem;
+  border: 1px solid #f6cfe0;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(247, 182, 194, 0.15);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #57536b;
   text-decoration: none;
-  color: var(--ink);
+  transition: all 0.18s ease;
 }
 
+.admin-tab-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ffe6f0;
+  font-size: 0.75rem;
+}
+
+/* hover em qualquer tab */
+
+.admin-tab:hover,
 .admin-nav a:hover {
-  background: #ffe9f3;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(247, 182, 194, 0.2);
+  border-color: #f39cbc;
 }
 
+/* estado ativo
+   - .admin-tab.is-active  → novo HTML
+   - .admin-nav a.active   → HTML legado        */
+
+.admin-tab.is-active,
 .admin-nav a.active {
-  background: #ec4899;
-  color: #fff;
-  border-color: #ec4899;
+  background: linear-gradient(135deg, #ff4fa6, #ff81c0);
+  color: #ffffff;
+  border-color: transparent;
 }
-/* ==============================
-   🧼 Modal de confirmação
-   ============================== */
+
+.admin-tab.is-active .admin-tab-icon {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* 🔹 Modal de confirmação (cancelar marcação, etc.) */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
-  display: none;                /* escondido por defeito */
+  display: none; /* escondido por defeito */
   align-items: center;
   justify-content: center;
   z-index: 999;
@@ -1404,55 +1453,4 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-}
-/* NAV ADMIN – tabs iguais em todas as páginas */
-.admin-nav {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  justify-content: flex-start;
-  margin: 24px auto 10px;
-}
-
-.admin-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 999px;
-  border: 1px solid #f6cfe0;
-  background: #ffffff;
-  box-shadow: 0 8px 20px rgba(247, 182, 194, 0.15);
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #57536b;
-  text-decoration: none;
-  transition: all 0.18s ease;
-}
-
-.admin-tab-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #ffe6f0;
-  font-size: 0.75rem;
-}
-
-.admin-tab:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(247, 182, 194, 0.2);
-  border-color: #f39cbc;
-}
-
-.admin-tab.is-active {
-  background: linear-gradient(135deg, #ff4fa6, #ff81c0);
-  color: #ffffff;
-  border-color: transparent;
-}
-
-.admin-tab.is-active .admin-tab-icon {
-  background: rgba(255, 255, 255, 0.18);
 }
