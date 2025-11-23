@@ -38,7 +38,7 @@ serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Domínio base para gerar URLs externas corretamente (Render)
 app.config["PREFERRED_URL_SCHEME"] = "https"
-app.config["SERVER_NAME"] = "agendabeleza.pt"
+app.config["SERVER_NAME"] = os.getenv("SERVER_NAME", "agenda-beleza-ipca.onrender.com") 
 
 
 # =============================================================================
