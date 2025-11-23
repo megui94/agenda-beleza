@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin • {{ super() }}{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Área de Administração</h1>
+    <p>Resumo rápido das marcações, clientes e feedbacks.</p>
+  </div>
+</section>
+
+<section class="section container">
+
+  <!-- NAV DO ADMIN (OS BOTÕES AQUI PASSAM A SER LINKS REAIS) -->
+<div class="admin-tabs-wrapper">
+  <div class="container">
+    <nav class="admin-tabs">
+      <a href="{{ url_for('admin_dashboard') }}"
+         class="admin-tab {% if active_tab == 'dashboard' %}is-active{% endif %}">
+        <span class="admin-tab-icon">📊</span>
+        <span class="admin-tab-label">Dashboard</span>
+      </a>
+
+      <a href="{{ url_for('admin_marcacoes') }}"
+         class="admin-tab {% if active_tab == 'marcacoes' %}is-active{% endif %}">
+        <span class="admin-tab-icon">📅</span>
+        <span class="admin-tab-label">Marcações</span>
+      </a>
+
+      <a href="{{ url_for('admin_mensagens') }}"
+         class="admin-tab {% if active_tab == 'mensagens' %}is-active{% endif %}">
+        <span class="admin-tab-icon">✉️</span>
+        <span class="admin-tab-label">Mensagens</span>
+      </a>
+
+      <a href="{{ url_for('admin_feedbacks') }}"
+         class="admin-tab {% if active_tab == 'feedbacks' %}is-active{% endif %}">
+        <span class="admin-tab-icon">💬</span>
+        <span class="admin-tab-label">Feedbacks</span>
+      </a>
+    </nav>
+  </div>
+</div>
+
+
+  <!-- GRID PRINCIPAL DO DASHBOARD -->
+  <div class="grid cards-3">
+
+    <!-- CARTÃO: MARCAÇÕES -->
+    <article class="card lift">
+      <div class="card-body">
+        <h3>Total de marcações</h3>
+        <p class="display" style="font-size: 32px; margin: 8px 0;">
+          {{ total_marcacoes }}
+        </p>
+        <p class="text-muted">
+          Pendentes hoje: <strong>{{ pendentes_hoje }}</strong><br>
+          Aprovadas hoje: <strong>{{ aprovadas_hoje }}</strong>
+        </p>
+      </div>
+    </article>
+
+    <!-- CARTÃO: CLIENTES -->
+    <article class="card lift">
+      <div class="card-body">
+        <h3>Clientes registados</h3>
+        <p class="display" style="font-size: 32px; margin: 8px 0;">
+          {{ total_clientes }}
+        </p>
+        <p class="text-muted">
+          Contas criadas na Agenda Beleza.
+        </p>
+      </div>
+    </article>
+
+    <!-- CARTÃO: FEEDBACKS -->
+    <article class="card lift">
+      <div class="card-body">
+        <h3>Feedbacks aprovados</h3>
+        <p class="display" style="font-size: 32px; margin: 8px 0;">
+          {{ total_feedbacks_aprovados }}
+        </p>
+        <p class="text-muted">
+          Comentários visíveis na página pública de feedbacks.
+        </p>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- LINHA 2 DO DASHBOARD -->
+  <div class="grid" style="margin-block-start: 24px; grid-template-columns: 2fr 1fr; gap: 20px;">
+
+    <!-- CARTÃO: SERVIÇO MAIS MARCADO -->
+    <article class="card lift">
+      <div class="card-body">
+        <h3>Serviço mais marcado</h3>
+        {% if servico_top %}
+          <p class="display" style="font-size: 24px; margin: 8px 0;">
+            {{ servico_top }}
+          </p>
+          <p class="text-muted">
+            Número de marcações: <strong>{{ servico_top_qtd }}</strong>
+          </p>
+        {% else %}
+          <p class="text-muted">Ainda não existem marcações registadas.</p>
+        {% endif %}
+      </div>
+    </article>
+
+    <!-- CARTÃO: ATALHOS RÁPIDOS (AQUI ESTÃO OS LINKS QUE NÃO FUNCIONAVAM) -->
+    <article class="card lift">
+      <div class="card-body">
+        <h3>Atalhos rápidos</h3>
+        <ul class="list-unstyled" style="margin-block-start: 10px;">
+          <li style="margin-block-end: 6px;">
+            <a href="{{ url_for('admin_marcacoes') }}" class="link">
+              Ver todas as marcações →
+            </a>
+          </li>
+          <li style="margin-block-end: 6px;">
+            <a href="{{ url_for('admin_feedbacks') }}" class="link">
+              Gerir feedbacks →
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('admin_mensagens') }}" class="link">
+              Mensagens de contacto →
+            </a>
+          </li>
+        </ul>
+      </div>
+    </article>
+
+  </div>
+
+</section>
+{% endblock %}

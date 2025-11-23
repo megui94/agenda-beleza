@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Termos & Condições • {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="page-hero soft-gradient">
+  <div class="container">
+    <h1>Termos & Condições</h1>
+    <p>Condições de utilização da plataforma Agenda Beleza.</p>
+  </div>
+</section>
+
+<section class="section container">
+  <article class="content-card">
+    <h2>1. Utilização da conta</h2>
+    <p>O utilizador é responsável pela confidencialidade da sua password e pela utilização da sua conta.</p>
+
+    <h2>2. Marcações</h2>
+    <p>As marcações devem ser feitas com dados reais. O salão pode aprovar, reagendar ou cancelar marcações em função da disponibilidade.</p>
+
+    <h2>3. Feedbacks</h2>
+    <p>Os feedbacks devem ser respeitosos. Comentários ofensivos ou inadequados podem ser removidos pela administração.</p>
+  </article>
+</section>
+
+<style>
+.content-card{
+  background:#fff;
+  border-radius:18px;
+  padding:24px 26px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+}
+.content-card h2{
+  margin-block-start:1.4rem;
+  margin-block-end:.4rem;
+}
+</style>
+{% endblock %}

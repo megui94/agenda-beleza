@@ -1,36 +1,344 @@
 {% extends "base.html" %}
-{% block title %}Gerir Feedbacks{% endblock %}
+{% block title %}Feedbacks • Administração • {{ super() }}{% endblock %}
 
 {% block content %}
-<div class="container-feedbacks">
-  <h2 class="feedbacks-title">💬 Gerir Feedbacks</h2>
 
-  {% for fb in feedbacks %}
-    <div class="feedback-card">
-      <div class="feedback-header">
-        <p class="feedback-author">
-          <strong>{{ fb.NomeCliente }}</strong>
-          — <em>{{ fb.DataEnvio.strftime("%d/%m/%Y") }}</em>
-        </p>
-        {% if fb.Classificacao %}
-        <p class="feedback-stars">⭐ {{ fb.Classificacao }}/5</p>
-        {% endif %}
-      </div>
+<section class="page-hero soft-gradient">
+  <div class="container text-center">
+    <h1 class="mb-3 font-semibold text-4xl text-gray-800 tracking-tight">Gestão de Feedbacks</h1>
+    <p class="text-gray-600 text-sm">Aprovar, remover e acompanhar as opiniões dos clientes.</p>
+  </div>
+</section>
 
-      <!-- 💬 MENSAGEM DO UTILIZADOR -->
-      <p class="feedback-comment">
-        {{ fb.Comentario }}
-      </p>
+<!-- Navegação interna da área de administração -->
+<div class="admin-tabs-wrapper">
+  <div class="container">
+    <nav class="admin-tabs">
+      <a href="{{ url_for('admin_dashboard') }}"
+         class="admin-tab {% if active_tab == 'dashboard' %}is-active{% endif %}">
+        <span class="admin-tab-icon">📊</span>
+        <span class="admin-tab-label">Dashboard</span>
+      </a>
 
-      <div class="feedback-actions">
-        <form action="{{ url_for('aprovar_feedback', id=fb.Id) }}" method="post">
-          <button type="submit" class="btn-approve">✅ Aprovar</button>
-        </form>
-        <form action="{{ url_for('rejeitar_feedback', id=fb.Id) }}" method="post">
-          <button type="submit" class="btn-reject">❌ Rejeitar</button>
-        </form>
-      </div>
-    </div>
-  {% endfor %}
+      <a href="{{ url_for('admin_marcacoes') }}"
+         class="admin-tab {% if active_tab == 'marcacoes' %}is-active{% endif %}">
+        <span class="admin-tab-icon">📅</span>
+        <span class="admin-tab-label">Marcações</span>
+      </a>
+
+      <a href="{{ url_for('admin_mensagens') }}"
+         class="admin-tab {% if active_tab == 'mensagens' %}is-active{% endif %}">
+        <span class="admin-tab-icon">✉️</span>
+        <span class="admin-tab-label">Mensagens</span>
+      </a>
+
+      <a href="{{ url_for('admin_feedbacks') }}"
+         class="admin-tab {% if active_tab == 'feedbacks' %}is-active{% endif %}">
+        <span class="admin-tab-icon">💬</span>
+        <span class="admin-tab-label">Feedbacks</span>
+      </a>
+    </nav>
+  </div>
 </div>
+
+
+
+<section class="section container">
+  <div class="admin-panel card">
+
+    <!-- 🔍 FILTROS -->
+    <form method="GET" action="{{ url_for('admin_feedbacks') }}" class="filter-bar">
+      <div class="filter-group">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+          <option value="" {% if not estado %}selected{% endif %}>Todos</option>
+          <option value="aprovado" {% if estado == 'aprovado' %}selected{% endif %}>Aprovados</option>
+          <option value="pendente" {% if estado == 'pendente' %}selected{% endif %}>Pendentes</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="q">Pesquisar</label>
+        <input type="text" id="q" name="q"
+               placeholder="Nome do cliente ou comentário"
+               value="{{ termo or '' }}">
+      </div>
+
+      <button type="submit" class="btn btn-outline">Filtrar</button>
+    </form>
+
+    <!-- 📋 TABELA -->
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:40px;">#</th>
+            <th style="width:230px;">Cliente</th>
+            <th style="width:130px;">Classificação</th>
+            <th>Comentário</th>
+            <th style="width:150px;">Data</th>
+            <th style="width:140px;">Estado</th>
+            <th style="width:180px;" class="center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if feedbacks %}
+            {% for f in feedbacks %}
+            {# f é um dict: Id, NomeCliente, Classificacao, Comentario, DataEnvio, Aprovado #}
+            <tr>
+              <td>{{ loop.index }}</td>
+
+              <td>
+                <div class="user-cell">
+                  {% set nome = f.NomeCliente or 'Cliente' %}
+                  <div class="avatar">{{ nome[0]|upper }}</div>
+                  <span class="user-name">{{ nome }}</span>
+                </div>
+              </td>
+
+              <td>
+                <span class="rating-pill">
+                  {{ f.Classificacao }}/5
+                  <span class="star">★</span>
+                </span>
+              </td>
+
+              <td style="max-width: 340px;">
+                <span class="comentario-text">
+                  {{ f.Comentario }}
+                </span>
+              </td>
+
+              <td>
+                {% if f.DataEnvio %}
+                  {{ f.DataEnvio.strftime('%d/%m/%Y') }}<br>
+                  <small>{{ f.DataEnvio.strftime('%H:%M') }}</small>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if f.Aprovado %}
+                  <span class="estado aprovado">✔ Aprovado</span>
+                {% else %}
+                  <span class="estado pendente">⏳ Pendente</span>
+                {% endif %}
+              </td>
+
+              <td class="center actions-cell">
+                <div class="acoes-wrapper">
+                  {% if not f.Aprovado %}
+                    <form method="POST"
+                          action="{{ url_for('aprovar_feedback', id=f.Id) }}"
+                          class="inline-form">
+                      <button type="submit" class="btn btn-primary btn-sm">
+                        Aprovar
+                      </button>
+                    </form>
+                  {% endif %}
+
+                  <!-- botão que abre o modal -->
+                  <button
+                      type="button"
+                      class="btn btn-outline btn-sm btn-open-modal"
+                      data-url="{{ url_for('remover_feedback', id=f.Id) }}"
+                      data-nome="{{ f.NomeCliente }}">
+                    Remover
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="center text-muted">
+                Ainda não existem feedbacks para mostrar.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 🧁 MODAL BONITO DE CONFIRMAÇÃO -->
+<div id="confirmModal" class="modal-backdrop" style="display:none;">
+  <div class="modal-card">
+    <h3>Remover feedback</h3>
+    <p id="modalText">
+      Tem a certeza que quer remover este feedback?
+    </p>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="cancelModal">
+        Cancelar
+      </button>
+
+      <form method="POST" id="modalForm">
+        <button type="submit" class="btn btn-primary">
+          Remover
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.admin-panel{
+  border-radius:24px;
+  padding:20px 24px;
+}
+
+/* filtros */
+.filter-bar{
+  display:flex;
+  gap:18px;
+  align-items:flex-end;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+.filter-group{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.filter-group label{
+  font-size:.85rem;
+  font-weight:600;
+  color:#6b7280;
+}
+.filter-group input,
+.filter-group select{
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  font-size:.9rem;
+}
+
+/* tabela */
+.table-container{width:100%;overflow-x:auto}
+.admin-table{
+  width:100%;
+  border-collapse:collapse;
+  border-spacing:0;
+  font-size:.9rem;
+}
+.admin-table th,
+.admin-table td{
+  padding:14px 12px;
+  border-bottom:1px solid #f1d8e2;
+  vertical-align:middle;
+}
+.admin-table th{
+  background:#fff7fb;
+  font-weight:600;
+}
+.admin-table tr:hover{background:#fff9fc}
+.center{text-align:center}
+
+/* cliente */
+.user-cell{display:flex;align-items:center;gap:10px}
+.avatar{
+  width:32px;height:32px;border-radius:999px;
+  background:linear-gradient(135deg,#f7b6c2,#ffd9ec);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:#fff;font-size:.9rem;
+}
+.user-name{font-weight:600}
+
+/* rating */
+.rating-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:999px;
+  background:#fff7e6;color:#92400e;font-weight:600;font-size:.85rem;
+}
+.rating-pill .star{color:#f59e0b}
+
+/* comentário */
+.comentario-text{font-size:.9rem;color:#4b5563}
+
+/* estados */
+.estado{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:5px 12px;border-radius:999px;
+  font-size:.8rem;font-weight:600;
+}
+.estado.aprovado{background:#d1fae5;color:#065f46}
+.estado.pendente{background:#fef3c7;color:#92400e}
+
+/* ações */
+.actions-cell{text-align:center}
+.acoes-wrapper{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:64px;
+  gap:6px;
+}
+.btn-sm{padding:6px 10px;font-size:.8rem}
+.text-muted{color:#9ca3af}
+
+/* modal */
+.modal-backdrop{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:80;
+}
+.modal-card{
+  background:#fff;border-radius:20px;
+  padding:20px 22px;
+  max-width:360px;width:90%;
+  box-shadow:0 18px 40px rgba(0,0,0,.18);
+}
+.modal-card h3{
+  margin:0 0 8px;
+  font-size:1.1rem;
+  font-weight:700;
+}
+.modal-card p{
+  margin:0 0 18px;
+  font-size:.9rem;
+  color:#4b5563;
+}
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+.modal-card .btn{box-shadow:none}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("confirmModal");
+  const modalForm = document.getElementById("modalForm");
+  const modalText = document.getElementById("modalText");
+  const cancelBtn = document.getElementById("cancelModal");
+
+  document.querySelectorAll(".btn-open-modal").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const url = btn.getAttribute("data-url");
+      const nome = btn.getAttribute("data-nome") || "este cliente";
+
+      modalText.textContent =
+        `Tem a certeza que quer remover o feedback de ${nome}?`;
+      modalForm.setAttribute("action", url);
+      modal.style.display = "flex";
+    });
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+});
+</script>
+
 {% endblock %}

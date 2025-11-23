@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Política de Privacidade • {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="page-hero soft-gradient">
+  <div class="container">
+    <h1>Política de Privacidade</h1>
+    <p>Saiba como a Agenda Beleza trata e protege os seus dados.</p>
+  </div>
+</section>
+
+<section class="section container">
+  <article class="content-card">
+    <h2>1. Dados recolhidos</h2>
+    <p>Na utilização da Agenda Beleza são recolhidos os seguintes dados pessoais: nome, e-mail, telefone, marcações, mensagens de contacto e feedbacks.</p>
+
+    <h2>2. Finalidade</h2>
+    <p>Os dados são utilizados apenas para gestão de marcações, comunicação com o cliente e melhoria do serviço.</p>
+
+    <h2>3. Direitos</h2>
+    <p>O utilizador pode solicitar atualização ou remoção dos seus dados, bem como esclarecimentos através do formulário de contacto.</p>
+  </article>
+</section>
+
+<style>
+.content-card{
+  background:#fff;
+  border-radius:18px;
+  padding:24px 26px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+}
+.content-card h2{
+  margin-block-start:1.4rem;
+  margin-block-end:.4rem;
+}
+</style>
+{% endblock %}

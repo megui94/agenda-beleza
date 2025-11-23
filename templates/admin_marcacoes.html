@@ -1,265 +1,365 @@
 {% extends "base.html" %}
-{% block title %}Gestão de Marcações • {{ super() }}{% endblock %}
+{% block title %}Marcações • Administração • {{ super() }}{% endblock %}
 
 {% block content %}
+
+{# =========================================================
+   HERO / TÍTULO DA PÁGINA
+   ========================================================= #}
 <section class="page-hero soft-gradient">
   <div class="container text-center">
-    <h1 class="mb-3 font-semibold text-4xl text-gray-800 tracking-tight">Gestão de Marcações</h1>
-    <p class="text-gray-600 text-sm">Acompanhe, aprove e rejeite marcações com clareza e profissionalismo.</p>
+    <h1 class="mb-3 font-semibold text-4xl text-gray-800 tracking-tight">
+      Gestão de Marcações
+    </h1>
+    <p class="text-gray-600 text-sm">
+      Aprovar, rejeitar e acompanhar as marcações agendadas.
+    </p>
   </div>
 </section>
 
-<section class="section container">
-  <div class="admin-panel shadow-2xl bg-white/80 backdrop-blur-md rounded-3xl p-10 border border-pink-100">
+{# =========================================================
+   NAVEGAÇÃO INTERNA DA ÁREA DE ADMINISTRAÇÃO
+   ========================================================= #}
+<div class="admin-tabs-wrapper">
+  <div class="container">
+    <nav class="admin-tabs">
+      <a href="{{ url_for('admin_dashboard') }}"
+         class="admin-tab {% if active_tab == 'dashboard' %}is-active{% endif %}">
+        <span class="admin-tab-icon">📊</span>
+        <span class="admin-tab-label">Dashboard</span>
+      </a>
 
-    <!-- 🔍 FILTROS -->
+      <a href="{{ url_for('admin_marcacoes') }}"
+         class="admin-tab {% if active_tab == 'marcacoes' %}is-active{% endif %}">
+        <span class="admin-tab-icon">📅</span>
+        <span class="admin-tab-label">Marcações</span>
+      </a>
+
+      <a href="{{ url_for('admin_mensagens') }}"
+         class="admin-tab {% if active_tab == 'mensagens' %}is-active{% endif %}">
+        <span class="admin-tab-icon">✉️</span>
+        <span class="admin-tab-label">Mensagens</span>
+      </a>
+
+      <a href="{{ url_for('admin_feedbacks') }}"
+         class="admin-tab {% if active_tab == 'feedbacks' %}is-active{% endif %}">
+        <span class="admin-tab-icon">💬</span>
+        <span class="admin-tab-label">Feedbacks</span>
+      </a>
+    </nav>
+  </div>
+</div>
+
+{# =========================================================
+   CONTEÚDO PRINCIPAL: LISTA DE MARCAÇÕES
+   ========================================================= #}
+<section class="section container">
+  <div class="admin-panel card">
+
+    {# -----------------------------------------------------
+       FILTROS (estado + pesquisa por texto)
+       ----------------------------------------------------- #}
     <form method="GET" action="{{ url_for('admin_marcacoes') }}" class="filter-bar">
-      <div class="filter-left">
-        <label for="estado" class="label">Estado:</label>
-        <select id="estado" name="estado" class="select">
-          <option value="">Todos</option>
-          <option value="Pendente" {% if request.args.get('estado') == 'Pendente' %}selected{% endif %}>Pendentes</option>
-          <option value="Aprovado" {% if request.args.get('estado') == 'Aprovado' %}selected{% endif %}>Aprovados</option>
-          <option value="Rejeitado" {% if request.args.get('estado') == 'Rejeitado' %}selected{% endif %}>Rejeitados</option>
+      <div class="filter-group">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+          <option value="" {% if not estado %}selected{% endif %}>Todos</option>
+          <option value="Aprovado" {% if estado == 'Aprovado' %}selected{% endif %}>Aprovados</option>
+          <option value="Pendente" {% if estado == 'Pendente' %}selected{% endif %}>Pendentes</option>
+          <option value="Rejeitado" {% if estado == 'Rejeitado' %}selected{% endif %}>Rejeitados</option>
         </select>
       </div>
 
-      <div class="filter-right">
+      <div class="filter-group">
+        <label for="q">Pesquisar</label>
         <input
           type="text"
+          id="q"
           name="q"
-          placeholder="🔍 Pesquisar por cliente ou serviço..."
-          value="{{ request.args.get('q', '') }}"
-          class="search"
-        />
-        <button type="submit" class="btn-search">Filtrar</button>
+          placeholder="Nome do cliente ou serviço"
+          value="{{ termo or '' }}"
+        >
       </div>
+
+      <button type="submit" class="btn btn-outline">Filtrar</button>
     </form>
 
-    <!-- 📋 TABELA -->
+    {# -----------------------------------------------------
+       TABELA DE MARCAÇÕES
+       m é um dict vindo do SELECT com:
+       Id, Nome, Servico, DataHora, Estado, Observacoes, Email
+       ----------------------------------------------------- #}
     <div class="table-container">
       <table class="admin-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Cliente</th>
-            <th>Serviço</th>
-            <th>Data/Hora</th>
-            <th>Estado</th>
+            <th style="width:40px;">#</th>
+            <th style="width:220px;">Cliente</th>
+            <th style="width:140px;">Serviço</th>
+            <th style="width:160px;">Data / Hora</th>
+            <th style="width:160px;">Estado</th>
             <th>Observações</th>
-            <th class="center">Ações</th>
+            <th style="width:180px;" class="center">Ações</th>
           </tr>
         </thead>
         <tbody>
           {% if marcacoes %}
             {% for m in marcacoes %}
             <tr>
+              {# nº da linha #}
               <td>{{ loop.index }}</td>
-              <td><strong>{{ m[1] }}</strong></td>
-              <td>{{ m[2] }}</td>
-              <td>{{ m[3].strftime('%d/%m/%Y %H:%M') }}</td>
+
+              {# cliente + avatar redondo com a inicial #}
               <td>
-                {% if m[4] == 'Aprovado' %}
-                  <span class="estado aprovado">✔ Aprovado</span>
-                {% elif m[4] == 'Rejeitado' %}
-                  <span class="estado rejeitado">✖ Rejeitado</span>
-                {% else %}
-                  <span class="estado pendente">⏳ Pendente</span>
+                <div class="user-cell">
+                  {% set nome = m.Nome or 'Cliente' %}
+                  <div class="avatar">{{ nome[0]|upper }}</div>
+                  <span class="user-name">{{ nome }}</span>
+                </div>
+              </td>
+
+              {# serviço #}
+              <td>{{ m.Servico }}</td>
+
+              {# data + hora formatadas #}
+              <td>
+                {% if m.DataHora %}
+                  {{ m.DataHora.strftime('%d/%m/%Y') }}<br>
+                  <small>{{ m.DataHora.strftime('%H:%M') }}</small>
                 {% endif %}
               </td>
-              <td class="obs">{{ m[5] or '—' }}</td>
-              <td class="center">
-                <div class="acoes">
-                  <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
-                    <input type="hidden" name="id" value="{{ m[0] }}">
-                    <input type="hidden" name="acao" value="Aprovado">
-                    <button class="btn approve" type="submit">✅ Aprovar</button>
-                  </form>
-                  <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
-                    <input type="hidden" name="id" value="{{ m[0] }}">
-                    <input type="hidden" name="acao" value="Rejeitado">
-                    <button class="btn reject" type="submit">✖ Rejeitar</button>
-                  </form>
+
+              {# estado visual (badge colorido) #}
+              <td>
+                {% if m.Estado == "Aprovado" %}
+                  <span class="estado aprovado">✔ Aprovado</span>
+                {% elif m.Estado == "Pendente" %}
+                  <span class="estado pendente">⏳ Pendente</span>
+                {% elif m.Estado == "Rejeitado" %}
+                  <span class="estado rejeitado">✖ Rejeitado</span>
+                {% else %}
+                  <span class="estado neutro">{{ m.Estado }}</span>
+                {% endif %}
+              </td>
+
+              {# observações do cliente #}
+              <td>
+                <span class="obs">{{ m.Observacoes or "—" }}</span>
+              </td>
+
+              {# =====================================================
+                 AÇÕES DO ADMIN (USA /admin/update_marcacao COM POST)
+                 ===================================================== #}
+              <td class="center actions-cell">
+                <div class="acoes-wrapper">
+
+                  {% if m.Estado == "Pendente" %}
+                    {# Aprovar marcação #}
+                    <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
+                      <input type="hidden" name="id" value="{{ m.Id }}">
+                      <input type="hidden" name="acao" value="Aprovado">
+                      <button type="submit" class="btn btn-primary btn-sm">
+                        Aprovar
+                      </button>
+                    </form>
+
+                    {# Rejeitar / cancelar marcação #}
+                    <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
+                      <input type="hidden" name="id" value="{{ m.Id }}">
+                      <input type="hidden" name="acao" value="Rejeitado">
+                      <button type="submit" class="btn btn-outline btn-sm">
+                        Cancelar
+                      </button>
+                    </form>
+
+                  {% elif m.Estado == "Aprovado" %}
+                    {# Aprovada → apenas opção de cancelar (fica Rejeitado) #}
+                    <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
+                      <input type="hidden" name="id" value="{{ m.Id }}">
+                      <input type="hidden" name="acao" value="Rejeitado">
+                      <button type="submit" class="btn btn-outline btn-sm">
+                        Cancelar
+                      </button>
+                    </form>
+
+                  {% else %}
+                    {# Rejeitada / outro estado → nenhuma ação #}
+                    <span class="text-muted">Sem ações</span>
+                  {% endif %}
+
                 </div>
               </td>
             </tr>
             {% endfor %}
           {% else %}
             <tr>
-              <td colspan="7" class="no-results">
-                <div class="empty-state">
-                  <p>Nenhuma marcação encontrada</p>
-                </div>
+              <td colspan="7" class="center text-muted">
+                Nenhuma marcação encontrada.
               </td>
             </tr>
           {% endif %}
         </tbody>
       </table>
     </div>
+
   </div>
 </section>
 
+{# =========================================================
+   ESTILOS ESPECÍFICOS DESTA PÁGINA
+   ========================================================= #}
 <style>
-/* 🔹 HERO */
-.soft-gradient {
-  background: linear-gradient(135deg, #ffeaf4, #ffd8eb);
-  padding: 3.5rem 1rem 2.5rem;
-}
+  .admin-panel {
+    border-radius: 24px;
+    padding: 20px 24px;
+  }
 
-/* 🔹 PAINEL */
-.admin-panel {
-  margin-block-start: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  box-shadow: 0 6px 25px rgba(255, 150, 190, 0.15);
-}
+  /* Barra de filtros */
+  .filter-bar {
+    display: flex;
+    gap: 18px;
+    align-items: flex-end;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
 
-/* 🔹 FILTROS */
-.filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 1.2rem;
-  align-items: center;
-}
-.label {
-  font-weight: 600;
-  color: #a6487a;
-}
-.select, .search {
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid #f2bdd8;
-  font-size: 0.95rem;
-  background: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.select:focus, .search:focus {
-  border-color: #ff9ac8;
-  box-shadow: 0 0 0 3px rgba(255, 154, 200, 0.25);
-}
-.btn-search {
-  background: #ff9ac8;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-.btn-search:hover {
-  background: #ff7ab6;
-  transform: scale(1.05);
-}
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
-/* 🔹 TABELA */
-.table-container {
-  overflow-x: auto;
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #fbcfe8;
-  padding: 1rem;
-}
-.admin-table {
-  inline-size: 100%;
-  border-collapse: separate;
-  border-spacing: 0 8px;
-}
-.admin-table th {
-  text-align: start;
-  padding: 12px 14px;
-  font-size: 0.9rem;
-  color: #a6487a;
-  background: #ffe4ec;
-  font-weight: 700;
-}
-.admin-table td {
-  padding: 12px 14px;
-  background: #fff;
-  border-block-end: 1px solid #f5d6e6;
-  font-size: 0.95rem;
-  color: #333;
-}
-.admin-table tr:hover td {
-  background-color: #fff5f9;
-}
-.center {
-  text-align: center;
-}
+  .filter-group label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #6b7280;
+  }
 
-/* 🔹 ESTADOS */
-.estado {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  display: inline-block;
-}
-.estado.aprovado {
-  color: #15803d;
-  background-color: #dcfce7;
-}
-.estado.rejeitado {
-  color: #b91c1c;
-  background-color: #fee2e2;
-}
-.estado.pendente {
-  color: #92400e;
-  background-color: #fef3c7;
-}
+  .filter-group input,
+  .filter-group select {
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    font-size: .9rem;
+  }
 
-/* 🔹 AÇÕES */
-.acoes {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-}
-.btn {
-  border: none;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.btn.approve {
-  background-color: #16a34a;
-  color: white;
-}
-.btn.approve:hover {
-  background-color: #15803d;
-}
-.btn.reject {
-  background-color: white;
-  color: #b91c1c;
-  border: 2px solid #fca5a5;
-}
-.btn.reject:hover {
-  background-color: #fee2e2;
-}
-.no-results {
-  text-align: center;
-  padding: 3rem 0;
-}
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-  color: #a6487a;
-  opacity: 0.8;
-}
-.empty-state img {
-  inline-size: 100px;
-  opacity: 0.8;
-  animation: float 3s ease-in-out infinite;
-}
-@keyframes float {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
+  /* Tabela responsiva */
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .9rem;
+    border-spacing: 0;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #f1d8e2;
+    vertical-align: middle;
+  }
+
+  .admin-table th {
+    text-align: left;
+    background: #fff7fb;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .admin-table tr:hover {
+    background: #fff9fc;
+  }
+
+  .admin-table .center {
+    text-align: center;
+  }
+
+  /* Cliente + avatar */
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .avatar {
+    inline-size: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f7b6c2, #ffd9ec);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    font-size: .9rem;
+  }
+
+  .user-name {
+    font-weight: 600;
+  }
+
+  .obs {
+    color: #4b5563;
+    font-size: .85rem;
+  }
+
+  /* Badges de estado */
+  .estado {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 600;
+  }
+
+  .estado.aprovado {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .estado.pendente {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .estado.rejeitado {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .estado.neutro {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  /* Coluna de ações */
+  .actions-cell {
+    text-align: center;
+  }
+
+  .acoes-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-block-size: 64px;
+    gap: 6px;
+  }
+
+  .btn-sm {
+    padding: 6px 10px;
+    font-size: .8rem;
+  }
+
+  .text-muted {
+    color: #9ca3af;
+  }
 </style>
+
 {% endblock %}

@@ -2,159 +2,123 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Agenda Beleza{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 🌸 ESTILOS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/theme.css') }}">
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet">
 
-  <!-- 📅 FLATPICKR CALENDAR -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <!-- Flatpickr CSS (calendário) -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-  <style>
-    .user-menu {
-      position: relative;
-    }
-    .user-dropdown {
-      display: none;
-      position: absolute;
-      inset-block-start: 60px;
-      inset-inline-end: 0;
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-      min-inline-size: 220px;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: all .3s ease;
-      z-index: 999;
-    }
-    .user-dropdown.show {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .user-dropdown a {
-      display: block;
-      padding: 12px 18px;
-      text-decoration: none;
-      color: #333;
-      transition: .2s;
-    }
-    .user-dropdown a:hover {
-      background: #fce4ef;
-      color: #a6487a;
-    }
-    .logout:hover {
-      background: #ffe3e6;
-      color: #d60000 !important;
-    }
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/theme.css') }}">
 
-    /* ✨ Fade dos alertas */
-    .alert {
-      animation: fadeIn .3s ease-out;
-    }
-    .fade-out {
-      opacity: 0;
-      transition: opacity .5s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-  </style>
+  {% block extra_css %}{% endblock %}
 </head>
-
 <body>
 
   <!-- 🌸 HEADER -->
   <header class="site-header">
     <div class="container nav-wrapper">
 
+      <!-- Marca / Logo -->
       <a href="{{ url_for('index') }}" class="brand">
         <span class="brand-mark">Agenda Beleza</span>
         <span class="brand-sub">Cuidar de si é essencial</span>
       </a>
 
-      <!-- Mobile menu -->
+      <!-- Menu mobile -->
       <input type="checkbox" id="nav-toggle" class="nav-toggle">
       <label for="nav-toggle" class="hamburger"><span></span></label>
 
+      <!-- Navegação principal -->
       <nav class="nav">
-        <a href="{{ url_for('index') }}">Início</a>
-        <a href="{{ url_for('servicos') }}">Serviços</a>
-        <a href="{{ url_for('sobre') }}">Sobre</a>
-        <a href="{{ url_for('contato') }}">Contacto</a>
-        <a href="{{ url_for('listar_feedbacks') }}">Feedbacks</a>
+        <a href="{{ url_for('index') }}"
+           class="nav-link {% if request.endpoint == 'index' %}nav-link-active{% endif %}">
+          Início
+        </a>
+
+        <a href="{{ url_for('servicos') }}"
+           class="nav-link {% if request.endpoint == 'servicos' %}nav-link-active{% endif %}">
+          Serviços
+        </a>
+
+        <a href="{{ url_for('listar_feedbacks') }}"
+           class="nav-link {% if request.endpoint == 'listar_feedbacks' %}nav-link-active{% endif %}">
+          Feedbacks
+        </a>
+
+        <a href="{{ url_for('contato') }}"
+           class="nav-link {% if request.endpoint == 'contato' %}nav-link-active{% endif %}">
+          Contacto
+        </a>
 
         {% if session.get('user_id') %}
 
-        <div class="user-menu">
-          <button class="user-toggle" id="userToggle">
-            <div class="avatar">{{ session['nome'][0]|upper }}</div>
-            <span class="user-greet">Olá, {{ session['nome'].split(' ')[0] }} 👋</span>
-          </button>
+          <!-- Menu utilizador -->
+          <div class="user-menu">
+            <button class="user-toggle" id="userToggle">
+              <div class="avatar">{{ session['nome'][0]|upper }}</div>
+              <span class="user-greet">Olá, {{ session['nome'].split(' ')[0] }} 👋</span>
+            </button>
 
-<div id="userDropdown" class="user-dropdown">
+            <div id="userDropdown" class="user-dropdown">
+              <div class="dropdown-section">
+                <div class="dropdown-section-title">Conta</div>
 
-  {% if is_admin %}
-    <!-- MENU DO ADMIN -->
-    <div class="dropdown-section">
-      <p class="dropdown-section-title">Administração</p>
+                {% if is_admin %}
+                  <a href="{{ url_for('admin_dashboard') }}" class="dropdown-link">
+                    <span class="dropdown-icon">⚙️</span>
+                    <span class="dropdown-text">Área de administração</span>
+                    <span class="dropdown-tag">Admin</span>
+                  </a>
+                {% else %}
+                  <a href="{{ url_for('marcacoes') }}" class="dropdown-link">
+                    <span class="dropdown-icon">🗓️</span>
+                    <span class="dropdown-text">Agendar serviço</span>
+                  </a>
 
-      <a class="dropdown-link" href="{{ url_for('admin_marcacoes') }}">
-        <span class="dropdown-icon">🗓️</span>
-        <span class="dropdown-text">Gerir Marcações</span>
-      </a>
+                  <a href="{{ url_for('minhas_marcacoes') }}" class="dropdown-link">
+                    <span class="dropdown-icon">📋</span>
+                    <span class="dropdown-text">Minhas marcações</span>
+                  </a>
 
-      <a class="dropdown-link" href="{{ url_for('admin_mensagens') }}">
-        <span class="dropdown-icon">📨</span>
-        <span class="dropdown-text">Mensagens Recebidas</span>
-      </a>
+                  <a href="{{ url_for('feedback') }}" class="dropdown-link">
+                    <span class="dropdown-icon">💬</span>
+                    <span class="dropdown-text">Dar feedback</span>
+                  </a>
+                {% endif %}
+              </div>
 
-      <a class="dropdown-link" href="{{ url_for('admin_feedbacks') }}">
-        <span class="dropdown-icon">💬</span>
-        <span class="dropdown-text">Gerir Feedbacks</span>
-      </a>
-    </div>
+              <div class="dropdown-divider"></div>
 
-  {% else %}
-    <!-- MENU DO UTILIZADOR NORMAL -->
-    <div class="dropdown-section">
-      <p class="dropdown-section-title">Área Pessoal</p>
+              <div class="dropdown-footer">
+                <a href="{{ url_for('logout') }}"
+                   class="dropdown-link dropdown-logout">
+                  <span class="dropdown-icon">🚪</span>
+                  <span class="dropdown-text">Sair da conta</span>
+                </a>
+              </div>
+            </div>
+          </div>
 
-      <a class="dropdown-link" href="{{ url_for('marcacoes') }}">
-        <span class="dropdown-icon">📅</span>
-        <span class="dropdown-text">Agendar Serviço</span>
-      </a>
-
-      <a class="dropdown-link" href="{{ url_for('minhas_marcacoes') }}">
-        <span class="dropdown-icon">🧾</span>
-        <span class="dropdown-text">Minhas Marcações</span>
-      </a>
-
-      <a class="dropdown-link" href="{{ url_for('feedback') }}">
-        <span class="dropdown-icon">💖</span>
-        <span class="dropdown-text">Feedbacks</span>
-      </a>
-    </div>
-  {% endif %}
-
-  <div class="dropdown-footer">
-    <a class="dropdown-link dropdown-logout" href="{{ url_for('logout') }}">
-      <span class="dropdown-icon">🚪</span>
-      <span class="dropdown-text">Sair</span>
-    </a>
-  </div>
-</div>
         {% else %}
-          <a href="{{ url_for('login') }}" class="btn btn-outline">Entrar</a>
-          <a href="{{ url_for('registar') }}" class="btn btn-primary">Registar</a>
+          <!-- Entrar / Registar para visitantes -->
+          <a href="{{ url_for('login') }}" class="btn btn-outline">
+            Entrar
+          </a>
+
+          <a href="{{ url_for('registar') }}" class="btn btn-primary">
+            Registar
+          </a>
         {% endif %}
+
       </nav>
     </div>
   </header>
@@ -170,7 +134,18 @@
     {% endwith %}
   </div>
 
-  <!-- 🔥 CONTENT -->
+  <!-- Banner de próxima marcação (se existir) -->
+  {% if g.proxima_marcacao %}
+  <div class="container">
+    <div class="alert info proxima-marcacao">
+      💅 Tem uma marcação aprovada para
+      <strong>{{ g.proxima_marcacao.datahora.strftime('%d/%m/%Y %H:%M') }}</strong>
+      — {{ g.proxima_marcacao.servico }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 🔥 CONTEÚDO -->
   <main>
     {% block content %}{% endblock %}
   </main>
@@ -182,6 +157,7 @@
         <h4>Agenda Beleza</h4>
         <p>O seu espaço de beleza e bem-estar.</p>
       </div>
+
       <div>
         <h4>Contacto</h4>
         <ul>
@@ -190,6 +166,7 @@
           <li>✉️ agenda.beleza.contato@gmail.com</li>
         </ul>
       </div>
+
       <div>
         <h4>Horário</h4>
         <ul>
@@ -197,22 +174,39 @@
           <li>Sábado: 09h00 - 14h00</li>
         </ul>
       </div>
+
+      <div>
+        <h4>Informação</h4>
+        <ul class="footer-info-links">
+          <li>
+            <a href="{{ url_for('politica_privacidade') }}">
+              🔒 Política de Privacidade
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('termos') }}">
+              📄 Termos &amp; Condições
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <div class="copyright">
-      &copy; {{ current_year }} Agenda Beleza — Todos os direitos reservados.
+      &copy; {{ current_year if current_year is defined else 2025 }}
+      Agenda Beleza — Todos os direitos reservados.
     </div>
   </footer>
 
-  <!-- 📅 FLATPICKR SCRIPT -->
+  <!-- 📅 Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <script>
-    /* MENU DROPDOWN */
+    // Dropdown do utilizador
     const toggle = document.getElementById("userToggle");
     const dropdown = document.getElementById("userDropdown");
 
-    if (toggle) {
+    if (toggle && dropdown) {
       toggle.addEventListener("click", (e) => {
         e.stopPropagation();
         dropdown.classList.toggle("show");
@@ -223,7 +217,15 @@
       });
     }
 
-    /* FLASH ALERTS */
+    // Fechar menu mobile ao clicar num link
+    document.querySelectorAll(".nav a").forEach(link => {
+      link.addEventListener("click", () => {
+        const navToggle = document.getElementById("nav-toggle");
+        if (navToggle) navToggle.checked = false;
+      });
+    });
+
+    // Desvanecer alerts
     document.querySelectorAll(".alert").forEach(el => {
       setTimeout(() => {
         el.classList.add("fade-out");
@@ -231,15 +233,20 @@
       }, 3000);
     });
 
-    /* ATIVA O FLATPICKR SE EXISTIR NO HTML */
-    if (document.querySelector("#datahora")) {
-      flatpickr("#datahora", {
-        enableTime: true,
-        dateFormat: "Y-m-d H:i",
-        time_24hr: true,
-        minDate: "today"
-      });
-    }
+    // ✅ Flatpickr no campo de data/hora, se existir
+    document.addEventListener("DOMContentLoaded", function () {
+      const campoData = document.querySelector("#datahora");
+      if (campoData) {
+        flatpickr("#datahora", {
+          enableTime: true,
+          dateFormat: "Y-m-d H:i",
+          time_24hr: true,
+          minDate: "today"
+        });
+      }
+    });
   </script>
+
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

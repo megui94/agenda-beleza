@@ -1,97 +1,293 @@
 {% extends "base.html" %}
-{% block title %}Minhas Marcações • {{ super() }}{% endblock %}
+{% block title %}Minhas marcações • {{ super() }}{% endblock %}
 
 {% block content %}
-<section class="page-hero soft-gradient">
-  <div class="container text-center">
-    <h1 class="mb-2 font-semibold text-4xl text-gray-800 tracking-tight">Minhas Marcações</h1>
-    <p class="text-gray-600 text-sm">Veja todas as suas marcações feitas e o estado de aprovação.</p>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="container">
+    <h1>Minhas marcações</h1>
+    <p>Acompanhe o estado das suas marcações e, se necessário, cancele com antecedência.</p>
   </div>
 </section>
 
 <section class="section container">
 
-  {% if marcacoes %}
-  <div class="grid">
-    {% for m in marcacoes %}
-    <div class="card marcacao-card">
-      <div class="card-body">
-        <h3 class="titulo-servico">{{ m[1] }}</h3>
-        <p><strong>📅 Data:</strong> {{ m[2].strftime('%d/%m/%Y %H:%M') }}</p>
-        <p>
-          <strong>📌 Estado:</strong>
-          {% if m[3] == "Aprovado" %}
-            <span class="estado aprovado">Aprovado</span>
-          {% elif m[3] == "Rejeitado" %}
-            <span class="estado rejeitado">Rejeitado</span>
-          {% else %}
-            <span class="estado pendente">Pendente</span>
-          {% endif %}
-        </p>
-        {% if m[4] %}<p><strong>📝 Obs:</strong> {{ m[4] }}</p>{% endif %}
+  {% if marcacoes and marcacoes|length > 0 %}
+    <div class="card admin-panel">
+      <h2 style="margin-top:0; margin-bottom:18px;">📋 Histórico de marcações</h2>
+
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Serviço</th>
+              <th>Data / Hora</th>
+              <th>Estado</th>
+              <th>Observações</th>
+              <th class="center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+          {# cada registo: m[0]=Id, m[1]=NomeServico, m[2]=DataHora, m[3]=Estado, m[4]=Observações #}
+          {% for m in marcacoes %}
+            <tr>
+              <td>{{ loop.index }}</td>
+
+              <td>
+                <strong>{{ m[1] }}</strong>
+              </td>
+
+              <td>
+                {% if m[2] %}
+                  {{ m[2].strftime('%d/%m/%Y %H:%M') }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+
+              <td>
+                {% if m[3] == "Aprovado" %}
+                  <span class="estado aprovado">✔ Aprovada</span>
+                {% elif m[3] == "Pendente" %}
+                  <span class="estado pendente">⏳ Pendente</span>
+                {% elif m[3] == "Rejeitado" %}
+                  <span class="estado rejeitado">✖ Rejeitada</span>
+                {% elif m[3] == "Cancelada" %}
+                  <span class="estado neutro">❌ Cancelada</span>
+                {% else %}
+                  <span class="estado neutro">{{ m[3] }}</span>
+                {% endif %}
+              </td>
+
+              <td style="max-inline-size:260px;">
+                <span class="comment-text">{{ m[4] or "—" }}</span>
+              </td>
+
+              <td class="center actions-cell">
+                {# botão cancelar só se ainda não foi cancelada / rejeitada e for no futuro #}
+                {% if m[3] not in ["Cancelada", "Rejeitado"] and m[2] and m[2] > now %}
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-sm btn-cancelar-marcacao"
+                    data-url="{{ url_for('cancelar_marcacao', id=m[0]) }}"
+                    data-servico="{{ m[1] }}"
+                    data-datahora="{{ m[2].strftime('%d/%m/%Y %H:%M') }}"
+                  >
+                    Cancelar
+                  </button>
+                  <small class="nota-cancelamento">* Pode cancelar até 4 horas antes.</small>
+                {% else %}
+                  <span class="text-muted" style="font-size:0.8rem;">Sem ações disponíveis</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-    {% endfor %}
-  </div>
+
   {% else %}
-  <p class="no-results">Ainda não existem marcações registadas.</p>
+    <div class="card admin-panel" style="text-align:center;">
+      <p style="margin:0 0 12px 0;">Ainda não tem marcações registadas.</p>
+      <a href="{{ url_for('marcacoes') }}" class="btn btn-primary">
+        💅 Fazer a minha primeira marcação
+      </a>
+    </div>
   {% endif %}
+
 </section>
 
+<!-- 🌸 MODAL DE CONFIRMAÇÃO DE CANCELAMENTO -->
+<div id="modalCancelarMarcacao" class="modal-overlay">
+  <div class="modal-card">
+    <h2>Cancelar marcação</h2>
+    <p>
+      Tem a certeza que quer cancelar a marcação para
+      <strong id="modalServico">este serviço</strong>
+      no dia <strong id="modalDataHora"></strong>?
+      <br>
+      <small style="color:var(--muted);">
+        Lembre-se: só é possível cancelar até 4 horas antes da hora marcada.
+      </small>
+    </p>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btnCancelarFechar">
+        Voltar
+      </button>
+
+      <form method="POST" id="formCancelarMarcacao" action="">
+        <button type="submit" class="btn btn-primary">
+          Sim, cancelar marcação
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
 <style>
-/* 🔹 Hero Section */
-.soft-gradient {
-  background: linear-gradient(135deg, #ffeaf4, #ffd8eb);
-  padding: 3rem 1rem 2rem;
+.admin-panel{
+  border-radius:24px;
 }
 
-/* 🔹 Cards */
-.marcacao-card {
-  background: white;
-  border-radius: 16px;
-  padding: 20px 24px;
-  margin-block-end: 20px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-  border: 1px solid #fbcfe8;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* tabela reaproveitando estilos de admin */
+.table-container{
+  inline-size:100%;
+  overflow-x:auto;
 }
-.marcacao-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+.admin-table{
+  inline-size:100%;
+  border-collapse:collapse;
+  font-size:.9rem;
 }
-.titulo-servico {
-  font-size: 1.15rem;
+.admin-table th,
+.admin-table td{
+  padding:10px 12px;
+  border-block-end:1px solid #f1d8e2;
+}
+.admin-table th{
+  text-align:start;
+  background:#fff7fb;
+}
+.admin-table tr:hover{
+  background:#fff9fc;
+}
+.admin-table .center{
+  text-align:center;
+}
+
+/* texto / observações */
+.comment-text{
+  display:block;
+  font-size:.9rem;
+  color:#4b5563;
+  line-height:1.5;
+}
+
+/* estado badges */
+.estado{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:.8rem;
+  font-weight:600;
+}
+.estado.aprovado{
+  background:#d1fae5;
+  color:#065f46;
+}
+.estado.pendente{
+  background:#fef3c7;
+  color:#92400e;
+}
+.estado.rejeitado{
+  background:#fee2e2;
+  color:#991b1b;
+}
+.estado.neutro{
+  background:#e5e7eb;
+  color:#374151;
+}
+
+/* botões */
+.btn-sm{
+  padding:6px 10px;
+  font-size:.8rem;
+}
+.actions-cell{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.nota-cancelamento{
+  color:#9ca3af;
+}
+
+/* ========= MODAL ========= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.modal-overlay.show {
+  display: flex;
+}
+.modal-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px 26px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--border);
+}
+.modal-card h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
   font-weight: 600;
-  color: #9d174d;
-  margin-block-end: 0.5rem;
 }
-
-/* 🔹 Estados */
-.estado {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.9rem;
+.modal-card p {
+  margin: 0 0 20px 0;
+  color: var(--muted);
+  line-height: 1.5;
 }
-.estado.aprovado {
-  background-color: #dcfce7;
-  color: #15803d;
+.modal-card strong {
+  color: var(--ink);
 }
-.estado.rejeitado {
-  background-color: #fee2e2;
-  color: #b91c1c;
-}
-.estado.pendente {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-/* 🔹 Outros */
-.no-results {
-  text-align: center;
-  color: #666;
-  font-style: italic;
-  padding: 2rem 0;
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 </style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("modalCancelarMarcacao");
+  const form = document.getElementById("formCancelarMarcacao");
+  const servicoSpan = document.getElementById("modalServico");
+  const dataSpan = document.getElementById("modalDataHora");
+  const btnFechar = document.getElementById("btnCancelarFechar");
+
+  if (!modal) return;
+
+  // quando clicar no botão "Cancelar" da tabela
+  document.querySelectorAll(".btn-cancelar-marcacao").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const url = btn.dataset.url;
+      const servico = btn.dataset.servico || "este serviço";
+      const datahora = btn.dataset.datahora || "";
+
+      form.action = url;
+      servicoSpan.textContent = servico;
+      dataSpan.textContent = datahora;
+
+      modal.classList.add("show");
+    });
+  });
+
+  // fechar modal
+  btnFechar.addEventListener("click", () => {
+    modal.classList.remove("show");
+  });
+
+  // fechar ao clicar fora do cartão
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.classList.remove("show");
+    }
+  });
+});
+</script>
 {% endblock %}

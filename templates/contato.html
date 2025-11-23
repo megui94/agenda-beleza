@@ -64,7 +64,9 @@
       </div>
 
       <div class="form-row">
-        <button type="submit" class="btn btn-primary">✨ Enviar mensagem</button>
+      <button type="submit" class="btn btn-contact-primary">
+        Enviar mensagem
+      </button>
       </div>
     </form>
   </div>
@@ -220,8 +222,8 @@
   }
 }
 
-/* ✨ Botão */
-.btn.btn-primary {
+/* ✨ Botão do formulário de contacto (não mexe no header) */
+.btn-contact-primary {
   background: linear-gradient(90deg, #f7b6c2, #f9a8d4);
   border: none;
   color: #fff;
@@ -233,10 +235,12 @@
   transition: all 0.25s ease;
   box-shadow: 0 4px 12px rgba(247, 182, 194, 0.35);
 }
-.btn.btn-primary:hover {
+
+.btn-contact-primary:hover {
   opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(247, 182, 194, 0.45);
 }
+
 </style>
 {% endblock %}
