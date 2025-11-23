@@ -35,7 +35,7 @@ body {
 /* Layout base */
 
 .container {
-  width: min(1120px, 92%);
+  inline-size: min(1120px, 92%);
   margin-inline: auto;
 }
 
@@ -50,12 +50,12 @@ body {
 
 .site-header {
   position: sticky;
-  top: 0;
+  inset-block-start: 0;
   z-index: 40;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: saturate(160%) blur(10px);
-  border-bottom: 1px solid var(--border);
-  width: 100%;
+  border-block-end: 1px solid var(--border);
+  inline-size: 100%;
 }
 
 /* --- CORREÇÃO CRÍTICA --- */
@@ -63,8 +63,8 @@ body {
    APENAS quando está dentro do cabeçalho. Isto garante que ele se estica
    em todas as páginas, incluindo a administração. */
 .site-header .container.nav-wrapper {
-    width: 100%;
-    max-width: unset; /* Remove o limite máximo de largura */
+    inline-size: 100%;
+    max-inline-size: unset; /* Remove o limite máximo de largura */
     padding-inline: 30px; /* Dá um espaço elegante nas laterais em ecrãs grandes */
 }
 
@@ -81,7 +81,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  width: 100%;
+  inline-size: 100%;
 }
 
 /* Logo / marca */
@@ -102,13 +102,13 @@ body {
 .brand-sub {
   font-size: 12px;
   color: var(--muted);
-  margin-top: -3px;
+  margin-block-start: -3px;
 }
 
 /* Links principais */
 
 .nav a {
-  margin-left: 22px;
+  margin-inline-start: 22px;
   text-decoration: none;
   color: var(--ink);
   font-weight: 600;
@@ -138,8 +138,8 @@ body {
   display: none;
   cursor: pointer;
   position: relative;
-  width: 40px;
-  height: 40px;
+  inline-size: 40px;
+  block-size: 40px;
   border-radius: 12px;
   border: 1px solid var(--border);
 }
@@ -149,23 +149,23 @@ body {
 .hamburger span:after {
   content: "";
   position: absolute;
-  height: 2px;
-  width: 18px;
+  block-size: 2px;
+  inline-size: 18px;
   background: #333;
-  left: 10px;
+  inset-inline-start: 10px;
   transition: 0.25s;
 }
 
 .hamburger span {
-  top: 19px;
+  inset-block-start: 19px;
 }
 
 .hamburger span:before {
-  top: -6px;
+  inset-block-start: -6px;
 }
 
 .hamburger span:after {
-  top: 6px;
+  inset-block-start: 6px;
 }
 
 @media (max-width: 880px) {
@@ -177,7 +177,7 @@ body {
     position: absolute;
     inset: 60px 0 auto 0;
     background: #fff;
-    border-bottom: 1px solid var(--border);
+    border-block-end: 1px solid var(--border);
     display: none;
     flex-direction: column;
     padding: 10px 16px;
@@ -193,7 +193,7 @@ body {
 
   .nav-toggle:checked ~ .hamburger span:before {
     transform: rotate(90deg);
-    top: 0;
+    inset-block-start: 0;
   }
 
   .nav-toggle:checked ~ .hamburger span:after {
@@ -213,7 +213,7 @@ body {
   position: relative;
   background: url("https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1920&auto=format&fit=crop")
     center / cover no-repeat;
-  min-height: 72vh;
+  min-block-size: 72vh;
   display: grid;
   place-items: center;
 }
@@ -306,7 +306,7 @@ body {
 
 .section-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-block-end: 24px;
 }
 
 .section-title {
@@ -356,8 +356,8 @@ body {
 }
 
 .card img {
-  width: 100%;
-  height: 220px;
+  inline-size: 100%;
+  block-size: 220px;
   object-fit: cover;
 }
 
@@ -416,8 +416,8 @@ body {
   background: linear-gradient(90deg, var(--pink), #ffd5de);
   padding: 40px 0;
   margin: 10px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-block-start: 1px solid var(--border);
+  border-block-end: 1px solid var(--border);
 }
 
 .cta-inner {
@@ -451,7 +451,7 @@ body {
 
 .page-hero {
   background: linear-gradient(180deg, #fff, #ffeaf0);
-  border-bottom: 1px solid var(--border);
+  border-block-end: 1px solid var(--border);
   padding: 42px 0;
 }
 
@@ -475,14 +475,14 @@ body {
 }
 
 .form-book {
-  max-width: 720px;
+  max-inline-size: 720px;
   margin-inline: auto;
 }
 
 .form-row {
   display: flex;
   flex-direction: column;
-  margin-bottom: 14px;
+  margin-block-end: 14px;
 }
 
 .form-row.two {
@@ -493,7 +493,7 @@ body {
 
 .form label {
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-block-end: 6px;
 }
 
 .form input,
@@ -515,7 +515,7 @@ body {
 .form-note {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 10px;
+  margin-block-start: 10px;
 }
 
 /* Mostrar/ocultar password */
@@ -541,12 +541,12 @@ body {
 .search-box {
   position: relative;
   display: inline-block;
-  width: 100%;
-  max-width: 300px;
+  inline-size: 100%;
+  max-inline-size: 300px;
 }
 
 .search-box input[type="text"] {
-  width: 100%;
+  inline-size: 100%;
   padding: 10px 38px 10px 16px;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -571,8 +571,8 @@ body {
 .search-box::after {
   content: "🔍";
   position: absolute;
-  right: 14px;
-  top: 50%;
+  inset-inline-end: 14px;
+  inset-block-start: 50%;
   transform: translateY(-50%);
   font-size: 16px;
   color: var(--pink-700);
@@ -595,16 +595,16 @@ body {
 .fancy-title {
   position: relative;
   display: inline-block;
-  padding-bottom: 6px;
+  padding-block-end: 6px;
 }
 
 .fancy-title:after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  inset-block-end: 0;
+  block-size: 3px;
   background: linear-gradient(90deg, var(--gold), transparent 70%);
 }
 
@@ -629,8 +629,8 @@ body {
 }
 
 .map-embed iframe {
-  width: 100%;
-  height: 220px;
+  inline-size: 100%;
+  block-size: 220px;
   border-radius: 12px;
 }
 
@@ -645,9 +645,9 @@ body {
 ========================================= */
 
 .site-footer {
-  margin-top: 40px;
+  margin-block-start: 40px;
   background: #fff;
-  border-top: 1px solid var(--border);
+  border-block-start: 1px solid var(--border);
 }
 
 .footer-grid {
@@ -681,7 +681,7 @@ body {
 }
 
 .copyright {
-  border-top: 1px solid var(--border);
+  border-block-start: 1px solid var(--border);
   text-align: center;
   padding: 16px 0;
   color: #8a7e7e;
@@ -694,8 +694,8 @@ body {
 
 .flash-messages,
 .flash-wrapper {
-  width: 100%;
-  max-width: 900px;
+  inline-size: 100%;
+  max-inline-size: 900px;
   margin: 20px auto 0 auto;
   padding: 0 20px;
   display: flex;
@@ -706,7 +706,7 @@ body {
 .alert {
   padding: 14px 20px;
   border-radius: var(--radius);
-  margin-bottom: 12px;
+  margin-block-end: 12px;
   font-weight: 500;
   font-size: 0.95rem;
   letter-spacing: 0.2px;
@@ -779,7 +779,7 @@ body {
 .user-menu {
   position: relative;
   display: inline-block;
-  margin-left: 1.5rem;
+  margin-inline-start: 1.5rem;
 }
 
 .user-toggle {
@@ -830,7 +830,7 @@ body {
   position: absolute;
   inset-inline-end: 0;
   inset-block-start: calc(100% + 6px);
-  min-width: 230px;
+  min-inline-size: 230px;
   padding: 1rem 1.2rem;
   border-radius: 1.4rem;
   background: #ffffff;
@@ -849,7 +849,7 @@ body {
 /* secções internas */
 
 .dropdown-section + .dropdown-section {
-  margin-top: 0.5rem;
+  margin-block-start: 0.5rem;
 }
 
 .dropdown-section-title {
@@ -901,15 +901,15 @@ body {
 }
 
 .dropdown-divider {
-  height: 1px;
+  block-size: 1px;
   margin: 0.6rem 0 0.7rem 0;
   background: linear-gradient(to right, transparent, #ffd1e0, transparent);
 }
 
 .dropdown-footer {
-  margin-top: 0.4rem;
-  padding-top: 0.4rem;
-  border-top: 1px dashed #ffd1e0;
+  margin-block-start: 0.4rem;
+  padding-block-start: 0.4rem;
+  border-block-start: 1px dashed #ffd1e0;
 }
 
 .dropdown-logout {
@@ -925,14 +925,14 @@ body {
 @media (max-width: 880px) {
   .user-dropdown {
     position: static;
-    margin-top: 0.5rem;
+    margin-block-start: 0.5rem;
     box-shadow: none;
     border-radius: 16px;
     border: 1px solid #ffe1e9;
   }
 
   .user-dropdown a {
-    margin-bottom: 4px;
+    margin-block-end: 4px;
   }
 }
 
@@ -998,7 +998,7 @@ body {
 ========================================= */
 
 .container-feedbacks {
-  max-width: 850px;
+  max-inline-size: 850px;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
@@ -1006,7 +1006,7 @@ body {
 .feedbacks-title {
   color: #f18fb4;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-block-end: 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1018,7 +1018,7 @@ body {
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(247, 182, 194, 0.25);
   padding: 1rem 1.5rem;
-  margin-bottom: 1.2rem;
+  margin-block-end: 1.2rem;
   transition: transform 0.2s ease;
 }
 
@@ -1112,7 +1112,7 @@ body {
 ========================================= */
 
 .feedbacks-section {
-  max-width: 1100px;
+  max-inline-size: 1100px;
   margin: 0 auto 3rem auto;
 }
 
@@ -1127,7 +1127,7 @@ body {
 
 .feedback-slider-window {
   overflow: hidden;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .feedback-slider-track {
@@ -1151,7 +1151,7 @@ body {
   border: 1px solid #ffdce9;
   box-shadow: 0 18px 40px rgba(247, 182, 194, 0.22);
   padding: 1.6rem 1.9rem;
-  margin-bottom: 0.8rem;
+  margin-block-end: 0.8rem;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
@@ -1187,8 +1187,8 @@ body {
 }
 
 .feedback-avatar {
-  width: 44px;
-  height: 44px;
+  inline-size: 44px;
+  block-size: 44px;
   border-radius: 50%;
   background: linear-gradient(135deg, #f7b6c2, #ffd9ec);
   display: flex;
@@ -1250,7 +1250,7 @@ body {
 /* comentário */
 
 .feedback-card-body {
-  margin-top: 0.2rem;
+  margin-block-start: 0.2rem;
 }
 
 #feedbackSlider .feedback-comment {
@@ -1259,14 +1259,14 @@ body {
   color: #444;
   line-height: 1.7;
   position: relative;
-  padding-left: 1.4rem;
+  padding-inline-start: 1.4rem;
 }
 
 #feedbackSlider .feedback-comment::before {
   content: "“";
   position: absolute;
-  left: 0;
-  top: -0.35rem;
+  inset-inline-start: 0;
+  inset-block-start: -0.35rem;
   font-size: 2rem;
   color: #f7b6c2;
   opacity: 0.9;
@@ -1275,7 +1275,7 @@ body {
 /* rodapé */
 
 .feedback-card-footer {
-  margin-top: 0.2rem;
+  margin-block-start: 0.2rem;
   display: flex;
   justify-content: flex-end;
 }
@@ -1291,8 +1291,8 @@ body {
   border: none;
   background: #ffffff;
   box-shadow: 0 8px 20px rgba(247, 182, 194, 0.35);
-  width: 34px;
-  height: 34px;
+  inline-size: 34px;
+  block-size: 34px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -1315,12 +1315,12 @@ body {
   display: flex;
   justify-content: center;
   gap: 0.4rem;
-  margin-top: 0.8rem;
+  margin-block-start: 0.8rem;
 }
 
 .slider-dot {
-  width: 8px;
-  height: 8px;
+  inline-size: 8px;
+  block-size: 8px;
   border-radius: 999px;
   border: none;
   background: #f2bfd1;
@@ -1330,7 +1330,7 @@ body {
 }
 
 .slider-dot.active {
-  width: 18px;
+  inline-size: 18px;
   opacity: 1;
   background: #f18fb4;
 }
@@ -1396,8 +1396,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  inline-size: 18px;
+  block-size: 18px;
   border-radius: 999px;
   background: #ffe6f0;
   font-size: 0.75rem;
@@ -1447,8 +1447,8 @@ body {
   background: #fff;
   border-radius: 24px;
   padding: 24px 26px;
-  max-width: 420px;
-  width: 90%;
+  max-inline-size: 420px;
+  inline-size: 90%;
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.18);
   border: 1px solid var(--border);
 }

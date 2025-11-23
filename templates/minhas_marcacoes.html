@@ -128,12 +128,12 @@
 <style>
   /* Layout & Hero */
   .page-hero { padding: 40px 0 20px; }
-  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 2rem; }
+  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-block-end: 5px; font-size: 2rem; }
   .hero-subtitle { color: #6c757d; font-size: 0.95rem; margin: 0; }
-  .main-section { margin: 20px auto 60px; max-width: 1000px; }
+  .main-section { margin: 20px auto 60px; max-inline-size: 1000px; }
 
   /* Card Header */
-  .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+  .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-block-end: 25px; flex-wrap: wrap; gap: 15px; }
   .card-title { font-size: 1.2rem; font-weight: 700; margin: 0; color: #333; }
   .btn-new-schedule { background: #d63384; color: white; text-decoration: none; padding: 8px 18px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; transition: 0.3s; }
   .btn-new-schedule:hover { background: #ad1457; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(214, 51, 132, 0.2); }
@@ -143,9 +143,9 @@
 
   /* Table Styles */
   .table-responsive { overflow-x: auto; }
-  .elegant-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-  .elegant-table th { text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #adb5bd; font-weight: 700; padding: 15px; border-bottom: 1px solid #f1f3f5; letter-spacing: 0.5px; }
-  .elegant-table td { padding: 16px 15px; vertical-align: middle; border-bottom: 1px solid #f8f9fa; font-size: 0.95rem; background: #fff; }
+  .elegant-table { inline-size: 100%; border-collapse: separate; border-spacing: 0; }
+  .elegant-table th { text-align: start; font-size: 0.75rem; text-transform: uppercase; color: #adb5bd; font-weight: 700; padding: 15px; border-block-end: 1px solid #f1f3f5; letter-spacing: 0.5px; }
+  .elegant-table td { padding: 16px 15px; vertical-align: middle; border-block-end: 1px solid #f8f9fa; font-size: 0.95rem; background: #fff; }
   .elegant-table tr:hover td { background-color: #fffbfd; }
   
   /* Columns */
@@ -153,8 +153,8 @@
   .date-wrapper { display: flex; flex-direction: column; line-height: 1.3; }
   .date-day { font-weight: 600; color: #343a40; }
   .date-time { font-size: 0.8rem; color: #adb5bd; }
-  .obs-col { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6c757d; font-size: 0.9rem; }
-  .table-footer-note { margin-top: 15px; font-size: 0.8rem; color: #adb5bd; text-align: right; font-style: italic; }
+  .obs-col { max-inline-size: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6c757d; font-size: 0.9rem; }
+  .table-footer-note { margin-block-start: 15px; font-size: 0.8rem; color: #adb5bd; text-align: end; font-style: italic; }
 
   /* Status Pills */
   .status-pill { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
@@ -170,9 +170,9 @@
 
   /* Empty State */
   .empty-state { text-align: center; padding: 40px 20px; }
-  .empty-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.5; }
+  .empty-icon { font-size: 3rem; margin-block-end: 10px; opacity: 0.5; }
   .empty-state h3 { margin: 0 0 5px; color: #333; font-weight: 600; }
-  .empty-state p { color: #666; margin-bottom: 20px; }
+  .empty-state p { color: #666; margin-block-end: 20px; }
   .btn-cta { display: inline-block; background: #333; color: #fff; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: 0.2s; }
   .btn-cta:hover { background: #d63384; }
 

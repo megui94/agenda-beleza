@@ -4,7 +4,7 @@
 {% block content %}
 
 <!-- 1. HERO (Com espaço extra em baixo para o efeito flutuante) -->
-<section class="page-hero soft-gradient" style="padding-bottom: 100px; padding-top: 60px;">
+<section class="page-hero soft-gradient" style="padding-block-end: 100px; padding-block-start: 60px;">
   <div class="container text-center">
     <h1 class="hero-title">A sua opinião é valiosa 💕</h1>
     <p class="hero-subtitle">
@@ -57,7 +57,7 @@
       </div>
 
       <!-- Botão de Enviar -->
-      <div class="form-actions" style="margin-top: 30px;">
+      <div class="form-actions" style="margin-block-start: 30px;">
         <button type="submit" class="btn btn-primary btn-block">
           Enviar Feedback
         </button>
@@ -71,7 +71,7 @@
 <style>
   /* Layout & Hero */
   .page-hero { padding: 40px 0 20px; }
-  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 2rem; }
+  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-block-end: 5px; font-size: 2rem; }
   .hero-subtitle { color: #6c757d; font-size: 0.95rem; margin: 0; }
 
   /* Container Relativo para z-index */
@@ -85,7 +85,7 @@
       background: #fff;
       border-radius: 24px;
       padding: 40px;
-      max-width: 600px;
+      max-inline-size: 600px;
       /* MARGEM NEGATIVA para puxar para cima */
       margin: -60px auto 60px auto; 
       
@@ -95,11 +95,11 @@
   }
 
   /* Inputs */
-  .form-row { margin-bottom: 20px; }
-  .form-row label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 0.95rem; }
+  .form-row { margin-block-end: 20px; }
+  .form-row label { display: block; margin-block-end: 8px; font-weight: 600; color: #333; font-size: 0.95rem; }
   
   .modern-input {
-      width: 100%; padding: 12px 15px; 
+      inline-size: 100%; padding: 12px 15px; 
       border: 1px solid #e2e8f0; border-radius: 12px; 
       font-size: 1rem; transition: all 0.2s; background-color: #fff;
       font-family: inherit;
@@ -121,7 +121,7 @@
   .select-wrapper { position: relative; }
   
   /* Botão */
-  .btn-block { width: 100%; justify-content: center; padding: 14px; border-radius: 50px; font-size: 1rem; font-weight: 600; }
+  .btn-block { inline-size: 100%; justify-content: center; padding: 14px; border-radius: 50px; font-size: 1rem; font-weight: 600; }
   .btn-primary { 
       background-color: #d63384; 
       color: white; 
@@ -133,9 +133,9 @@
   .btn-primary:hover { background-color: #ad1457; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(214, 51, 132, 0.4); }
 
   /* Mobile */
-  @media (max-width: 600px) {
+  @media (max-inline-size: 600px) {
       .floating-form-card { 
-          margin-top: -30px; 
+          margin-block-start: -30px; 
           padding: 25px; 
           border-radius: 20px;
       }
