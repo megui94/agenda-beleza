@@ -1143,98 +1143,88 @@ def contato():
 def feedback():
     """
     Formulário para o cliente autenticado enviar feedback.
-    Grava na BD + e-mails de confirmação (cliente/admin).
+    Grava na BD + tenta enviar e-mails de confirmação (cliente/admin).
     """
+    # 1. Verificação de Login
     if "user_id" not in session:
         flash("Tem de iniciar sessão para enviar feedback.", "warning")
         return redirect(url_for("login"))
 
+    # 2. Processar Formulário
     if request.method == "POST":
         nome = session.get("nome") or "Cliente"
         email_cliente = session.get("email")
         classificacao = request.form.get("classificacao")
         comentario = request.form.get("comentario")
 
+        # Validação simples
         if not classificacao or not comentario:
             flash("Por favor, preencha a classificação e o comentário.", "warning")
             return redirect(url_for("feedback"))
 
         try:
-            # 1) Gravar na BD
+            # A. Gravar na Base de Dados
             conn = get_db_connection()
             cur = conn.cursor()
             cur.execute(
                 """
-                INSERT INTO Feedbacks (NomeCliente, Cliente_id, Classificacao, Comentario)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO Feedbacks (NomeCliente, Cliente_id, Classificacao, Comentario, Aprovado, DataEnvio)
+                VALUES (%s, %s, %s, %s, FALSE, NOW())
                 """,
                 (nome, session.get("user_id"), classificacao, comentario),
             )
             conn.commit()
             conn.close()
 
-            # 2) E-mail para CLIENTE
-            try:
-                if email_cliente:
+            # B. Tentar Enviar E-mails (Com a função real 'send_email' descomentada)
+            data_envio = datetime.now()
+            admin_email = app.config.get("ADMIN_EMAIL", "agenda.beleza.contato@gmail.com")
+
+            # E-mail para o CLIENTE
+            if email_cliente:
+                try:
                     html_cliente = render_template(
                         "emails/clientes/feedback_confirmacao.html",
                         nome=nome,
                         classificacao=classificacao,
                         comentario=comentario,
-                        data_envio=datetime.now(),
+                        data_envio=data_envio
                     )
-                    send_email(
-                        "💬 Recebemos o seu feedback • Agenda Beleza",
-                        [email_cliente],
-                        html_cliente,
-                    )
-                    app.logger.info(
-                        f"E-mail de confirmação de feedback enviado para {email_cliente}"
-                    )
-                else:
-                    app.logger.warning(
-                        "Feedback enviado mas não há email na sessão para enviar confirmação."
-                    )
-            except Exception as e:
-                app.logger.error(f"Erro ao enviar e-mail de confirmação de feedback: {e}")
+                    # ✅ ENVIAR REAL: Descomentado
+                    send_email("💬 Recebemos o seu feedback • Agenda Beleza", [email_cliente], html_cliente)
+                    app.logger.info(f"E-mail de confirmação de feedback enviado para {email_cliente}")
 
-            # 3) E-mail para ADMIN
+                except Exception as e:
+                    app.logger.error(f"Erro ao enviar e-mail de confirmação de feedback para cliente: {e}")
+
+            # E-mail para o ADMIN
             try:
-                admin_email = app.config.get(
-                    "ADMIN_EMAIL",
-                    "agenda.beleza.contato@gmail.com",
-                )
                 html_admin = render_template(
                     "emails/admin/novo_feedback.html",
                     nome=nome,
                     email_cliente=email_cliente,
                     classificacao=classificacao,
                     comentario=comentario,
-                    data_envio=datetime.now(),
+                    data_envio=data_envio
                 )
-                send_email(
-                    "📥 Novo feedback recebido • Agenda Beleza",
-                    [admin_email],
-                    html_admin,
-                )
-                app.logger.info(
-                    f"E-mail de novo feedback enviado para admin ({admin_email})"
-                )
+                # ✅ ENVIAR REAL: Descomentado
+                send_email("📥 Novo feedback recebido • Agenda Beleza", [admin_email], html_admin)
+                app.logger.info(f"E-mail de novo feedback enviado para admin ({admin_email})")
+                
             except Exception as e:
-                app.logger.error(
-                    f"Erro ao enviar e-mail de novo feedback para admin: {e}"
-                )
+                app.logger.error(f"Erro ao enviar e-mail de novo feedback para admin: {e}")
 
+
+            # 3. Sucesso
             flash("Feedback enviado com sucesso! 🌸", "success")
             return redirect(url_for("listar_feedbacks"))
 
         except Exception as e:
-            app.logger.error(f"Erro ao enviar feedback: {e}")
-            flash("Erro ao enviar o feedback.", "error")
+            app.logger.error(f"ERRO CRÍTICO AO PROCESSAR FEEDBACK: {e}")
+            flash("Ocorreu um erro ao guardar o feedback.", "error")
             return redirect(url_for("feedback"))
 
     return render_template("feedback.html")
-
 
 # ---- Lista pública de feedbacks ---------------------------------------------
 @app.route("/feedbacks")

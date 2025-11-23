@@ -5,30 +5,38 @@
   <title>{% block title %}Agenda Beleza{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Flatpickr CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
+  <!-- CSS principal (theme.css) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/theme.css') }}">
 
   {% block extra_css %}{% endblock %}
 </head>
 <body>
 
+  <!-- 🌸 HEADER FINAL (Com espaçamento forçado no inline CSS) -->
   <header class="site-header" style="width: 100%; background: rgba(255, 255, 255, 0.95); border-bottom: 1px solid #f2dfe4;">
     
+    <!-- NAV WRAPPER CORRIGIDO: Garante que o logo não toca no menu -->
     <div class="nav-wrapper" style="width: 92%; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; gap: 50px;">
 
+      <!-- Marca / Logo -->
       <a href="{{ url_for('index') }}" class="brand" style="flex-shrink: 0; text-decoration: none;">
         <span class="brand-mark" style="font-weight: 700; font-size: 20px; color: #262525;">Agenda Beleza</span>
         <span class="brand-sub" style="font-size: 12px; color: #6f6a6a; display: block;">Cuidar de si é essencial</span>
       </a>
 
+      <!-- Menu mobile (Hamburger) -->
       <input type="checkbox" id="nav-toggle" class="nav-toggle" style="display: none;">
       <label for="nav-toggle" class="hamburger"><span></span></label>
 
+      <!-- Navegação principal -->
       <nav class="nav" style="display: flex; align-items: center; gap: 10px;">
         <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}nav-link-active{% endif %}">Início</a>
         <a href="{{ url_for('servicos') }}" class="nav-link {% if request.endpoint == 'servicos' %}nav-link-active{% endif %}">Serviços</a>
@@ -36,6 +44,7 @@
         <a href="{{ url_for('contato') }}" class="nav-link {% if request.endpoint == 'contato' %}nav-link-active{% endif %}">Contacto</a>
 
         {% if session.get('user_id') %}
+          <!-- 👤 MENU DE UTILIZADOR (LOGADO) -->
           <div class="user-menu">
             <button class="user-toggle" id="userToggle">
               <div class="avatar">{{ session['nome'][0]|upper }}</div>
@@ -45,23 +54,37 @@
             <div id="userDropdown" class="user-dropdown">
               <div class="dropdown-section">
                 <div class="dropdown-section-title">Conta</div>
+                
                 {% if is_admin %}
+                  <!-- OPÇÕES DE ADMINISTRADOR -->
                   <a href="{{ url_for('admin_dashboard') }}" class="dropdown-link">
                     <span class="dropdown-icon">⚙️</span>
                     <span class="dropdown-text">Área Admin</span>
                   </a>
+                
                 {% else %}
+                  <!-- OPÇÕES DE CLIENTE -->
                   <a href="{{ url_for('marcacoes') }}" class="dropdown-link">
                     <span class="dropdown-icon">🗓️</span>
                     <span class="dropdown-text">Agendar</span>
                   </a>
+                  
                   <a href="{{ url_for('minhas_marcacoes') }}" class="dropdown-link">
                     <span class="dropdown-icon">📋</span>
                     <span class="dropdown-text">Minhas Marcações</span>
                   </a>
+
+                  <!-- ✅ LINK NOVO: AVALIAR SERVIÇO -->
+                  <a href="{{ url_for('feedback') }}" class="dropdown-link">
+                    <span class="dropdown-icon">⭐</span>
+                    <span class="dropdown-text">Avaliar Serviço</span>
+                  </a>
+
                 {% endif %}
               </div>
+              
               <div class="dropdown-divider"></div>
+              
               <div class="dropdown-footer">
                 <a href="{{ url_for('logout') }}" class="dropdown-link dropdown-logout">
                   <span class="dropdown-icon">🚪</span>
@@ -70,7 +93,9 @@
               </div>
             </div>
           </div>
+
         {% else %}
+          <!-- VISITANTE (NÃO LOGADO) -->
           <a href="{{ url_for('login') }}" class="btn btn-outline">Entrar</a>
           <a href="{{ url_for('registar') }}" class="btn btn-primary">Registar</a>
         {% endif %}
@@ -78,6 +103,7 @@
     </div>
   </header>
 
+  <!-- 🔔 FLASH MESSAGES (Avisos do sistema) -->
   <div class="container">
     {% with msgs = get_flashed_messages(with_categories=true) %}
       {% if msgs %}
@@ -88,6 +114,7 @@
     {% endwith %}
   </div>
 
+  <!-- Banner de próxima marcação (se existir) -->
   {% if g.proxima_marcacao %}
   <div class="container">
     <div class="alert info proxima-marcacao">
@@ -98,19 +125,23 @@
   </div>
   {% endif %}
 
+  <!-- 🔥 CONTEÚDO DA PÁGINA -->
   <main>
     {% block content %}{% endblock %}
   </main>
 
+  <!-- 👣 FOOTER -->
   <footer class="site-footer">
     <div class="container">
       <div class="footer-grid">
         
+        <!-- Coluna 1: Marca -->
         <div class="footer-col brand-col">
           <h4 class="footer-brand">Agenda Beleza</h4>
           <p class="footer-desc">O seu espaço de eleição para beleza e bem-estar. Cuidamos de si com profissionalismo e dedicação.</p>
         </div>
 
+        <!-- Coluna 2: Contactos -->
         <div class="footer-col">
           <h4 class="footer-heading">Contacto</h4>
           <ul class="footer-list">
@@ -120,6 +151,7 @@
           </ul>
         </div>
 
+        <!-- Coluna 3: Horário -->
         <div class="footer-col">
           <h4 class="footer-heading">Horário</h4>
           <ul class="footer-list">
@@ -129,6 +161,7 @@
           </ul>
         </div>
 
+        <!-- Coluna 4: Legal -->
         <div class="footer-col">
           <h4 class="footer-heading">Legal</h4>
           <ul class="footer-links">
@@ -140,12 +173,14 @@
 
       </div>
       
+      <!-- Linha de Copyright -->
       <div class="footer-bottom">
         <p>&copy; {{ current_year if current_year is defined else 2025 }} Agenda Beleza — Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>
 
+  <!-- ESTILOS DO FOOTER (Embutidos para consistência) -->
   <style>
     .site-footer {
         background-color: #f9fafb;
@@ -230,6 +265,7 @@
     }
   </style>
 
+  <!-- 📅 Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <script>
@@ -260,7 +296,7 @@
       }, 3000);
     });
 
-    // Flatpickr
+    // Flatpickr Initialization
     document.addEventListener("DOMContentLoaded", function () {
       const campoData = document.querySelector("#datahora");
       if (campoData) {

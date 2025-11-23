@@ -1,172 +1,145 @@
 {% extends "base.html" %}
-{% block title %}Criar Conta • {{ super() }}{% endblock %}
+{% block title %}Dar Feedback • {{ super() }}{% endblock %}
 
 {% block content %}
 
-<section class="page-hero soft-gradient" style="padding-bottom: 20px;">
+<!-- 1. HERO (Com espaço extra em baixo para o efeito flutuante) -->
+<section class="page-hero soft-gradient" style="padding-bottom: 100px; padding-top: 60px;">
   <div class="container text-center">
-    <h1 class="hero-title">Criar Conta</h1>
-    <p class="hero-subtitle">Junte-se a nós para cuidar de si.</p>
+    <h1 class="hero-title">A sua opinião é valiosa 💕</h1>
+    <p class="hero-subtitle">
+      Partilhe a sua experiência para nos ajudar a melhorar.
+    </p>
   </div>
 </section>
 
-<section class="container main-section">
+<!-- 2. FORMULÁRIO FLUTUANTE -->
+<section class="container relative-container">
   
-  <div class="floating-card" style="max-width: 500px; margin: 0 auto;">
+  <!-- CARTÃO QUE FLUTUA -->
+  <div class="floating-form-card">
     
-    <form method="POST" action="{{ url_for('registar') }}" class="form" onsubmit="return validarSenha(event)">
+    <form method="POST" action="{{ url_for('feedback') }}" class="form">
       
+      <!-- Nome (Bloqueado, pois já sabemos quem é) -->
       <div class="form-row">
-        <label for="nome">Nome completo</label>
+        <label for="nome">Nome</label>
         <input type="text" 
                id="nome" 
-               name="nome" 
-               class="modern-input" 
-               placeholder="Ex: Ana Silva" 
-               required
-               value="{{ request.form.get('nome', '') }}"> 
+               class="modern-input readonly-input" 
+               value="{{ session.get('nome', 'Cliente') }}" 
+               readonly>
       </div>
 
+      <!-- Classificação -->
       <div class="form-row">
-        <label for="email">E-mail</label>
-        <input type="email" 
-               id="email" 
-               name="email" 
-               class="modern-input" 
-               placeholder="exemplo@gmail.com" 
-               required
-               value="{{ request.form.get('email', '') }}">
+        <label for="classificacao">Classificação</label>
+        <div class="select-wrapper">
+            <select id="classificacao" name="classificacao" class="modern-input" required>
+              <option value="">Selecione uma opção</option>
+              <option value="5">⭐⭐⭐⭐⭐ - Excelente</option>
+              <option value="4">⭐⭐⭐⭐ - Muito Bom</option>
+              <option value="3">⭐⭐⭐ - Razoável</option>
+              <option value="2">⭐⭐ - Fraco</option>
+              <option value="1">⭐ - Muito Fraco</option>
+            </select>
+        </div>
       </div>
 
+      <!-- Comentário -->
       <div class="form-row">
-        <label for="telefone">Telefone</label>
-        <input type="tel" 
-               id="telefone" 
-               name="telefone" 
-               class="modern-input" 
-               placeholder="(xx) xxxxx-xxxx"
-               value="{{ request.form.get('telefone', '') }}">
+        <label for="comentario">Comentário</label>
+        <textarea id="comentario" 
+                  name="comentario" 
+                  class="modern-input" 
+                  rows="5" 
+                  placeholder="Deixe aqui o seu comentário (opcional)..."></textarea>
       </div>
 
-      <div class="form-row password-field" style="position: relative;">
-        <label for="password">Senha</label>
-        <input type="password" 
-               id="password" 
-               name="password" 
-               class="modern-input" 
-               placeholder="••••••••" 
-               required
-               minlength="8">
-        <button type="button" class="show-password" onclick="togglePass('password')">👁️</button>
-      </div>
-      
-      <p class="form-note">
-        A senha deve ter pelo menos 8 caracteres, incluindo 1 letra maiúscula, 1 minúscula e 1 número.
-      </p>
-
-      <div class="form-row" style="position: relative;">
-        <label for="confirm_password">Confirmar Senha</label>
-        <input type="password" 
-               id="confirm_password" 
-               name="confirm_password" 
-               class="modern-input" 
-               placeholder="••••••••" 
-               required>
-      </div>
-
-      <div id="form-warning" class="alert alert-warning" style="display:none; margin-top:15px;"></div>
-
+      <!-- Botão de Enviar -->
       <div class="form-actions" style="margin-top: 30px;">
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-          Criar Conta
+        <button type="submit" class="btn btn-primary btn-block">
+          Enviar Feedback
         </button>
-      </div>
-
-      <div class="text-center" style="margin-top: 20px; font-size: 0.9rem;">
-        Já tem conta? <a href="{{ url_for('login') }}" style="color: #d63384; font-weight: 600;">Entrar aqui</a>
       </div>
 
     </form>
   </div>
 </section>
 
-<script>
-// Alternar visibilidade da senha
-function togglePass(id) {
-  const input = document.getElementById(id);
-  if (input.type === "password") {
-    input.type = "text";
-  } else {
-    input.type = "password";
-  }
-}
-
-// Mostrar aviso no JS
-function mostrarAviso(msg){
-  const alert = document.getElementById("form-warning");
-  alert.style.display = "block";
-  alert.textContent = msg;
-}
-
-// Validar antes de enviar
-function validarSenha(e){
-  const s = document.getElementById("password").value;
-  const c = document.getElementById("confirm_password").value;
-  const alert = document.getElementById("form-warning");
-  
-  alert.style.display = "none"; // Limpa avisos anteriores
-
-  if(s !== c){ 
-      e.preventDefault(); 
-      mostrarAviso("⚠️ As senhas não coincidem!"); 
-      return false; 
-  }
-  
-  // Validação de segurança
-  if(s.length < 8 || !/[A-Z]/.test(s) || !/[a-z]/.test(s) || !/[0-9]/.test(s)){
-    e.preventDefault(); 
-    mostrarAviso("❌ A senha deve ter 8 caracteres, maiúscula, minúscula e número."); 
-    return false;
-  }
-  
-  return true;
-}
-</script>
-
+<!-- ESTILOS ESPECÍFICOS -->
 <style>
-  /* Estilos Específicos para Formulários */
+  /* Layout & Hero */
+  .page-hero { padding: 40px 0 20px; }
+  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 2rem; }
+  .hero-subtitle { color: #6c757d; font-size: 0.95rem; margin: 0; }
+
+  /* Container Relativo para z-index */
+  .relative-container {
+      position: relative;
+      z-index: 10;
+  }
+
+  /* CARTÃO FLUTUANTE */
+  .floating-form-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 600px;
+      /* MARGEM NEGATIVA para puxar para cima */
+      margin: -60px auto 60px auto; 
+      
+      /* Sombra Premium */
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1); 
+      border: 1px solid rgba(255, 255, 255, 0.8);
+  }
+
+  /* Inputs */
   .form-row { margin-bottom: 20px; }
   .form-row label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 0.95rem; }
   
   .modern-input {
-      width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      font-size: 1rem;
-      transition: all 0.2s;
-      background-color: #f9fafb;
+      width: 100%; padding: 12px 15px; 
+      border: 1px solid #e2e8f0; border-radius: 12px; 
+      font-size: 1rem; transition: all 0.2s; background-color: #fff;
+      font-family: inherit;
   }
-  .modern-input:focus {
-      border-color: #fce4ec;
-      background-color: #fff;
-      box-shadow: 0 0 0 4px rgba(214, 51, 132, 0.1);
-      outline: none;
+  .modern-input:focus { 
+      border-color: #fce4ec; background-color: #fff; 
+      box-shadow: 0 0 0 4px rgba(214, 51, 132, 0.1); outline: none; 
   }
 
-  .form-note { font-size: 0.8rem; color: #666; margin-top: -10px; margin-bottom: 20px; line-height: 1.4; }
-  
-  .show-password {
-      position: absolute;
-      right: 15px;
-      top: 38px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #999;
-      font-size: 1.1rem;
+  /* Input de Leitura (Nome) */
+  .readonly-input {
+      background-color: #f9fafb;
+      color: #666;
+      cursor: default;
+      border-color: #f1f1f1;
   }
-  .show-password:hover { color: #d63384; }
+  
+  /* Select Wrapper (Para corrigir a seta no Firefox/Safari) */
+  .select-wrapper { position: relative; }
+  
+  /* Botão */
+  .btn-block { width: 100%; justify-content: center; padding: 14px; border-radius: 50px; font-size: 1rem; font-weight: 600; }
+  .btn-primary { 
+      background-color: #d63384; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+      transition: 0.3s; 
+      box-shadow: 0 4px 15px rgba(214, 51, 132, 0.3);
+  }
+  .btn-primary:hover { background-color: #ad1457; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(214, 51, 132, 0.4); }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+      .floating-form-card { 
+          margin-top: -30px; 
+          padding: 25px; 
+          border-radius: 20px;
+      }
+  }
 </style>
 
 {% endblock %}
