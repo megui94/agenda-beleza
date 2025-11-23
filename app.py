@@ -1301,7 +1301,6 @@ def admin_feedbacks():
         termo=termo,
     )
 
-
 @app.route("/admin/feedbacks/aprovar/<int:id>", methods=["GET", "POST"])
 def aprovar_feedback(id):
     if not session.get("is_admin"):
@@ -1317,7 +1316,6 @@ def aprovar_feedback(id):
     flash("Feedback aprovado com sucesso!", "success")
     return redirect(url_for("admin_feedbacks"))
 
-
 @app.route("/admin/feedbacks/<int:id>/remover", methods=["GET", "POST"])
 def remover_feedback(id):
     if not session.get("is_admin"):
@@ -1332,7 +1330,6 @@ def remover_feedback(id):
 
     flash("Feedback removido com sucesso.", "success")
     return redirect(url_for("admin_feedbacks"))
-
 
 # =============================================================================
 # ⏰ LEMBRETES AUTOMÁTICOS (APROX. 1H ANTES)
@@ -1380,7 +1377,6 @@ def enviar_lembretes():
         except Exception as e:
             app.logger.error(f"Erro no envio de lembretes: {e}")
 
-
 # =============================================================================
 # 📄 PÁGINAS LEGAIS (POLÍTICA / TERMOS)
 # =============================================================================
@@ -1392,7 +1388,6 @@ def politica_privacidade():
 @app.route("/termos")
 def termos():
     return render_template("termos.html")
-
 
 # =============================================================================
 # ⏱️ SCHEDULER (APScheduler) — LEMBRETES DE MARCAÇÃO
@@ -1406,7 +1401,6 @@ scheduler.add_job(
     trigger="interval",
     minutes=5,
 )
-
 
 # =============================================================================
 # ▶️ RUN (APENAS EM LOCAL)

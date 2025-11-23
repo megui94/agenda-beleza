@@ -54,15 +54,5 @@ CREATE TABLE IF NOT EXISTS Feedbacks (
     FOREIGN KEY (Cliente_id) REFERENCES Utilizador(Id) ON DELETE CASCADE
 );
 
-SELECT Id, Email, EmailVerificado
-FROM Utilizador;
 
-SELECT Id, Email, EmailVerificado
-FROM Utilizador
-WHERE Email = 'agenda.beleza.contato@gmail.com';
-
-UPDATE Utilizador
-SET EmailVerificado = 1
-WHERE EmailVerificado = 0 OR EmailVerificado IS NULL;
-
-
+TRUNCATE TABLE Marcacoes;

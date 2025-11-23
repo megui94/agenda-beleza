@@ -138,18 +138,18 @@
 
   /* --- ESTILOS DO MODAL --- */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 999; backdrop-filter: blur(3px); }
-  .modal-card { background: #fff; padding: 30px; border-radius: 24px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); border: 1px solid #fff0f5; }
-  .modal-icon { font-size: 2.5rem; margin-bottom: 15px; background: #fce4ec; width: 60px; height: 60px; line-height: 60px; border-radius: 50%; margin-inline: auto; }
+  .modal-card { background: #fff; padding: 30px; border-radius: 24px; width: 90%; max-inline-size: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); border: 1px solid #fff0f5; }
+  .modal-icon { font-size: 2.5rem; margin-block-end: 15px; background: #fce4ec; inline-size: 60px; height: 60px; line-height: 60px; border-radius: 50%; margin-inline: auto; }
   .modal-card h3 { margin: 0 0 10px; font-size: 1.4rem; font-weight: 700; color: #333; font-family: 'Playfair Display', serif; }
-  .modal-card p { color: #666; margin-bottom: 25px; font-size: 0.95rem; line-height: 1.5; }
+  .modal-card p { color: #666; margin-block-end: 25px; font-size: 0.95rem; line-height: 1.5; }
   .modal-actions { display: flex; gap: 10px; justify-content: center; }
   .btn-modal { border: none; padding: 12px 24px; border-radius: 50px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: 0.2s; text-decoration: none; display: inline-block; }
   .btn-modal.cancel { background: #f1f3f5; color: #666; } .btn-modal.cancel:hover { background: #e9ecef; }
   .btn-modal.confirm { background: #d63384; color: #fff; } .btn-modal.confirm:hover { background: #b01b65; transform: translateY(-2px); }
 
-  @media (max-width: 768px) {
+  @media (max-inline-size: 768px) {
       .featured-card { flex-direction: column; }
-      .featured-image { height: 250px; }
+      .featured-image { block-size: 250px; }
       .featured-content { padding: 25px; }
       .featured-content h3 { font-size: 1.5rem; }
   }
