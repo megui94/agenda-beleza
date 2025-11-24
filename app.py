@@ -16,7 +16,6 @@ from flask import (
     flash, session, url_for, abort, current_app
 )
 from flask_bcrypt import Bcrypt
-from flask_mail import Mail
 from flask_apscheduler import APScheduler
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from logging.handlers import RotatingFileHandler
@@ -69,31 +68,6 @@ handler.setFormatter(logging.Formatter("%(asctime)s — %(levelname)s — %(mess
 app.logger.addHandler(handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info("Logging iniciado.")
-
-
-# =============================================================================
-# 📧 CONFIGURAÇÃO FLASK-MAIL (SMTP BREVO)  — (atualmente não usado, mas preparado)
-# =============================================================================
-app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp-relay.brevo.com")
-app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT", 587))
-app.config["MAIL_USE_TLS"] = os.getenv("MAIL_USE_TLS", "true").lower() == "true"
-app.config["MAIL_USE_SSL"] = os.getenv("MAIL_USE_SSL", "false").lower() == "true"
-app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
-app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
-app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
-
-mail = Mail(app)
-
-
-def _send_async(app, msg):
-    """Versão assíncrona para Flask-Mail (não estás a usar neste momento)."""
-    with app.app_context():
-        try:
-            mail.send(msg)
-            app.logger.info(f"[MAIL] enviado para {msg.recipients}")
-        except Exception as e:
-            app.logger.error(f"[MAIL] falhou: {type(e).__name__}: {e}")
-
 
 # =============================================================================
 # 📧 ENVIO DE E-MAILS VIA API BREVO
@@ -216,7 +190,6 @@ def internal_error(_):
     """Erro genérico 500 com logging."""
     app.logger.error(traceback.format_exc())
     return "Ocorreu um erro interno no servidor.", 500
-
 
 # =============================================================================
 # 👥 AUTENTICAÇÃO (LOGIN / LOGOUT / REGISTO / CONFIRMAÇÃO E RESET)
@@ -692,7 +665,7 @@ def admin_marcacoes():
     query = """
         SELECT 
             m.Id, 
-            u.Nome      AS Nome,       -- <--- MUDEI AQUI (de 'Cliente' para 'Nome')
+            u.Nome      AS Nome,
             s.Nome      AS Servico, 
             m.DataHora  AS DataHora, 
             m.Estado    AS Estado, 
@@ -726,6 +699,7 @@ def admin_marcacoes():
         estado=estado,
         termo=termo,
     )
+
 @app.route("/admin/update_marcacao", methods=["POST"])
 def admin_update_marcacao():
     """Atualiza estado de uma marcação (Aprovado / Rejeitado) e notifica cliente."""
@@ -1015,13 +989,14 @@ def admin_dashboard():
     return render_template(
         "admin_dashboard.html",
         total_marcacoes=total_marcacoes,
-        pendentes=pendentes,        # Mudou de pendentes_hoje para pendentes
-        aprovadas=aprovadas,        # Mudou de aprovadas_hoje para aprovadas
+        pendentes=pendentes, 
+        aprovadas=aprovadas, 
         total_clientes=total_clientes,
         total_feedbacks_aprovados=total_feedbacks_aprovados,
         servico_top=servico_top,
         servico_top_qtd=servico_top_qtd,
     )
+
 # =============================================================================
 # 🌐 PÁGINAS GERAIS (INÍCIO, SOBRE, SERVIÇOS, CONTACTO)
 # =============================================================================
