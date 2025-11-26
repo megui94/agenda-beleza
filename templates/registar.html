@@ -1,145 +1,168 @@
 {% extends "base.html" %}
-{% block title %}Dar Feedback • {{ super() }}{% endblock %}
+{% block title %}Criar conta • {{ super() }}{% endblock %}
 
 {% block content %}
 
-<!-- 1. HERO (Com espaço extra em baixo para o efeito flutuante) -->
-<section class="page-hero soft-gradient" style="padding-block-end: 100px; padding-block-start: 60px;">
-  <div class="container text-center">
-    <h1 class="hero-title">A sua opinião é valiosa 💕</h1>
-    <p class="hero-subtitle">
-      Partilhe a sua experiência para nos ajudar a melhorar.
-    </p>
+{# ===========================
+   HERO DO TOPO
+   =========================== #}
+<section class="page-hero">
+  <div class="container">
+    <h1>Criar conta</h1>
+    <p>Registe-se para poder marcar serviços, gerir as suas marcações e enviar feedback.</p>
   </div>
 </section>
 
-<!-- 2. FORMULÁRIO FLUTUANTE -->
-<section class="container relative-container">
-  
-  <!-- CARTÃO QUE FLUTUA -->
-  <div class="floating-form-card">
-    
-    <form method="POST" action="{{ url_for('feedback') }}" class="form">
-      
-      <!-- Nome (Bloqueado, pois já sabemos quem é) -->
-      <div class="form-row">
-        <label for="nome">Nome</label>
-        <input type="text" 
-               id="nome" 
-               class="modern-input readonly-input" 
-               value="{{ session.get('nome', 'Cliente') }}" 
-               readonly>
+{# ===========================
+   FORMULÁRIO DE REGISTO
+   =========================== #}
+<section class="section">
+  <div class="container" style="max-width: 720px;">
+
+    <div class="card" style="padding: 26px 24px; border-radius: 22px;">
+      <div class="section-header" style="margin-bottom: 18px;">
+        <h2 class="section-title" style="font-size: 24px; margin-bottom: 6px;">
+          Bem-vinda à Agenda de Beleza 💅
+        </h2>
+        <p class="section-subtitle">
+          Crie a sua conta para começar a agendar as suas marcações online.
+        </p>
       </div>
 
-      <!-- Classificação -->
-      <div class="form-row">
-        <label for="classificacao">Classificação</label>
-        <div class="select-wrapper">
-            <select id="classificacao" name="classificacao" class="modern-input" required>
-              <option value="">Selecione uma opção</option>
-              <option value="5">⭐⭐⭐⭐⭐ - Excelente</option>
-              <option value="4">⭐⭐⭐⭐ - Muito Bom</option>
-              <option value="3">⭐⭐⭐ - Razoável</option>
-              <option value="2">⭐⭐ - Fraco</option>
-              <option value="1">⭐ - Muito Fraco</option>
-            </select>
+      <form
+        class="form form-book"
+        method="POST"
+        action="{{ url_for('registar') }}"
+        novalidate
+      >
+        {# NOME #}
+        <div class="form-row">
+          <label for="nome">Nome completo</label>
+          <input
+            type="text"
+            id="nome"
+            name="nome"
+            value="{{ request.form.get('nome', '') }}"
+            placeholder="Ex.: Ana Silva"
+            required
+          >
         </div>
-      </div>
 
-      <!-- Comentário -->
-      <div class="form-row">
-        <label for="comentario">Comentário</label>
-        <textarea id="comentario" 
-                  name="comentario" 
-                  class="modern-input" 
-                  rows="5" 
-                  placeholder="Deixe aqui o seu comentário (opcional)..."></textarea>
-      </div>
+        {# EMAIL #}
+        <div class="form-row">
+          <label for="email">E-mail</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value="{{ request.form.get('email', '') }}"
+            placeholder="o.seu.email@exemplo.com"
+            required
+          >
+        </div>
 
-      <!-- Botão de Enviar -->
-      <div class="form-actions" style="margin-block-start: 30px;">
-        <button type="submit" class="btn btn-primary btn-block">
-          Enviar Feedback
-        </button>
-      </div>
+        {# TELEFONE #}
+        <div class="form-row">
+          <label for="telefone">Telemóvel</label>
+          <input
+            type="tel"
+            id="telefone"
+            name="telefone"
+            value="{{ request.form.get('telefone', '') }}"
+            placeholder="Ex.: 912 345 678"
+          >
+          <span class="form-note">
+            Opcional, mas ajuda a confirmar marcações se necessário.
+          </span>
+        </div>
 
-    </form>
+        {# PASSWORD + CONFIRMAÇÃO #}
+        <div class="form-row two" style="position: relative;">
+          <div style="position: relative;">
+            <label for="password">Palavra-passe</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Crie uma palavra-passe segura"
+              required
+            >
+            <button
+              type="button"
+              class="show-password"
+              data-target="#password"
+              aria-label="Mostrar/ocultar palavra-passe"
+            >
+              👁
+            </button>
+          </div>
+
+          <div style="position: relative;">
+            <label for="confirm_password">Confirmar palavra-passe</label>
+            <input
+              type="password"
+              id="confirm_password"
+              name="confirm_password"
+              placeholder="Repita a palavra-passe"
+              required
+            >
+            <button
+              type="button"
+              class="show-password"
+              data-target="#confirm_password"
+              aria-label="Mostrar/ocultar palavra-passe"
+            >
+              👁
+            </button>
+          </div>
+        </div>
+
+        <p class="form-note">
+          A palavra-passe deve ter <strong>pelo menos 8 caracteres</strong>, incluindo
+          <strong>uma letra maiúscula</strong> e <strong>um número</strong>.
+        </p>
+
+        {# BOTÃO SUBMETER #}
+        <div class="form-row" style="margin-top: 18px;">
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            Criar conta
+          </button>
+        </div>
+
+        {# LINK PARA LOGIN #}
+        <div class="form-row" style="margin-top: 6px; text-align: center;">
+          <span class="form-note">
+            Já tem conta?
+            <a href="{{ url_for('login') }}" style="color: var(--pink-700); font-weight: 600;">
+              Inicie sessão aqui
+            </a>.
+          </span>
+        </div>
+      </form>
+    </div>
   </div>
 </section>
 
-<!-- ESTILOS ESPECÍFICOS -->
-<style>
-  /* Layout & Hero */
-  .page-hero { padding: 40px 0 20px; }
-  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-block-end: 5px; font-size: 2rem; }
-  .hero-subtitle { color: #6c757d; font-size: 0.95rem; margin: 0; }
+{# ===========================
+   JS: MOSTRAR / OCULTAR PASSWORD
+   (usa a classe .show-password já definida no CSS)
+   =========================== #}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggles = document.querySelectorAll(".show-password");
 
-  /* Container Relativo para z-index */
-  .relative-container {
-      position: relative;
-      z-index: 10;
-  }
+    toggles.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetSelector = btn.getAttribute("data-target");
+        const input = document.querySelector(targetSelector);
+        if (!input) return;
 
-  /* CARTÃO FLUTUANTE */
-  .floating-form-card {
-      background: #fff;
-      border-radius: 24px;
-      padding: 40px;
-      max-inline-size: 600px;
-      /* MARGEM NEGATIVA para puxar para cima */
-      margin: -60px auto 60px auto; 
-      
-      /* Sombra Premium */
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1); 
-      border: 1px solid rgba(255, 255, 255, 0.8);
-  }
-
-  /* Inputs */
-  .form-row { margin-block-end: 20px; }
-  .form-row label { display: block; margin-block-end: 8px; font-weight: 600; color: #333; font-size: 0.95rem; }
-  
-  .modern-input {
-      inline-size: 100%; padding: 12px 15px; 
-      border: 1px solid #e2e8f0; border-radius: 12px; 
-      font-size: 1rem; transition: all 0.2s; background-color: #fff;
-      font-family: inherit;
-  }
-  .modern-input:focus { 
-      border-color: #fce4ec; background-color: #fff; 
-      box-shadow: 0 0 0 4px rgba(214, 51, 132, 0.1); outline: none; 
-  }
-
-  /* Input de Leitura (Nome) */
-  .readonly-input {
-      background-color: #f9fafb;
-      color: #666;
-      cursor: default;
-      border-color: #f1f1f1;
-  }
-  
-  /* Select Wrapper (Para corrigir a seta no Firefox/Safari) */
-  .select-wrapper { position: relative; }
-  
-  /* Botão */
-  .btn-block { inline-size: 100%; justify-content: center; padding: 14px; border-radius: 50px; font-size: 1rem; font-weight: 600; }
-  .btn-primary { 
-      background-color: #d63384; 
-      color: white; 
-      border: none; 
-      cursor: pointer; 
-      transition: 0.3s; 
-      box-shadow: 0 4px 15px rgba(214, 51, 132, 0.3);
-  }
-  .btn-primary:hover { background-color: #ad1457; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(214, 51, 132, 0.4); }
-
-  /* Mobile */
-  @media (max-inline-size: 600px) {
-      .floating-form-card { 
-          margin-block-start: -30px; 
-          padding: 25px; 
-          border-radius: 20px;
-      }
-  }
-</style>
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        btn.textContent = isPassword ? "🙈" : "👁";
+      });
+    });
+  });
+</script>
 
 {% endblock %}
