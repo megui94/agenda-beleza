@@ -3,6 +3,18 @@
 
 {% block content %}
 
+{# ==========================================================
+   IMAGENS POR SERVIÇO (SÓ NO HTML)
+   Troca os caminhos para os teus ficheiros dentro de /static/
+   ========================================================== #}
+{% set service_images = {
+  "Unhas de gel (Extensão)": "imagens/inicio/unhas_01.jpg",
+  "Verniz de Gel": "imagens/inicio/unhas_06.jpg",
+  "Manutenção Gel": "imagens/inicio/unhas_03.jpg",
+  "Manutenção Verniz de Gel": "imagens/inicio/unhas_07.jpg"
+} %}
+{% set default_service_image = "imagens/unhas.png" %}
+
 <section class="page-hero soft-gradient">
   <div class="container text-center">
     <h1 class="hero-title">Os Nossos Serviços</h1>
@@ -15,7 +27,7 @@
   <div class="search-container">
     <form method="GET" action="{{ url_for('servicos') }}" class="search-form">
       <input type="text" name="q" class="search-input" 
-             placeholder="O que procura hoje? (ex: Manicure)" 
+             placeholder="O que procura hoje? (ex: Unhas de gel)" 
              value="{{ request.args.get('q', '') }}">
       <button type="submit" class="search-btn">
         🔍
@@ -27,7 +39,10 @@
     {% for servico in servicos %}
     <article class="card service-card lift">
       <div class="card-img-wrapper">
-        <img src="{{ url_for('static', filename='imagens/unhas.png') }}" alt="{{ servico[1] }}">
+        <img
+          src="{{ url_for('static', filename=service_images.get(servico[1], default_service_image)) }}"
+          alt="{{ servico[1] }}"
+        >
       </div>
       
       <div class="card-body">
@@ -40,7 +55,7 @@
         
         <div class="card-footer">
             <span class="duration">⏱ {{ servico[4] }} min</span>
-            <a href="{{ url_for('marcacoes') }}" class="btn-book">Agendar</a>
+            <a href="{{ url_for('agendar_redirect', servico_id=servico[0]) }}" class="btn-book">Agendar</a>
         </div>
       </div>
     </article>
