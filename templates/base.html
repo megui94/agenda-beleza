@@ -40,6 +40,7 @@
       <nav class="nav" style="display: flex; align-items: center; gap: 10px;">
         <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}nav-link-active{% endif %}">Início</a>
         <a href="{{ url_for('servicos') }}" class="nav-link {% if request.endpoint == 'servicos' %}nav-link-active{% endif %}">Serviços</a>
+        <a href="{{ url_for('sobre') }}" class="nav-link {% if request.endpoint == 'sobre' %}nav-link-active{% endif %}">Sobre</a>
         <a href="{{ url_for('listar_feedbacks') }}" class="nav-link {% if request.endpoint == 'listar_feedbacks' %}nav-link-active{% endif %}">Feedbacks</a>
         <a href="{{ url_for('contato') }}" class="nav-link {% if request.endpoint == 'contato' %}nav-link-active{% endif %}">Contacto</a>
 

@@ -1,44 +1,319 @@
 {% extends "base.html" %}
 {% block title %}Sobre • {{ super() }}{% endblock %}
+
 {% block content %}
-<section class="page-hero">
-  <div class="container">
-    <h1>Sobre</h1>
-    <p>Beleza com leveza. Cuidamos de pessoas, não só de peles.</p>
+
+<section class="page-hero soft-gradient about-hero">
+  <div class="container about-hero-grid">
+    <div class="about-hero-copy">
+      <span class="pill">Agenda Beleza</span>
+      <h1 class="hero-title">Um espaço pensado para o seu bem-estar</h1>
+      <p class="hero-subtitle">
+        Cuidamos das suas unhas com técnica, higiene e carinho — para que saia daqui
+        a sentir-se confiante e leve.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn-primary" href="{{ url_for('servicos') }}">Ver serviços</a>
+        <a class="btn-outline" href="{{ url_for('contato') }}">Falar connosco</a>
+      </div>
+
+      <div class="hero-highlights">
+        <div class="highlight">
+          <div class="dot">✨</div>
+          <div>
+            <strong>Produtos premium</strong>
+            <span>Marcas certificadas e duradouras</span>
+          </div>
+        </div>
+        <div class="highlight">
+          <div class="dot">🧼</div>
+          <div>
+            <strong>Higiene &amp; segurança</strong>
+            <span>Materiais limpos e cuidados consistentes</span>
+          </div>
+        </div>
+        <div class="highlight">
+          <div class="dot">💖</div>
+          <div>
+            <strong>Ambiente acolhedor</strong>
+            <span>Um momento só para si</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-hero-media">
+      <div class="side-card">
+        <h3>O que pode esperar</h3>
+        <ul class="checklist">
+          <li>Atendimento humano e cuidadoso</li>
+          <li>Detalhe e acabamento profissional</li>
+          <li>Conforto e tranquilidade no espaço</li>
+          <li>Resultados que duram</li>
+        </ul>
+
+        <div class="mini-stats">
+          <div class="stat">
+            <strong>+4</strong>
+            <span>Serviços de unhas</span>
+          </div>
+          <div class="stat">
+            <strong>⭐</strong>
+            <span>Feedbacks reais</span>
+          </div>
+          <div class="stat">
+            <strong>⏱</strong>
+            <span>Agendamento simples</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</section>
-
-<section class="section container grid about-grid">
-  <div>
-    <h3 class="fancy-title">Nossa história</h3>
-    <p>Nascemos com o propósito de proporcionar bem-estar e resultados reais com atendimento humano. Investimos em formação contínua e produtos certificados.</p>
-    <p>O ambiente foi pensado para acolher e acalmar — iluminação suave, música tranquila e um cheirinho inesquecível.</p>
-  </div>
-    <img class="rounded"
-      src="{{ url_for('static', filename='imagens/nails.png') }}"
-      alt="Equipe do salão"
-      style="max-inline-size: 400px; inline-size: 100%; block-size: auto; margin: auto;">
-
-
 </section>
 
 <section class="section container">
-  <header class="section-header">
-    <h2 class="section-title">Nossa equipa</h2>
-    <p class="section-subtitle">Profissionais experientes, apaixonados pelo que fazem.</p>
-  </header>
-  <div class="grid cards-3 team-grid">
-    {% for p in [
-    ("Ana Pedro","Esteticista • Especialista em Manicure", url_for('static', filename='imagens/equipa/ana_profissional.jpg')),
-    ] %}
-    <article class="card lift">
-      <img src="{{ p[2] }}" alt="{{ p[0] }}">
-      <div class="card-body">
-        <h3>{{ p[0] }}</h3>
-        <p>{{ p[1] }}</p>
+  <div class="about-grid">
+    <div class="about-block">
+      <h2 class="section-title">Nossa história</h2>
+      <p>
+        Nascemos com o propósito de proporcionar bem-estar e resultados reais com atendimento humano.
+        Investimos em formação contínua e produtos certificados.
+      </p>
+      <p>
+        O ambiente foi pensado para acolher e acalmar — iluminação suave, música tranquila e um cheirinho
+        inesquecível.
+      </p>
+
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="icon">🎓</div>
+          <div>
+            <h4>Formação contínua</h4>
+            <p>Atualização constante em técnicas e tendências.</p>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="icon">🧴</div>
+          <div>
+            <h4>Produtos certificados</h4>
+            <p>Qualidade para proteger e realçar as suas unhas.</p>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="icon">🤍</div>
+          <div>
+            <h4>Experiência tranquila</h4>
+            <p>Um atendimento calmo e dedicado, do início ao fim.</p>
+          </div>
+        </div>
       </div>
-    </article>
-    {% endfor %}
+    </div>
+
+    <div class="values-block">
+      <h2 class="section-title">Os nossos valores</h2>
+
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-top">
+            <span class="value-icon">🧼</span>
+            <h4>Segurança</h4>
+          </div>
+          <p>Rotinas de higiene e cuidado com cada atendimento.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-top">
+            <span class="value-icon">✨</span>
+            <h4>Qualidade</h4>
+          </div>
+          <p>Acabamento bonito, materiais bons e foco no detalhe.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-top">
+            <span class="value-icon">💬</span>
+            <h4>Transparência</h4>
+          </div>
+          <p>Comunicação clara e recomendações honestas.</p>
+        </div>
+      </div>
+
+      <div class="about-cta">
+        <p class="cta-text">
+          Pronta para marcar? Escolha o serviço e encontre o melhor horário para si.
+        </p>
+        <a class="btn-primary" href="{{ url_for('servicos') }}">Agendar agora</a>
+      </div>
+    </div>
   </div>
 </section>
+
+<style>
+  /* Só para esta página (não mexe no resto do site) */
+  .about-hero { padding: 70px 0 30px; }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding: 6px 12px; border-radius: 999px;
+    background: rgba(214, 51, 132, 0.08);
+    color: #d63384; font-weight: 700; font-size: 0.85rem;
+    border: 1px solid rgba(214, 51, 132, 0.12);
+  }
+  .about-hero-grid{
+    display:grid; grid-template-columns: 1.15fr 0.85fr;
+    gap: 40px; align-items: start;
+  }
+  .about-hero-copy .hero-title{ margin-top: 14px; }
+  .hero-cta{ display:flex; gap: 12px; margin: 18px 0 22px; flex-wrap: wrap; }
+
+  .btn-primary, .btn-outline{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding: 10px 18px; border-radius: 10px;
+    font-weight: 600; text-decoration:none;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary{
+    background: #d63384; color: #fff;
+    box-shadow: 0 10px 20px rgba(214, 51, 132, .18);
+  }
+  .btn-primary:hover{ transform: translateY(-1px); box-shadow: 0 14px 26px rgba(214, 51, 132, .22); }
+
+  .btn-outline{
+    background: #fff; color: #333;
+    border: 1px solid rgba(0,0,0,.08);
+  }
+  .btn-outline:hover{ transform: translateY(-1px); box-shadow: 0 12px 22px rgba(0,0,0,.08); }
+
+  .hero-highlights{
+    display:grid; grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .highlight{
+    display:flex; gap: 12px; align-items:flex-start;
+    background: rgba(255,255,255,.78);
+    border: 1px solid rgba(0,0,0,.05);
+    padding: 12px 14px; border-radius: 16px;
+    backdrop-filter: blur(8px);
+  }
+  .highlight .dot{
+    width: 38px; height: 38px;
+    display:grid; place-items:center;
+    border-radius: 12px;
+    background: rgba(214, 51, 132, 0.10);
+    border: 1px solid rgba(214, 51, 132, 0.12);
+    flex: 0 0 38px;
+  }
+  .highlight strong{ display:block; color:#333; font-size: .95rem; }
+  .highlight span{ display:block; color:#666; font-size: .86rem; margin-top: 2px; }
+
+  .about-hero-media{ display:grid; gap: 14px; }
+  .media-card{
+    border-radius: 22px; overflow:hidden;
+    background:#fff;
+    border: 1px solid rgba(0,0,0,.06);
+    box-shadow: 0 18px 40px rgba(0,0,0,.10);
+  }
+  .media-card img{
+    width:100%; height: 420px; object-fit: cover;
+    display:block;
+  }
+
+  .side-card{
+    background:#fff; border-radius: 22px;
+    border: 1px solid rgba(0,0,0,.06);
+    padding: 18px 18px 16px;
+    box-shadow: 0 14px 28px rgba(0,0,0,.08);
+  }
+  .side-card h3{ margin: 0 0 10px; color:#333; }
+  .checklist{ margin: 0; padding-left: 18px; color:#666; font-size:.92rem; }
+  .checklist li{ margin: 6px 0; }
+
+  .mini-stats{
+    margin-top: 14px;
+    display:grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .stat{
+    background: rgba(214, 51, 132, .06);
+    border: 1px solid rgba(214, 51, 132, .10);
+    border-radius: 16px;
+    padding: 10px 10px;
+    text-align:center;
+  }
+  .stat strong{ display:block; font-size: 1.05rem; color:#d63384; }
+  .stat span{ display:block; font-size:.78rem; color:#666; margin-top: 2px; }
+
+  .about-grid{
+    display:grid; grid-template-columns: 1.05fr .95fr;
+    gap: 36px; align-items: start;
+  }
+  .section-title{ margin-bottom: 12px; }
+
+  .about-cards{
+    display:grid; grid-template-columns: 1fr;
+    gap: 12px; margin-top: 18px;
+  }
+  .about-card{
+    display:flex; gap: 12px; align-items:flex-start;
+    background:#fff;
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 18px;
+    padding: 14px 14px;
+    box-shadow: 0 10px 22px rgba(0,0,0,.06);
+  }
+  .about-card .icon{
+    width: 40px; height: 40px;
+    display:grid; place-items:center;
+    border-radius: 14px;
+    background: rgba(214, 51, 132, 0.10);
+    border: 1px solid rgba(214, 51, 132, 0.12);
+    flex: 0 0 40px;
+    font-size: 1.15rem;
+  }
+  .about-card h4{ margin: 0; color:#333; font-size: 1rem; }
+  .about-card p{ margin: 4px 0 0; color:#666; font-size:.9rem; }
+
+  .values-grid{
+    display:grid; grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .value-card{
+    background:#fff;
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 18px;
+    padding: 14px 14px;
+    box-shadow: 0 10px 22px rgba(0,0,0,.06);
+  }
+  .value-top{
+    display:flex; align-items:center; gap: 10px;
+    margin-bottom: 6px;
+  }
+  .value-icon{
+    width: 38px; height: 38px; border-radius: 14px;
+    display:grid; place-items:center;
+    background: rgba(214, 51, 132, 0.10);
+    border: 1px solid rgba(214, 51, 132, 0.12);
+  }
+  .value-card h4{ margin: 0; color:#333; }
+  .value-card p{ margin: 0; color:#666; font-size:.92rem; }
+
+  .about-cta{
+    margin-top: 16px;
+    display:flex; gap: 12px; align-items:center; justify-content: space-between;
+    background: rgba(214, 51, 132, .06);
+    border: 1px solid rgba(214, 51, 132, .10);
+    border-radius: 18px;
+    padding: 14px 14px;
+    flex-wrap: wrap;
+  }
+  .cta-text{ margin:0; color:#555; }
+
+  @media (max-width: 980px){
+    .about-hero-grid{ grid-template-columns: 1fr; }
+    .media-card img{ height: 360px; }
+    .about-grid{ grid-template-columns: 1fr; }
+    .mini-stats{ grid-template-columns: 1fr; }
+  }
+</style>
+
 {% endblock %}
