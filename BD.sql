@@ -1,6 +1,6 @@
 USE defaultdb;
 
--- 👤 Tabela de utilizadores
+-- Tabela de utilizadores
 CREATE TABLE IF NOT EXISTS Utilizador (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Password VARCHAR(255) NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS Utilizador (
     DataRegisto TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 💅 Tabela de serviços
+-- Tabela de serviços
 CREATE TABLE IF NOT EXISTS Servicos (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Nome VARCHAR(100) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS Servicos (
     Duracao INT (45)
 );
 
--- 📅 Tabela de marcações
+-- Tabela de marcações
 CREATE TABLE IF NOT EXISTS Marcacoes (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     DataHora DATETIME NOT NULL,
@@ -53,6 +53,3 @@ CREATE TABLE IF NOT EXISTS Feedbacks (
     DataEnvio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (Cliente_id) REFERENCES Utilizador(Id) ON DELETE CASCADE
 );
-
-
-TRUNCATE TABLE Marcacoes;
