@@ -1,6 +1,29 @@
-.env
-logs/
+# Python
 __pycache__/
-venv/
 *.pyc
+*.pyo
+*.pyd
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Flask
+instance/
+*.sqlite3
+
+# VS Code
+.vscode/
+
+# Secrets
+.env
+*.env
+
+# Logs
+logs/
 *.log
+
+# OS
+.DS_Store
+Thumbs.db
