@@ -1474,3 +1474,18 @@ body {
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* =========================================
+   ✅ HEADER: Registar com o mesmo estilo do .btn-primary
+========================================= */
+
+.site-header .btn[href*="registar"] {
+  background: var(--pink) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.site-header .btn[href*="registar"]:hover {
+  background: var(--pink-600) !important;
+}

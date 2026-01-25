@@ -46,21 +46,34 @@ if server_name:
 # =============================================================================
 if not os.getenv("BREVO_API_KEY"):
     app.logger.warning("BREVO_API_KEY não definida — emails desativados (o site continua a funcionar).")
-
+    
 # =============================================================================
 # 📝 LOGGING (FICHEIRO)
 # =============================================================================
-os.makedirs("logs", exist_ok=True)
+from pathlib import Path
+import logging
+from logging.handlers import RotatingFileHandler
+
+BASE_DIR = Path(__file__).resolve().parent
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
+log_path = LOG_DIR / "app.log"
+
 handler = RotatingFileHandler(
-    "logs/app.log",
+    log_path,
     maxBytes=1_000_000,
     backupCount=5,
     encoding="utf-8",
 )
-handler.setLevel(logging.INFO)
-handler.setFormatter(logging.Formatter("%(asctime)s — %(levelname)s — %(message)s"))
 
-app.logger.addHandler(handler)
+handler.setLevel(logging.INFO)
+handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+
+# Evita duplicar handlers (muito comum com debug/reloader)
+if not any(isinstance(h, RotatingFileHandler) for h in app.logger.handlers):
+    app.logger.addHandler(handler)
+
 app.logger.setLevel(logging.INFO)
 app.logger.info("Logging iniciado.")
 
@@ -804,19 +817,12 @@ def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str):
     Atualiza o estado de uma marcação e envia o e-mail certo ao cliente.
 
     Porquê existir esta função?
-<<<<<<< HEAD
     - Evita código repetido em várias rotas (aprovar/rejeitar/cancelar).
     - Garante que o cliente é sempre notificado quando o estado muda.
     - Evita e-mails duplicados se o estado já estiver igual.
     """
     novo_estado = normalize_estado(novo_estado)
 
-=======
-    - Evita código repetido em várias rotas (aprovar/rejeitar).
-    - Garante que o cliente é sempre notificado quando o estado muda.
-    - Evita e-mails duplicados se o estado já estiver igual.
-    """
->>>>>>> ea595331eee4a2f14b76f1e0293cf44ade2dd099
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
 
@@ -843,15 +849,10 @@ def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str):
         conn.close()
         return False, "Marcação não encontrada."
 
-<<<<<<< HEAD
     estado_atual = normalize_estado(marc.get("Estado"))
 
     # Se já estiver no mesmo estado, não faz nada (evita e-mails duplicados)
     if estado_atual == novo_estado:
-=======
-    # Se já estiver no mesmo estado, não faz nada (evita e-mails duplicados)
-    if (marc.get("Estado") or "").lower() == (novo_estado or "").lower():
->>>>>>> ea595331eee4a2f14b76f1e0293cf44ade2dd099
         conn.close()
         return True, "A marcação já estava nesse estado."
 
@@ -869,12 +870,8 @@ def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str):
     datahora_str = marc["DataHora"].strftime("%d/%m/%Y %H:%M")
 
     # Escolher template + assunto
-<<<<<<< HEAD
     tags = ["marcacoes"]
     if novo_estado == "Aprovada":
-=======
-    if novo_estado == "Aprovado":
->>>>>>> ea595331eee4a2f14b76f1e0293cf44ade2dd099
         html = render_template(
             "emails/clientes/marcacao_aprovada.html",
             nome=marc["NomeCliente"],
@@ -882,21 +879,15 @@ def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str):
             datahora=datahora_str,
         )
         assunto = "✅ Marcação Aprovada • Agenda Beleza"
-<<<<<<< HEAD
         tags.append("aprovada")
 
     elif novo_estado == "Rejeitada":
-=======
-
-    elif novo_estado in ("Rejeitado", "Cancelada"):
->>>>>>> ea595331eee4a2f14b76f1e0293cf44ade2dd099
         html = render_template(
             "emails/clientes/marcacao_rejeitada.html",
             nome=marc["NomeCliente"],
             servico=marc["NomeServico"],
             datahora=datahora_str,
         )
-<<<<<<< HEAD
         assunto = "❌ Marcação Rejeitada • Agenda Beleza"
         tags.append("rejeitada")
 
@@ -909,15 +900,11 @@ def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str):
         )
         assunto = "❌ Marcação Cancelada • Agenda Beleza"
         tags.append("cancelada")
-=======
-        assunto = "❌ Marcação Rejeitada • Agenda Beleza" if novo_estado == "Rejeitado" else "❌ Marcação Cancelada • Agenda Beleza"
->>>>>>> ea595331eee4a2f14b76f1e0293cf44ade2dd099
 
     else:
         # Para outros estados, apenas atualiza (sem e-mail automático)
         return True, "Estado atualizado."
 
-<<<<<<< HEAD
     ok_envio = send_email(assunto, [email_cliente], html, tags=tags)
     if ok_envio:
         app.logger.info(
@@ -929,15 +916,6 @@ def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str):
         f"[MARCACOES] Falha ao enviar e-mail (ID {marcacao_id}) para {email_cliente}"
     )
     return True, "Estado atualizado (falha ao enviar e-mail)."
-=======
-    try:
-        send_email(assunto, [email_cliente], html)
-        app.logger.info(f"[MARCACOES] Estado {novo_estado} → e-mail enviado para {email_cliente} (ID {marcacao_id})")
-        return True, "Estado atualizado e e-mail enviado."
-    except Exception as e:
-        app.logger.error(f"[MARCACOES] Falha ao enviar e-mail (ID {marcacao_id}): {e}")
-        return True, "Estado atualizado (falha ao enviar e-mail)."
->>>>>>> ea595331eee4a2f14b76f1e0293cf44ade2dd099
 
 
 @app.route("/admin/update_marcacao", methods=["POST"])
@@ -951,11 +929,7 @@ def admin_update_marcacao():
     acao_raw = request.form.get("acao")
     acao = normalize_estado(acao_raw)
 
-<<<<<<< HEAD
     if (not marcacao_id) or (acao not in ("Aprovada", "Rejeitada", "Cancelada")):
-=======
-    if not marcacao_id or acao not in ("Aprovado", "Rejeitado"):
->>>>>>> ea595331eee4a2f14b76f1e0293cf44ade2dd099
         flash("Ação inválida.", "error")
         return redirect(url_for("admin_marcacoes"))
 
@@ -980,11 +954,7 @@ def admin_rejeitar_marcacao(id):
     if not session.get("is_admin"):
         abort(403)
 
-<<<<<<< HEAD
     ok, msg = atualizar_estado_marcacao(id, "Rejeitada")
-=======
-    ok, msg = atualizar_estado_marcacao(id, "Rejeitado")
->>>>>>> ea595331eee4a2f14b76f1e0293cf44ade2dd099
     flash(msg, "info" if ok else "error")
     return redirect(url_for("admin_marcacoes"))
 

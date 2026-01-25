@@ -77,19 +77,7 @@
 <section class="cta">
   <div class="container cta-inner">
     <h3>Quer um horário hoje?</h3>
-    <p>Verifique a disponibilidade e garanta o seu momento de cuidado.</p>
-    
-    {# LÓGICA DE BOTÕES #}
-    {% if session.get('user_id') %}
-        <a class="btn btn-dark" href="{{ url_for('marcacoes') }}">
-            Fazer marcação
-        </a>
-    {% else %}
-        <button type="button" class="btn btn-dark trigger-login-modal">
-            Fazer marcação
-        </button>
-    {% endif %}
-    
+    <p>Verifique a disponibilidade e garanta o seu momento de cuidado.</p>    
   </div>
 </section>
 
@@ -99,8 +87,7 @@
     <h3>Acesso Reservado</h3>
     <p>
       Para agendar o seu momento de beleza, precisamos que inicie sessão na sua conta.
-    </p>
-    
+    </p>    
     <div class="modal-actions">
       <button type="button" class="btn-modal cancel" id="closeLoginModal">Cancelar</button>
       <a href="{{ url_for('login') }}" class="btn-modal confirm">Entrar Agora</a>
@@ -173,5 +160,4 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
-
 {% endblock %}
