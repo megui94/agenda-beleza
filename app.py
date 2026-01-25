@@ -1356,15 +1356,21 @@ def termos():
 # =============================================================================
 # ⏱️ SCHEDULER (APScheduler) — LEMBRETES DE MARCAÇÃO
 # =============================================================================
-scheduler = APScheduler()
-scheduler.init_app(app)
-scheduler.start()
-scheduler.add_job(
-    id="lembretes_marcacoes",
-    func=enviar_lembretes,
-    trigger="interval",
-    minutes=5,
-)
+ENABLE_SCHEDULER = os.getenv("ENABLE_SCHEDULER", "0") == "1"
+
+if ENABLE_SCHEDULER:
+    scheduler = APScheduler()
+    scheduler.init_app(app)
+    scheduler.start()
+    scheduler.add_job(
+        id="lembretes_marcacoes",
+        func=enviar_lembretes,
+        trigger="interval",
+        minutes=5,
+    )
+    app.logger.info("✅ Scheduler ligado (ENABLE_SCHEDULER=1).")
+else:
+    app.logger.info("ℹ️ Scheduler desligado (ENABLE_SCHEDULER!=1).")
 
 # =============================================================================
 # ▶️ RUN (APENAS EM LOCAL)
