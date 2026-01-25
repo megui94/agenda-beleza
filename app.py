@@ -690,6 +690,94 @@ def admin_marcacoes():
         termo=termo,
     )
 
+# =============================================================================
+# ✉️ UTILITÁRIO: ATUALIZAR ESTADO DA MARCAÇÃO + ENVIAR E-MAIL
+# =============================================================================
+def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str):
+    """
+    Atualiza o estado de uma marcação e envia o e-mail certo ao cliente.
+
+    Porquê existir esta função?
+    - Evita código repetido em várias rotas (aprovar/rejeitar).
+    - Garante que o cliente é sempre notificado quando o estado muda.
+    - Evita e-mails duplicados se o estado já estiver igual.
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute(
+        """
+        SELECT
+            m.Id,
+            m.DataHora,
+            m.Estado,
+            m.Observacoes,
+            u.Nome  AS NomeCliente,
+            u.Email AS EmailCliente,
+            s.Nome  AS NomeServico
+        FROM Marcacoes m
+        JOIN Utilizador u ON u.Id = m.Cliente_id
+        JOIN Servicos s   ON s.Id = m.Servico_id
+        WHERE m.Id = %s
+        """,
+        (marcacao_id,),
+    )
+    marc = cur.fetchone()
+
+    if not marc:
+        conn.close()
+        return False, "Marcação não encontrada."
+
+    # Se já estiver no mesmo estado, não faz nada (evita e-mails duplicados)
+    if (marc.get("Estado") or "").lower() == (novo_estado or "").lower():
+        conn.close()
+        return True, "A marcação já estava nesse estado."
+
+    cur.execute(
+        "UPDATE Marcacoes SET Estado = %s WHERE Id = %s",
+        (novo_estado, marcacao_id),
+    )
+    conn.commit()
+    conn.close()
+
+    email_cliente = marc.get("EmailCliente")
+    if not email_cliente:
+        return True, "Estado atualizado (cliente sem e-mail)."
+
+    datahora_str = marc["DataHora"].strftime("%d/%m/%Y %H:%M")
+
+    # Escolher template + assunto
+    if novo_estado == "Aprovado":
+        html = render_template(
+            "emails/clientes/marcacao_aprovada.html",
+            nome=marc["NomeCliente"],
+            servico=marc["NomeServico"],
+            datahora=datahora_str,
+        )
+        assunto = "✅ Marcação Aprovada • Agenda Beleza"
+
+    elif novo_estado in ("Rejeitado", "Cancelada"):
+        html = render_template(
+            "emails/clientes/marcacao_rejeitada.html",
+            nome=marc["NomeCliente"],
+            servico=marc["NomeServico"],
+            datahora=datahora_str,
+        )
+        assunto = "❌ Marcação Rejeitada • Agenda Beleza" if novo_estado == "Rejeitado" else "❌ Marcação Cancelada • Agenda Beleza"
+
+    else:
+        # Para outros estados, apenas atualiza (sem e-mail automático)
+        return True, "Estado atualizado."
+
+    try:
+        send_email(assunto, [email_cliente], html)
+        app.logger.info(f"[MARCACOES] Estado {novo_estado} → e-mail enviado para {email_cliente} (ID {marcacao_id})")
+        return True, "Estado atualizado e e-mail enviado."
+    except Exception as e:
+        app.logger.error(f"[MARCACOES] Falha ao enviar e-mail (ID {marcacao_id}): {e}")
+        return True, "Estado atualizado (falha ao enviar e-mail)."
+
+
 @app.route("/admin/update_marcacao", methods=["POST"])
 def admin_update_marcacao():
     """Atualiza estado de uma marcação (Aprovado / Rejeitado) e notifica cliente."""
@@ -700,56 +788,12 @@ def admin_update_marcacao():
     marcacao_id = request.form.get("id")
     acao = request.form.get("acao")  # "Aprovado" ou "Rejeitado"
 
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        """
-        SELECT m.Id, u.Nome, u.Email, s.Nome, m.DataHora
-        FROM Marcacoes m
-        JOIN Utilizador u ON m.Cliente_id = u.Id
-        JOIN Servicos s ON m.Servico_id = s.Id
-        WHERE m.Id = %s
-        """,
-        (marcacao_id,),
-    )
-    info = cur.fetchone()
-
-    if not info:
-        conn.close()
-        flash("Marcação não encontrada.", "error")
+    if not marcacao_id or acao not in ("Aprovado", "Rejeitado"):
+        flash("Ação inválida.", "error")
         return redirect(url_for("admin_marcacoes"))
 
-    cur.execute("UPDATE Marcacoes SET Estado = %s WHERE Id = %s", (acao, marcacao_id))
-    conn.commit()
-    conn.close()
-
-    nome_cliente, email_cliente, servico, datahora_str = (
-        info[1],
-        info[2],
-        info[3],
-        info[4].strftime("%d/%m/%Y %H:%M"),
-    )
-
-    # E-mail para o cliente
-    if acao == "Aprovado":
-        html = render_template(
-            "emails/clientes/marcacao_aprovada.html",
-            nome=nome_cliente,
-            servico=servico,
-            datahora=datahora_str,
-        )
-        assunto = "✅ Marcação Aprovada • Agenda Beleza"
-    else:
-        html = render_template(
-            "emails/clientes/marcacao_rejeitada.html",
-            nome=nome_cliente,
-            servico=servico,
-            datahora=datahora_str,
-        )
-        assunto = "❌ Marcação Cancelada • Agenda Beleza"
-
-    send_email(assunto, [email_cliente], html)
-    flash(f"Marcação {acao.lower()} com sucesso!", "success")
+    ok, msg = atualizar_estado_marcacao(int(marcacao_id), acao)
+    flash(msg, "success" if ok else "error")
     return redirect(url_for("admin_marcacoes"))
 
 
@@ -814,51 +858,8 @@ def admin_rejeitar_marcacao(id):
     if not session.get("is_admin"):
         abort(403)
 
-    conn = get_db_connection()
-    cur = conn.cursor(dictionary=True)
-
-    cur.execute(
-        """
-        SELECT m.Id,
-               m.DataHora,
-               m.Estado,
-               m.Observacoes,
-               u.Nome  AS NomeCliente,
-               u.Email AS Email
-        FROM Marcacoes m
-        JOIN Utilizador u ON u.Id = m.Cliente_id
-        WHERE m.Id = %s
-        """,
-        (id,),
-    )
-    marc = cur.fetchone()
-
-    if not marc:
-        flash("Marcação não encontrada.", "error")
-        conn.close()
-        return redirect(url_for("admin_marcacoes"))
-
-    cur.execute(
-        "UPDATE Marcacoes SET Estado = 'Rejeitado' WHERE Id = %s",
-        (id,),
-    )
-    conn.commit()
-    conn.close()
-
-    try:
-        if marc["Email"]:
-            assunto = "Estado da sua marcação - Agenda Beleza"
-            corpo = (
-                f"Olá {marc['NomeCliente']},\n\n"
-                "A sua marcação foi infelizmente REJEITADA / cancelada.\n"
-                "Se desejar, pode entrar em contacto para reagendar.\n\n"
-                "Agenda Beleza"
-            )
-            send_email(assunto, [marc["Email"]], corpo.replace("\n", "<br>"))
-    except Exception as e:
-        current_app.logger.warning(f"Falha ao enviar e-mail de cancelamento: {e}")
-
-    flash("Marcação rejeitada/cancelada.", "info")
+    ok, msg = atualizar_estado_marcacao(id, "Rejeitado")
+    flash(msg, "info" if ok else "error")
     return redirect(url_for("admin_marcacoes"))
 
 

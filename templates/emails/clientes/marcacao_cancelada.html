@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>❌ Marcação Cancelada • Agenda Beleza</title>
+  <style>
+    body { font-family: 'Poppins', Arial, sans-serif; background-color: #fafafa; color: #333; margin:0; padding:0; }
+    .container { max-inline-size: 600px; margin: 40px auto; background:#fff; border-radius: 12px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+    h2 { margin: 0 0 12px; color:#b42318; }
+    p { line-height: 1.5; margin: 10px 0; }
+    .box { background:#fff5f5; border:1px solid #fecaca; border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
+    .muted { color:#666; font-size: 14px; }
+    .footer { margin-top: 22px; border-top: 1px solid #eee; padding-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>❌ Marcação cancelada</h2>
+    <p>Olá <strong>{{ nome }}</strong>,</p>
+    <p>A sua marcação foi cancelada.</p>
+
+    <div class="box">
+      <p style="margin:0;"><strong>Serviço:</strong> {{ servico }}</p>
+      <p style="margin:8px 0 0;"><strong>Data e hora:</strong> {{ data }}</p>
+    </div>
+
+    <p class="muted">Se desejar, pode voltar ao site e escolher um novo horário.</p>
+
+    <div class="footer muted">
+      <p style="margin:0;">Agenda Beleza 💅</p>
+    </div>
+  </div>
+</body>
+</html>
