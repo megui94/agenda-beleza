@@ -53,3 +53,10 @@ CREATE TABLE IF NOT EXISTS Feedbacks (
     DataEnvio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (Cliente_id) REFERENCES Utilizador(Id) ON DELETE CASCADE
 );
+
+####TRUNCATE TABLE Marcacoes;
+SELECT * FROM Utilizador;
+ALTER TABLE Marcacoes
+ADD COLUMN LembreteEnviado TINYINT(1) DEFAULT 0;
+
+SHOW COLUMNS FROM Marcacoes LIKE 'LembreteEnviado';
