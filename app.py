@@ -37,20 +37,18 @@ serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Domínio base para gerar URLs externas corretamente (Render)
 app.config["PREFERRED_URL_SCHEME"] = "https"
-app.config["SERVER_NAME"] = "agenda-beleza-ipca.onrender.com"
+
+server_name = os.getenv("SERVER_NAME")
+if server_name:
+    app.config["SERVER_NAME"] = server_name
+
 
 
 # =============================================================================
 # 🔍 VERIFICAÇÃO DA BREVO API
 # =============================================================================
 if not os.getenv("BREVO_API_KEY"):
-    print("❌ ERRO: A variável de ambiente 'BREVO_API_KEY' não está definida!")
-    print("➡️  Vá até Render → Settings → Environment e adicione:")
-    print("   BREVO_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    exit(1)
-else:
-    print("✅ BREVO_API_KEY encontrado — envio de e-mails via Brevo ativado.")
-
+    app.logger.warning("BREVO_API_KEY não definida — emails desativados (o site continua a funcionar).")
 
 # =============================================================================
 # 📝 LOGGING (FICHEIRO)
@@ -163,27 +161,19 @@ def get_db_connection():
 
     raise Exception("Não foi possível conectar ao MySQL.")
 
-
 # =============================================================================
 # 🔐 SEGURANÇA, BCRYPT E CONTEXT PROCESSORS
 # =============================================================================
 bcrypt = Bcrypt(app)
 
-
 @app.context_processor
 def inject_globals():
-    """Variáveis globais disponíveis em todos os templates."""
     return {
         "current_year": datetime.now(timezone.utc).year,
         "is_admin": bool(session.get("is_admin", False)),
+        "user_nome": session.get("nome"),
+        "user_email": session.get("email")
     }
-
-
-@app.context_processor
-def inject_user():
-    """(Redundante, mas mantém compatibilidade) injeta is_admin nos templates."""
-    return dict(is_admin=session.get("is_admin", False))
-
 
 @app.errorhandler(500)
 def internal_error(_):
@@ -1222,7 +1212,6 @@ def listar_feedbacks():
         app.logger.error(f"Erro ao carregar feedbacks: {e}")
         flash("Erro ao carregar os feedbacks.", "error")
         return redirect(url_for("index"))
-
 
 # ==========================================
 # 💬 Admin — gestão de feedbacks
