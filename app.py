@@ -23,7 +23,6 @@ from logging.handlers import RotatingFileHandler
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
-
 # =============================================================================
 # 🔧 INICIALIZAÇÃO / CONFIGURAÇÃO BASE
 # =============================================================================
@@ -41,8 +40,6 @@ app.config["PREFERRED_URL_SCHEME"] = "https"
 server_name = os.getenv("SERVER_NAME")
 if server_name:
     app.config["SERVER_NAME"] = server_name
-
-
 
 # =============================================================================
 # 🔍 VERIFICAÇÃO DA BREVO API
@@ -70,45 +67,154 @@ app.logger.info("Logging iniciado.")
 # =============================================================================
 # 📧 ENVIO DE E-MAILS VIA API BREVO
 # =============================================================================
-def send_email(subject, recipients, html_body, reply_to=None):
+def _normalize_email_list(recipients):
+    """Normaliza lista de destinatários e remove e-mails inválidos/vazios."""
+    if not recipients:
+        return []
+    if isinstance(recipients, str):
+        recipients = [recipients]
+
+    email_re = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+    out = []
+    seen = set()
+    for r in recipients:
+        if r is None:
+            continue
+        e = str(r).strip()
+        if not e:
+            continue
+        # Remove nomes do tipo "Nome <email@x.com>"
+        m = re.search(r"<([^>]+)>", e)
+        if m:
+            e = m.group(1).strip()
+        if not email_re.match(e):
+            continue
+        if e.lower() in seen:
+            continue
+        seen.add(e.lower())
+        out.append(e)
+    return out
+
+
+def send_email(subject, recipients, html_body, reply_to=None, *, tags=None, max_retries=3):
     """
     Envia e-mails via API do Brevo (TransactionalEmailsApi).
-    Usa a BREVO_API_KEY e MAIL_DEFAULT_SENDER definidas em ambiente.
+
+    - Retorna True/False (para não "falhar em silêncio").
+    - Faz retry em erros transitórios (429/5xx/timeouts).
+    - Regista logs detalhados para diagnosticar bloqueios por IP / chave inválida.
     """
     api_key = os.getenv("BREVO_API_KEY")
-    sender_email = os.getenv("MAIL_DEFAULT_SENDER", "agenda.beleza.contato@gmail.com")
+    sender_email = os.getenv(
+        "MAIL_DEFAULT_SENDER",
+        os.getenv("ADMIN_EMAIL", "agenda.beleza.contato@gmail.com"),
+    )
+
+    to_emails = _normalize_email_list(recipients)
+    if not to_emails:
+        app.logger.warning("[BREVO] Nenhum destinatário válido. Email não enviado.")
+        return False
 
     if not api_key:
-        app.logger.error("[BREVO] Falha: BREVO_API_KEY não configurada.")
-        return
+        app.logger.error("[BREVO] Falha: BREVO_API_KEY não configurada. Emails desativados.")
+        return False
 
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key["api-key"] = api_key
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
-        sib_api_v3_sdk.ApiClient(configuration)
-    )
+
+    api_client = sib_api_v3_sdk.ApiClient(configuration)
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(api_client)
 
     sender = {"name": "Agenda de Beleza 💅", "email": sender_email}
-    to_list = [{"email": r} for r in recipients]
+    to_list = [{"email": e} for e in to_emails]
 
     email_data = sib_api_v3_sdk.SendSmtpEmail(
         to=to_list,
         sender=sender,
-        subject=subject,
-        html_content=html_body,
+        subject=str(subject or "").strip() or "(sem assunto)",
+        html_content=html_body or "",
         reply_to={"email": reply_to} if reply_to else None,
+        tags=tags if tags else None,
     )
 
-    try:
-        api_instance.send_transac_email(email_data)
-        app.logger.info(f"[BREVO] E-mail enviado com sucesso → {recipients}")
-    except ApiException as e:
-        app.logger.error(f"[BREVO] Erro ao enviar e-mail: {e}")
+    def _is_ip_block(body_text: str) -> bool:
+        t = (body_text or "").lower()
+        return ("unauthorized" in t and "ip" in t) or ("ip" in t and "authorize" in t)
+
+    backoff = 1
+    for attempt in range(1, int(max_retries) + 1):
+        try:
+            api_instance.send_transac_email(email_data)
+            app.logger.info(f"[BREVO] Email enviado → {to_emails} | assunto={subject!r}")
+            return True
+
+        except ApiException as e:
+            status = getattr(e, "status", None)
+            body = getattr(e, "body", "") or ""
+            app.logger.error(
+                f"[BREVO] Erro ao enviar (tentativa {attempt}/{max_retries}) "
+                f"status={status} body={body}"
+            )
+
+            # Bloqueio por IP (muito comum quando a Brevo tem 'IP Security' ativo)
+            if _is_ip_block(body):
+                app.logger.error(
+                    "[BREVO] Bloqueado por IP. Autoriza o(s) IP(s)/range(s) do teu servidor "
+                    "na Brevo (Settings → Security → Authorized IPs)."
+                )
+                return False
+
+            # Retry apenas em erros transitórios
+            retriable = (
+                status in (408, 425, 429)
+                or (isinstance(status, int) and 500 <= status <= 599)
+                or status is None
+            )
+            if (not retriable) or attempt == int(max_retries):
+                return False
+
+        except Exception as e:
+            app.logger.error(
+                f"[BREVO] Exceção ao enviar (tentativa {attempt}/{max_retries}): {e}"
+            )
+            if attempt == int(max_retries):
+                return False
+
+        time.sleep(backoff)
+        backoff = min(backoff * 2, 8)
+
+    return False
 
 
-# =============================================================================
-# 💾 CONEXÃO À BASE DE DADOS (MySQL — Aiven / Render)
-# =============================================================================
+def normalize_estado(estado):
+    """
+    Normaliza estados para evitar inconsistências ("Aprovado" vs "Aprovada", etc.).
+    Estados canónicos:
+      - Pendente
+      - Aprovada
+      - Rejeitada
+      - Cancelada
+    """
+    if estado is None:
+        return None
+    s = str(estado).strip()
+    if not s:
+        return None
+    low = s.lower()
+
+    mapping = {
+        "pendente": "Pendente",
+        "aprovado": "Aprovada",
+        "aprovada": "Aprovada",
+        "rejeitado": "Rejeitada",
+        "rejeitada": "Rejeitada",
+        "cancelado": "Cancelada",
+        "cancelada": "Cancelada",
+        "cancelar": "Cancelada",
+        "cancel": "Cancelada",
+    }
+    return mapping.get(low, s)
+
 def get_db_connection():
     """
     Cria e devolve uma conexão MySQL com retry e suporte a SSL (CA opcional).
@@ -690,68 +796,133 @@ def admin_marcacoes():
         termo=termo,
     )
 
+# =============================================================================
+# ✉️ UTILITÁRIO: ATUALIZAR ESTADO DA MARCAÇÃO + ENVIAR E-MAIL
+# =============================================================================
+def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str):
+    """
+    Atualiza o estado de uma marcação e envia o e-mail certo ao cliente.
+
+    Porquê existir esta função?
+    - Evita código repetido em várias rotas (aprovar/rejeitar/cancelar).
+    - Garante que o cliente é sempre notificado quando o estado muda.
+    - Evita e-mails duplicados se o estado já estiver igual.
+    """
+    novo_estado = normalize_estado(novo_estado)
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute(
+        """
+        SELECT
+            m.Id,
+            m.DataHora,
+            m.Estado,
+            m.Observacoes,
+            u.Nome  AS NomeCliente,
+            u.Email AS EmailCliente,
+            s.Nome  AS NomeServico
+        FROM Marcacoes m
+        JOIN Utilizador u ON u.Id = m.Cliente_id
+        JOIN Servicos s   ON s.Id = m.Servico_id
+        WHERE m.Id = %s
+        """,
+        (marcacao_id,),
+    )
+    marc = cur.fetchone()
+
+    if not marc:
+        conn.close()
+        return False, "Marcação não encontrada."
+
+    estado_atual = normalize_estado(marc.get("Estado"))
+
+    # Se já estiver no mesmo estado, não faz nada (evita e-mails duplicados)
+    if estado_atual == novo_estado:
+        conn.close()
+        return True, "A marcação já estava nesse estado."
+
+    cur.execute(
+        "UPDATE Marcacoes SET Estado = %s WHERE Id = %s",
+        (novo_estado, marcacao_id),
+    )
+    conn.commit()
+    conn.close()
+
+    email_cliente = marc.get("EmailCliente")
+    if not email_cliente:
+        return True, "Estado atualizado (cliente sem e-mail)."
+
+    datahora_str = marc["DataHora"].strftime("%d/%m/%Y %H:%M")
+
+    # Escolher template + assunto
+    tags = ["marcacoes"]
+    if novo_estado == "Aprovada":
+        html = render_template(
+            "emails/clientes/marcacao_aprovada.html",
+            nome=marc["NomeCliente"],
+            servico=marc["NomeServico"],
+            datahora=datahora_str,
+        )
+        assunto = "✅ Marcação Aprovada • Agenda Beleza"
+        tags.append("aprovada")
+
+    elif novo_estado == "Rejeitada":
+        html = render_template(
+            "emails/clientes/marcacao_rejeitada.html",
+            nome=marc["NomeCliente"],
+            servico=marc["NomeServico"],
+            datahora=datahora_str,
+        )
+        assunto = "❌ Marcação Rejeitada • Agenda Beleza"
+        tags.append("rejeitada")
+
+    elif novo_estado == "Cancelada":
+        html = render_template(
+            "emails/clientes/marcacao_cancelada.html",
+            nome=marc["NomeCliente"],
+            servico=marc["NomeServico"],
+            data=datahora_str,
+        )
+        assunto = "❌ Marcação Cancelada • Agenda Beleza"
+        tags.append("cancelada")
+
+    else:
+        # Para outros estados, apenas atualiza (sem e-mail automático)
+        return True, "Estado atualizado."
+
+    ok_envio = send_email(assunto, [email_cliente], html, tags=tags)
+    if ok_envio:
+        app.logger.info(
+            f"[MARCACOES] Estado {novo_estado} → e-mail enviado para {email_cliente} (ID {marcacao_id})"
+        )
+        return True, "Estado atualizado e e-mail enviado."
+
+    app.logger.error(
+        f"[MARCACOES] Falha ao enviar e-mail (ID {marcacao_id}) para {email_cliente}"
+    )
+    return True, "Estado atualizado (falha ao enviar e-mail)."
+
+
 @app.route("/admin/update_marcacao", methods=["POST"])
 def admin_update_marcacao():
-    """Atualiza estado de uma marcação (Aprovado / Rejeitado) e notifica cliente."""
+    """Atualiza estado de uma marcação (Aprovada / Rejeitada / Cancelada) e notifica cliente."""
     if not session.get("is_admin"):
         flash("Acesso restrito.", "error")
         return redirect(url_for("index"))
 
     marcacao_id = request.form.get("id")
-    acao = request.form.get("acao")  # "Aprovado" ou "Rejeitado"
+    acao_raw = request.form.get("acao")
+    acao = normalize_estado(acao_raw)
 
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        """
-        SELECT m.Id, u.Nome, u.Email, s.Nome, m.DataHora
-        FROM Marcacoes m
-        JOIN Utilizador u ON m.Cliente_id = u.Id
-        JOIN Servicos s ON m.Servico_id = s.Id
-        WHERE m.Id = %s
-        """,
-        (marcacao_id,),
-    )
-    info = cur.fetchone()
-
-    if not info:
-        conn.close()
-        flash("Marcação não encontrada.", "error")
+    if (not marcacao_id) or (acao not in ("Aprovada", "Rejeitada", "Cancelada")):
+        flash("Ação inválida.", "error")
         return redirect(url_for("admin_marcacoes"))
 
-    cur.execute("UPDATE Marcacoes SET Estado = %s WHERE Id = %s", (acao, marcacao_id))
-    conn.commit()
-    conn.close()
-
-    nome_cliente, email_cliente, servico, datahora_str = (
-        info[1],
-        info[2],
-        info[3],
-        info[4].strftime("%d/%m/%Y %H:%M"),
-    )
-
-    # E-mail para o cliente
-    if acao == "Aprovado":
-        html = render_template(
-            "emails/clientes/marcacao_aprovada.html",
-            nome=nome_cliente,
-            servico=servico,
-            datahora=datahora_str,
-        )
-        assunto = "✅ Marcação Aprovada • Agenda Beleza"
-    else:
-        html = render_template(
-            "emails/clientes/marcacao_rejeitada.html",
-            nome=nome_cliente,
-            servico=servico,
-            datahora=datahora_str,
-        )
-        assunto = "❌ Marcação Cancelada • Agenda Beleza"
-
-    send_email(assunto, [email_cliente], html)
-    flash(f"Marcação {acao.lower()} com sucesso!", "success")
+    ok, msg = atualizar_estado_marcacao(int(marcacao_id), acao)
+    flash(msg, "success" if ok else "error")
     return redirect(url_for("admin_marcacoes"))
-
 
 # ✅ APROVAR MARCAÇÃO (ADMIN, via link)
 @app.route("/admin/marcacoes/aprovar/<int:id>", endpoint="aprovar_marcacao")
@@ -759,52 +930,8 @@ def admin_aprovar_marcacao(id):
     if not session.get("is_admin"):
         abort(403)
 
-    conn = get_db_connection()
-    cur = conn.cursor(dictionary=True)
-
-    cur.execute(
-        """
-        SELECT m.Id,
-               m.DataHora,
-               m.Estado,
-               m.Observacoes,
-               u.Nome  AS NomeCliente,
-               u.Email AS Email
-        FROM Marcacoes m
-        JOIN Utilizador u ON u.Id = m.Cliente_id
-        WHERE m.Id = %s
-        """,
-        (id,),
-    )
-    marc = cur.fetchone()
-
-    if not marc:
-        flash("Marcação não encontrada.", "error")
-        conn.close()
-        return redirect(url_for("admin_marcacoes"))
-
-    cur.execute(
-        "UPDATE Marcacoes SET Estado = 'Aprovado' WHERE Id = %s",
-        (id,),
-    )
-    conn.commit()
-    conn.close()
-
-    try:
-        if marc["Email"]:
-            assunto = "Aprovação da sua marcação - Agenda Beleza"
-            corpo = (
-                f"Olá {marc['NomeCliente']},\n\n"
-                f"A sua marcação para {marc['DataHora'].strftime('%d/%m/%Y %H:%M')} "
-                "foi APROVADA com sucesso.\n\n"
-                "Obrigada pela sua preferência.\n\n"
-                "Agenda Beleza"
-            )
-            send_email(assunto, [marc["Email"]], corpo.replace("\n", "<br>"))
-    except Exception as e:
-        current_app.logger.warning(f"Falha ao enviar e-mail de aprovação: {e}")
-
-    flash("Marcação aprovada com sucesso.", "success")
+    ok, msg = atualizar_estado_marcacao(id, "Aprovada")
+    flash(msg, "success" if ok else "error")
     return redirect(url_for("admin_marcacoes"))
 
 
@@ -814,51 +941,8 @@ def admin_rejeitar_marcacao(id):
     if not session.get("is_admin"):
         abort(403)
 
-    conn = get_db_connection()
-    cur = conn.cursor(dictionary=True)
-
-    cur.execute(
-        """
-        SELECT m.Id,
-               m.DataHora,
-               m.Estado,
-               m.Observacoes,
-               u.Nome  AS NomeCliente,
-               u.Email AS Email
-        FROM Marcacoes m
-        JOIN Utilizador u ON u.Id = m.Cliente_id
-        WHERE m.Id = %s
-        """,
-        (id,),
-    )
-    marc = cur.fetchone()
-
-    if not marc:
-        flash("Marcação não encontrada.", "error")
-        conn.close()
-        return redirect(url_for("admin_marcacoes"))
-
-    cur.execute(
-        "UPDATE Marcacoes SET Estado = 'Rejeitado' WHERE Id = %s",
-        (id,),
-    )
-    conn.commit()
-    conn.close()
-
-    try:
-        if marc["Email"]:
-            assunto = "Estado da sua marcação - Agenda Beleza"
-            corpo = (
-                f"Olá {marc['NomeCliente']},\n\n"
-                "A sua marcação foi infelizmente REJEITADA / cancelada.\n"
-                "Se desejar, pode entrar em contacto para reagendar.\n\n"
-                "Agenda Beleza"
-            )
-            send_email(assunto, [marc["Email"]], corpo.replace("\n", "<br>"))
-    except Exception as e:
-        current_app.logger.warning(f"Falha ao enviar e-mail de cancelamento: {e}")
-
-    flash("Marcação rejeitada/cancelada.", "info")
+    ok, msg = atualizar_estado_marcacao(id, "Rejeitada")
+    flash(msg, "info" if ok else "error")
     return redirect(url_for("admin_marcacoes"))
 
 
@@ -943,7 +1027,7 @@ def admin_dashboard():
     pendentes = cur.fetchone()[0]
 
     # 3. Total Aprovadas (CORRIGIDO: Removido o filtro de data)
-    cur.execute("SELECT COUNT(*) FROM Marcacoes WHERE Estado = 'Aprovado'")
+    cur.execute("SELECT COUNT(*) FROM Marcacoes WHERE Estado IN ('Aprovado','Aprovada')")
     aprovadas = cur.fetchone()[0]
 
     # 4. Total de clientes
@@ -1315,7 +1399,7 @@ def enviar_lembretes():
                 FROM Marcacoes m
                 JOIN Utilizador u ON m.Cliente_id = u.Id
                 JOIN Servicos s ON m.Servico_id = s.Id
-                WHERE m.Estado = 'Aprovado'
+                WHERE m.Estado IN ('Aprovado','Aprovada')
                   AND TIMESTAMPDIFF(MINUTE, NOW(), m.DataHora) BETWEEN 55 AND 65
                   AND (m.LembreteEnviado IS NULL OR m.LembreteEnviado = 0)
                 """

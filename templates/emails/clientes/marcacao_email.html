@@ -1,14 +1,20 @@
 {% extends "emails/base_email.html" %}
+{% block preheader %}A sua marcação foi registada e está pendente.{% endblock %}
 {% block conteudo %}
+<h2>Marcação registada</h2>
 <p>Olá <strong>{{ nome }}</strong>,</p>
 <p>A sua marcação foi registada com sucesso e está <strong>pendente de aprovação</strong> pela nossa equipa.</p>
-<div class="info">
-  <strong>🗓️ Data:</strong> {{ datahora }}<br>
-  <strong>💖 Serviço:</strong> {{ servico }}
+
+<div class="box">
+  <p style="margin:0;"><strong>🗓️ Data:</strong> {{ datahora }}</p>
+  <p style="margin:8px 0 0;"><strong>💖 Serviço:</strong> {{ servico }}</p>
 </div>
+
 <p>Entraremos em contacto assim que for aprovada.</p>
-<p style="text-align:center;">
+
+<p style="text-align:center; margin:18px 0 6px;">
   <a href="mailto:agenda.beleza.contato@gmail.com" class="cta">Falar com a Agenda</a>
 </p>
+
 <p>Com carinho,<br><strong>Equipe Agenda Beleza</strong></p>
 {% endblock %}

@@ -76,7 +76,7 @@
               </td>
               <td>
                 {% set st = m.Estado %}
-                <span class="status-pill {{ 'green' if st == 'Aprovada' else 'orange' if st == 'Pendente' else 'red' if st == 'Rejeitada' else 'gray' }}">
+                <span class="status-pill {{ 'green' if st in ('Aprovada','Aprovado') else 'orange' if st == 'Pendente' else 'red' if st in ('Rejeitada','Rejeitado') else 'gray' }}">
                     {{ st }}
                 </span>
               </td>
@@ -94,10 +94,10 @@
                       <input type="hidden" name="acao" value="Rejeitada">
                       <button class="btn-icon times">✖</button>
                     </form>
-                  {% elif st == "Aprovado" %}
+                  {% elif st in ["Aprovada", "Aprovado"] %}
                     <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
                       <input type="hidden" name="id" value="{{ m.Id }}">
-                      <input type="hidden" name="acao" value="Rejeitada">
+                      <input type="hidden" name="acao" value="Cancelada">
                       <button class="btn-icon times">✖</button>
                     </form>
                   {% else %}

@@ -1,9 +1,11 @@
 {% extends "emails/base_email.html" %}
+{% block preheader %}Recebemos a sua mensagem.{% endblock %}
 {% block conteudo %}
-<p>Olá <strong>{{ nome }}</strong>,</p>
+<h2>Mensagem recebida</h2>
+<p>Olá <strong>{{ user_nome }}</strong>,</p>
 <p>Recebemos a sua mensagem sobre <strong>{{ assunto }}</strong> e a nossa equipa já está a analisá-la.</p>
 <p>Em breve entraremos em contacto para responder às suas dúvidas ou pedidos.</p>
-<p style="text-align:center;">
+<p style="text-align:center; margin:18px 0 6px;">
   <a href="https://agenda-beleza-ipca.onrender.com" class="cta">Visitar o site</a>
 </p>
 <p>Com carinho,<br><strong>Equipe Agenda Beleza</strong></p>

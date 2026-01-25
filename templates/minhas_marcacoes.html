@@ -55,12 +55,12 @@
               </td>
 
               <td>
-                {% if m[3] == "Aprovado" %}
-                  <span class="status-pill green">Aprovado</span>
+                {% if m[3] in ("Aprovada", "Aprovado") %}
+                  <span class="status-pill green">Aprovada</span>
                 {% elif m[3] == "Pendente" %}
                   <span class="status-pill orange">Pendente</span>
-                {% elif m[3] == "Rejeitado" or m[3] == "Rejeitada" %}
-                  <span class="status-pill red">Rejeitado</span>
+                {% elif m[3] in ("Rejeitado", "Rejeitada") %}
+                  <span class="status-pill red">Rejeitada</span>
                 {% elif m[3] == "Cancelada" %}
                   <span class="status-pill gray">Cancelada</span>
                 {% else %}

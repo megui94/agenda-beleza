@@ -1,104 +1,20 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8">
-  <title>👤 Nova Cliente Registada • Agenda Beleza</title>
-  <style>
-    body {
-      background-color: #fff9fb;
-      font-family: 'Poppins', Arial, sans-serif;
-      text-align: center;
-      padding: 40px 0;
-    }
-    .container {
-      max-inline-size: 600px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 8px 25px rgba(246,182,194,0.3);
-    }
-    h1 {
-      color: #a6487a;
-      font-size: 26px;
-      margin-block-end: 10px;
-    }
-    p {
-      color: #444;
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    .info-box {
-      text-align: start;
-      background: #fff4f8;
-      border-radius: 14px;
-      padding: 18px 24px;
-      margin: 0 auto;
-      max-inline-size: 420px;
-      border: 1px solid #ffd6e5;
-    }
-    .info-box p {
-      margin: 8px 0;
-      font-size: 15px;
-      color: #333;
-    }
-    .button {
-      background-color: #ff9ac8;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-block;
-      margin: 32px 0;
-      transition: background-color 0.3s ease;
-    }
-    .button:hover {
-      background-color: #ff7ab8;
-    }
-    hr {
-      margin: 35px 0;
-      border: none;
-      border-block-start: 1px solid #ffe3ef;
-    }
-    .footer {
-      font-size: 13px;
-      color: #999;
-    }
-    .footer a {
-      color: #a6487a;
-      text-decoration: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>👤 Nova Cliente Registada</h1>
-    <p>
-      Uma nova cliente acabou de criar uma conta na <b>Agenda Beleza</b>.<br>
-      Aqui estão os detalhes do registo:
-    </p>
+{% extends "emails/base_email.html" %}
+{% block preheader %}Nova cliente registada.{% endblock %}
+{% block conteudo %}
+<h2>👤 Nova cliente registada</h2>
+<p>Uma nova cliente acabou de criar uma conta na <strong>Agenda Beleza</strong>.</p>
+<p>Aqui estão os detalhes do registo:</p>
 
-    <div class="info-box">
-      <p><b>👩 Nome:</b> {{ nome }}</p>
-      <p><b>📧 E-mail:</b> {{ email }}</p>
-      <p><b>📞 Telefone:</b> {{ telefone or 'Não informado' }}</p>
-      <p><b>📅 Data de Registo:</b> {{ data }}</p>
-    </div>
+<div class="box">
+  <p style="margin:0;"><strong>👩 Nome:</strong> {{ user_nome }}</p>
+  <p style="margin:8px 0 0;"><strong>📧 E-mail:</strong> {{ user_email }}</p>
+  <p style="margin:8px 0 0;"><strong>📞 Telefone:</strong> {{ telefone or 'Não informado' }}</p>
+  <p style="margin:8px 0 0;"><strong>📅 Data de Registo:</strong> {{ data }}</p>
+</div>
 
-    <a href="https://agenda-beleza.onrender.com/admin_marcacoes" class="button">
-      Abrir Painel Administrativo
-    </a>
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="https://agenda-beleza.onrender.com/admin_marcacoes" class="cta">Abrir Painel Administrativo</a>
+</p>
 
-    <p style="color:#666;font-size:14px;">
-      Este é um alerta automático. Não é necessário responder.
-    </p>
-
-    <hr>
-    <p class="footer">
-      💕 Agenda Beleza · Olhão, Portugal<br>
-      <a href="mailto:agenda.beleza.contato@gmail.com">agenda.beleza.contato@gmail.com</a>
-    </p>
-  </div>
-</body>
-</html>
+<p class="muted">Este é um alerta automático. Não é necessário responder.</p>
+{% endblock %}

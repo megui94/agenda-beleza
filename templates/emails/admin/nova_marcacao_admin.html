@@ -1,15 +1,20 @@
 {% extends "emails/base_email.html" %}
+{% block preheader %}Nova marcação recebida.{% endblock %}
 {% block conteudo %}
+<h2>Nova marcação</h2>
 <p>Olá <strong>Admin</strong>,</p>
-<p>Uma nova marcação foi efetuada por <b>{{ nome }}</b>.</p>
-<div class="info">
-  <strong>📅 Data:</strong> {{ datahora }}<br>
-  <strong>💅 Serviço:</strong> {{ servico }}<br>
-  <strong>📧 E-mail:</strong> {{ email }}<br>
-  {% if telefone %}<strong>📞 Telefone:</strong> {{ telefone }}{% endif %}
+<p>Uma nova marcação foi efetuada por <strong>{{ nome }}</strong>.</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>📅 Data:</strong> {{ datahora }}</p>
+  <p style="margin:8px 0 0;"><strong>💅 Serviço:</strong> {{ servico }}</p>
+  <p style="margin:8px 0 0;"><strong>📧 E-mail:</strong> {{ email }}</p>
+  {% if telefone %}<p style="margin:8px 0 0;"><strong>📞 Telefone:</strong> {{ telefone }}</p>{% endif %}
 </div>
+
 <p>Verifique e aprove ou rejeite a marcação no painel administrativo.</p>
-<p style="text-align:center;">
+
+<p style="text-align:center; margin:18px 0 6px;">
   <a href="https://agenda-beleza.onrender.com/admin_marcacoes" class="cta">Ver Marcações</a>
 </p>
 {% endblock %}

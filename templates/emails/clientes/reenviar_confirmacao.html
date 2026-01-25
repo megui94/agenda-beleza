@@ -1,82 +1,20 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8">
-  <title>Reenvio de Confirmação • Agenda Beleza</title>
-  <style>
-    body {
-      background-color: #fff9fb;
-      font-family: 'Poppins', Arial, sans-serif;
-      text-align: center;
-      padding: 40px 0;
-    }
-    .container {
-      max-inline-size: 600px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 8px 25px rgba(246,182,194,0.3);
-    }
-    h1 {
-      color: #a6487a;
-      font-size: 28px;
-      margin-block-end: 10px;
-    }
-    p {
-      color: #444;
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    .button {
-      background-color: #ff9ac8;
-      color: white;
-      padding: 14px 26px;
-      border-radius: 40px;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-block;
-      margin: 25px 0;
-      transition: background-color 0.3s ease;
-    }
-    .button:hover {
-      background-color: #ff7ab8;
-    }
-    .footer {
-      font-size: 13px;
-      color: #999;
-      margin-block-start: 30px;
-    }
-    hr {
-      margin: 35px 0;
-      border: none;
-      border-block-start: 1px solid #ffe3ef;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🔁 Reenvio de Confirmação</h1>
-    <p>Olá, <b>{{ nome }}</b>! 👋</p>
-    <p>
-      Verificámos que ainda não confirmou a sua conta na <b>Agenda Beleza</b>.<br>
-      Clique no botão abaixo para confirmar o seu endereço de e-mail e ativar a sua conta.
-    </p>
+{% extends "emails/base_email.html" %}
+{% block preheader %}Reenvio de confirmação de conta.{% endblock %}
+{% block conteudo %}
+<h2>🔁 Reenvio de confirmação</h2>
+<p>Olá, <strong>{{ nome }}</strong>! 👋</p>
 
-    <a href="{{ confirm_url }}" class="button">Confirmar E-mail</a>
+<p>
+  Verificámos que ainda não confirmou a sua conta na <strong>Agenda Beleza</strong>.
+  Clique no botão abaixo para confirmar o seu endereço de e-mail e ativar a sua conta.
+</p>
 
-    <p style="color:#666; font-size:14px;">
-      Este link é válido por <b>30 minutos</b>.<br>
-      Se não criou esta conta, pode ignorar este e-mail.
-    </p>
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="{{ confirm_url }}" class="cta" target="_blank">Confirmar E-mail</a>
+</p>
 
-    <hr>
-    <p class="footer">
-      💕 Agenda Beleza · Olhão, Portugal<br>
-      <a href="mailto:agenda.beleza.contato@gmail.com" style="color:#a6487a;text-decoration:none;">
-        agenda.beleza.contato@gmail.com
-      </a>
-    </p>
-  </div>
-</body>
-</html>
+<p class="muted">
+  Este link é válido por <strong>30 minutos</strong>.
+  Se não criou esta conta, pode ignorar este e-mail.
+</p>
+{% endblock %}

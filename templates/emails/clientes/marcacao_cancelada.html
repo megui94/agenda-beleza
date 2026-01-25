@@ -1,0 +1,16 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}A sua marcação foi cancelada.{% endblock %}
+{% block conteudo %}
+<h2>❌ Marcação cancelada</h2>
+<p>Olá <strong>{{ nome }}</strong>,</p>
+<p>A sua marcação foi cancelada.</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>Serviço:</strong> {{ servico }}</p>
+  <p style="margin:8px 0 0;"><strong>Data e hora:</strong> {{ data }}</p>
+</div>
+
+<p class="muted">Se desejar, pode voltar ao site e escolher um novo horário.</p>
+
+<p class="muted" style="margin-top:18px;">Agenda Beleza 💅</p>
+{% endblock %}

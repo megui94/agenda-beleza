@@ -1,86 +1,21 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8">
-  <title>✅ Marcação Aprovada • Agenda Beleza</title>
-  <style>
-    body {
-      font-family: 'Poppins', Arial, sans-serif;
-      background-color: #fafafa;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-inline-size: 600px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(90deg, #f7b6c2, #f48fb1);
-      color: #fff;
-      text-align: center;
-      padding: 20px;
-    }
-    .content {
-      padding: 30px 40px;
-      line-height: 1.6;
-    }
-    .content h2 {
-      color: #16a34a;
-      font-size: 1.3rem;
-    }
-    .btn {
-      display: inline-block;
-      background: #16a34a;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 500;
-      margin-block-start: 15px;
-    }
-    .footer {
-      background: #f9f9f9;
-      padding: 15px 25px;
-      text-align: center;
-      font-size: 13px;
-      color: #777;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>✅ Marcação Aprovada</h1>
-    </div>
+{% extends "emails/base_email.html" %}
+{% block preheader %}A sua marcação foi aprovada.{% endblock %}
+{% block conteudo %}
+<h2>✅ Marcação aprovada</h2>
+<p>Olá <strong>{{ nome }}</strong>,</p>
 
-    <div class="content">
-      <h2>Olá {{ nome }}!</h2>
+<p>
+  A sua marcação foi <strong>aprovada com sucesso</strong>. Estamos ansiosos por recebê-la no nosso salão 💅
+</p>
 
-      <p>A sua marcação foi <strong>aprovada com sucesso</strong>. Estamos ansiosos por recebê-la no nosso salão 💅</p>
+<div class="box">
+  <p style="margin:0;"><strong>Serviço:</strong> {{ servico }}</p>
+  <p style="margin:8px 0 0;"><strong>Data:</strong> {{ datahora }}</p>
+</div>
 
-      <p>
-        <strong>Serviço:</strong> {{ servico }}<br>
-        <strong>Data:</strong> {{ datahora }}
-      </p>
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="https://agenda-beleza-ipca.onrender.com/minhas_marcacoes" class="cta">Ver as minhas marcações</a>
+</p>
 
-      <a href="https://agenda-beleza-ipca.onrender.com/minhas_marcacoes" class="btn">
-        Ver as minhas marcações
-      </a>
-
-      <p style="margin-block-start:20px;">
-        Até breve,<br>
-        <strong>Agenda Beleza 💖</strong>
-      </p>
-    </div>
-
-    <div class="footer">
-      © {{ current_year }} Agenda Beleza. Sistema de marcações online.
-    </div>
-  </div>
-</body>
-</html>
+<p>Até breve,<br><strong>Agenda Beleza 💖</strong></p>
+{% endblock %}

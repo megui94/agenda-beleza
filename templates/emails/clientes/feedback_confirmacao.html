@@ -1,18 +1,19 @@
 {% extends "emails/base_email.html" %}
-
+{% block preheader %}Obrigado pelo seu feedback.{% endblock %}
 {% block conteudo %}
-  <p>Olá <strong>{{ nome }}</strong>,</p>
+<h2>Obrigado pelo seu feedback</h2>
+<p>Olá <strong>{{ user_nome }}</strong>,</p>
 
-  <p>Muito obrigado pelo seu feedback sobre a sua experiência na
-  <strong>Agenda Beleza</strong> 💅.</p>
+<p>Muito obrigado pelo seu feedback sobre a sua experiência na <strong>Agenda Beleza</strong> 💅.</p>
 
-  <p><strong>Classificação:</strong> {{ classificacao }}/5</p>
+<div class="box">
+  <p style="margin:0;"><strong>Classificação:</strong> {{ classificacao }}/5</p>
+  <div class="divider"></div>
+  <p style="margin:0;"><strong>Comentário:</strong></p>
+  <p style="margin:8px 0 0;">{{ comentario }}</p>
+</div>
 
-  <p><strong>Comentário:</strong></p>
-  <p>{{ comentario }}</p>
+<p>O seu feedback será analisado pela nossa equipa e, se aprovado, poderá aparecer na secção de <strong>Feedbacks</strong> do site.</p>
 
-  <p>O seu feedback será analisado pela nossa equipa e, se aprovado,
-  poderá aparecer na secção de <strong>Feedbacks</strong> do site.</p>
-
-  <p>Com carinho,<br><strong>Equipa Agenda Beleza</strong></p>
+<p>Com carinho,<br><strong>Equipa Agenda Beleza</strong></p>
 {% endblock %}

@@ -9,8 +9,8 @@
     <h1 class="display">Beleza que combina contigo</h1>
     <p>Unhas impecáveis e cuidado especializado para realçar a beleza das suas mãos.</p>
     <div class="hero-actions">
-      <a href="{{ url_for('agendar_redirect') }}" class="btn btn-pink">Agendar agora</a>
-      <a href="{{ url_for('servicos') }}" class="btn btn-light">Ver serviços</a>
+      <a href="{{ url_for('agendar_redirect') }}" class="btn btn-dark trigger-login-modal">Agendar agora</a>
+      <a href="{{ url_for('servicos') }}" class="btn btn-dark trigger-login-modal">Ver serviços</a>
     </div>
   </div>
 </section>
@@ -24,17 +24,17 @@
   <div class="featured-service-wrapper">
     <article class="featured-card">
       <div class="featured-image">
-        <img src="{{ url_for('static', filename='imagens/inicio/unhas_01.jpg') }}" alt="Manicure Profissional" />
+        <img src="{{ url_for('static', filename='imagens/equipa/ana.jpg') }}" alt="Manicure Profissional" />
       </div>
       
       <div class="featured-content">
         <h3>Manicure Profissional</h3>
         <p>
-          As suas mãos merecem o melhor cuidado. Utilizamos esmaltes hipoalergénicos de alta duração e seguimos rigorosos processos de esterilização.
+          As suas mãos merecem o melhor cuidado. Utilizamos vernizes hipoalergénicos de alta duração e seguimos rigorosos processos de esterilização.
         </p>
         <ul class="feature-list">
             <li>- Cuticulagem perfeita</li>
-            <li>- Esmaltagem duradoura</li>
+            <li>- Aplicação de verniz duradoura</li>
             <li>- Material 100% esterilizado</li>
         </ul>
         <div class="featured-action">
@@ -46,12 +46,6 @@
     </article>
   </div>
 </section>
-
-<div class="section-divider">
-    <span class="line"></span>
-    <span class="icon">✨</span>
-    <span class="line"></span>
-</div>
 
 {% if feedbacks %}
 <section class="section bg-soft-pink">
