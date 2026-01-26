@@ -19,16 +19,13 @@
         ‹
       </button>
 
-<<<<<<< HEAD
       <!-- Track com os slides -->
-=======
+
       <!-- Janela + Track -->
->>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
       <div class="feedback-slider-window">
         <div class="feedback-slider-track">
           {% for f in feedbacks %}
           <article class="feedback-card">
-<<<<<<< HEAD
             <!-- topo: utilizador + rating -->
             <header class="feedback-card-header">
               <div class="feedback-user">
@@ -37,7 +34,7 @@
                 </div>
                 <div class="feedback-user-info">
                   <p class="feedback-name">{{ f.NomeCliente }}</p>
-=======
+
             <!-- topo -->
             <header class="feedback-card-header">
               <div class="feedback-user">
@@ -47,17 +44,13 @@
 
                 <div class="feedback-user-info">
                   <p class="feedback-name">{{ f.NomeCliente or "Cliente" }}</p>
->>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
                   <p class="feedback-tag">Cliente Agenda Beleza</p>
                 </div>
               </div>
 
               {% if f.Classificacao %}
-<<<<<<< HEAD
               <div class="feedback-rating">
-=======
               <div class="feedback-rating" aria-label="Classificação {{ f.Classificacao }} de 5">
->>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
                 <div class="feedback-stars">
                   {% for i in range(1, 6) %}
                     <span class="star{% if f.Classificacao >= i %} filled{% endif %}">★</span>
@@ -68,7 +61,6 @@
               {% endif %}
             </header>
 
-<<<<<<< HEAD
             <!-- corpo: comentário -->
             <div class="feedback-card-body">
               <p class="feedback-comment">
@@ -81,7 +73,7 @@
               <span class="feedback-date">
                 {{ f.DataEnvio.strftime('%d/%m/%Y %H:%M') }}
               </span>
-=======
+
             <!-- corpo -->
             <div class="feedback-card-body">
               <p class="feedback-comment">
@@ -99,7 +91,6 @@
               {% if f.Comentario and f.Comentario|length < 18 %}
                 <span class="feedback-date">. Obrigada pelo seu feedback 💗</span>
               {% endif %}
->>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
             </footer>
           </article>
           {% endfor %}
@@ -112,13 +103,11 @@
       </button>
     </div>
 
-<<<<<<< HEAD
     <!-- Pontinhos do carrossel -->
     <div class="slider-dots">
-=======
+
     <!-- Dots -->
     <div class="slider-dots" aria-label="Navegação de feedbacks">
->>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
       {% for f in feedbacks %}
         <button
           type="button"
@@ -154,19 +143,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function goTo(index) {
     const total = slides.length;
-<<<<<<< HEAD
+
     current = (index + total) % total;  // looping infinito
-=======
+
     current = (index + total) % total; // loop infinito
->>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
     track.style.transform = "translateX(-" + (current * 100) + "%)";
 
     dots.forEach((dot, i) => {
       dot.classList.toggle("active", i === current);
-<<<<<<< HEAD
-=======
+
       dot.setAttribute("aria-current", i === current ? "true" : "false");
->>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
     });
   }
 
@@ -177,17 +163,13 @@ document.addEventListener("DOMContentLoaded", function () {
     dot.addEventListener("click", () => goTo(i));
   });
 
-<<<<<<< HEAD
   // (Opcional) autoplay suave
   // setInterval(() => goTo(current + 1), 8000);
-=======
   // Teclado (opcional): setas esquerda/direita
   slider.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") goTo(current - 1);
     if (e.key === "ArrowRight") goTo(current + 1);
   });
->>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
 });
 </script>
-
 {% endblock %}
