@@ -62,7 +62,6 @@ def create_app():
 
     return app
 
-
 # -----------------------------------------------------------------------------
 # ✅ Compatibilidade com servidores WSGI (ex.: gunicorn "app:app")
 #
