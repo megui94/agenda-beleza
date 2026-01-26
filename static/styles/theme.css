@@ -1475,15 +1475,29 @@ body {
   gap: 10px;
 }
 
+<<<<<<< HEAD
 /* Forçar "Registar" do header a ser rosa (igual btn-primary) */
 .site-header a[href*="registar"]{
+=======
+/* =========================================
+   ✅ HEADER: Registar com o mesmo estilo do .btn-primary
+========================================= */
+
+.site-header .btn[href*="registar"] {
+>>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
   background: var(--pink) !important;
   color: #fff !important;
   border: none !important;
   box-shadow: var(--shadow) !important;
+<<<<<<< HEAD
   border-radius: 999px;
 }
 
 .site-header a[href*="registar"]:hover{
+=======
+}
+
+.site-header .btn[href*="registar"]:hover {
+>>>>>>> 0f5444aeeb55060e4259a5bd94ff93a3c48e99b9
   background: var(--pink-600) !important;
 }
