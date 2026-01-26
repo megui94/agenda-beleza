@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda Beleza</title>
+  <style>
+    /* Estilo base (emails) — simples e compatível */
+    body { margin:0; padding:0; background-color:#f5f6fa; font-family: Arial, Helvetica, sans-serif; color:#1f2937; }
+    table { border-collapse: collapse; border-spacing: 0; }
+    img { border:0; outline:none; text-decoration:none; }
+    a { color:#d63384; }
+
+    .wrap { width:100%; background-color:#f5f6fa; padding:24px 12px; }
+    .container { width:600px; max-width:600px; background:#ffffff; border:1px solid #f1d6e3; border-radius:14px; overflow:hidden; }
+    .header { background:#d63384; padding:18px 22px; text-align:center; }
+    .brand { font-size:22px; font-weight:700; letter-spacing:0.2px; color:#ffffff !important; text-decoration:none; display:inline-block; }
+    .tagline { font-size:13px; color:#ffe7f2; margin-top:6px; }
+
+    .content { padding:26px 26px 18px; font-size:15px; line-height:1.65; }
+    .content p { margin:0 0 12px; }
+    .content h1, .content h2, .content h3 { margin:0 0 12px; font-weight:700; line-height:1.25; color:#111827; }
+    .content h2 { font-size:20px; }
+    .content h3 { font-size:16px; }
+
+    .box, .info, .info-box { background:#fff3f8; border:1px solid #f3c6d9; border-radius:12px; padding:14px 16px; margin:14px 0 16px; }
+    .muted { color:#6b7280; font-size:13px; }
+    .divider { height:1px; background:#f1d6e3; margin:18px 0; }
+
+    .cta, .btn, .button { display:inline-block; background:#d63384; color:#ffffff !important; text-decoration:none; padding:12px 18px; border-radius:999px; font-weight:700; }
+    .cta:hover, .btn:hover, .button:hover { background:#c12673; }
+
+    .footer { padding:16px 22px; font-size:12px; line-height:1.45; color:#6b7280; text-align:center; background:#fff7fb; border-top:1px solid #f1d6e3; }
+
+    /* Preheader (texto invisível que melhora a pré-visualização) */
+    .preheader { display:none!important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; overflow:hidden; mso-hide:all; }
+
+    @media (max-width: 620px) {
+      .container { width:100% !important; max-width:100% !important; border-radius:12px !important; }
+      .content { padding:22px 18px 14px !important; }
+      .header { padding:16px 18px !important; }
+    }
+  </style>
+</head>
+<body>
+  <span class="preheader">{% block preheader %}{% endblock %}</span>
+
+  <table role="presentation" width="100%" class="wrap">
+    <tr>
+      <td align="center">
+        <table role="presentation" class="container" width="600">
+          <tr>
+            <td class="header">
+              <a href="{{ url_for('index', _external=True) }}" class="brand">Agenda Beleza</a>
+              <div class="tagline">Cuidar de si é essencial</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="content">
+              {% block conteudo %}{% endblock %}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="footer">
+              &copy; {{ current_year if current_year is defined else 2025 }} Agenda Beleza. Todos os direitos reservados.<br>
+              <a href="mailto:agenda.beleza.contato@gmail.com" style="color:#6b7280; text-decoration:none;">agenda.beleza.contato@gmail.com</a>
+              <span style="padding:0 6px;">•</span>
+              <a href="{{ url_for('politica_privacidade', _external=True) }}" style="color:#6b7280; text-decoration:none;">Política de Privacidade</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

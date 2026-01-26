@@ -1,0 +1,22 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}Nova mensagem de contacto.{% endblock %}
+{% block conteudo %}
+<h2>Nova mensagem de contacto</h2>
+<p>Olá <strong>Admin</strong>,</p>
+<p>Recebemos uma nova mensagem através do formulário de contacto:</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>👩 Nome:</strong> {{ user_nome }}</p>
+  <p style="margin:8px 0 0;"><strong>📧 E-mail:</strong> {{ user_email }}</p>
+  <p style="margin:8px 0 0;"><strong>📌 Assunto:</strong> {{ assunto }}</p>
+  <div class="divider"></div>
+  <p style="margin:0;"><strong>💬 Mensagem:</strong></p>
+  <p style="margin:8px 0 0;">{{ mensagem }}</p>
+</div>
+
+<p>Poderá responder diretamente a este e-mail ou visualizar no painel administrativo.</p>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="https://agenda-beleza.onrender.com/admin_mensagens" class="cta">Abrir Painel</a>
+</p>
+{% endblock %}

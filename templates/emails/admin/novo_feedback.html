@@ -1,0 +1,25 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}Novo feedback recebido.{% endblock %}
+{% block conteudo %}
+<h2>Novo feedback</h2>
+<p>Olá 👋</p>
+<p>Recebeu um <strong>novo feedback</strong> na Agenda Beleza.</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>Cliente:</strong> {{ user_nome }}</p>
+  {% if email_cliente %}
+    <p style="margin:8px 0 0;"><strong>E-mail:</strong> {{ user_email }}</p>
+  {% endif %}
+  <p style="margin:8px 0 0;"><strong>Classificação:</strong> {{ classificacao }}/5 ⭐</p>
+  <div class="divider"></div>
+  <p style="margin:0;"><strong>Comentário:</strong></p>
+  <p style="margin:8px 0 0;">{{ comentario }}</p>
+  <p class="muted" style="margin:12px 0 0;"><strong>Data de envio:</strong> {{ data_envio.strftime("%d/%m/%Y %H:%M") }}</p>
+</div>
+
+<p>Pode gerir este feedback (aprovar/rejeitar) na área de administração:</p>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="{{ url_for('admin_feedbacks', _external=True) }}" class="cta">Abrir painel de feedbacks</a>
+</p>
+{% endblock %}

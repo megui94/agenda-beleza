@@ -1,0 +1,21 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}A sua marcação foi aprovada.{% endblock %}
+{% block conteudo %}
+<h2>✅ Marcação aprovada</h2>
+<p>Olá <strong>{{ nome }}</strong>,</p>
+
+<p>
+  A sua marcação foi <strong>aprovada com sucesso</strong>. Estamos ansiosos por recebê-la no nosso salão 💅
+</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>Serviço:</strong> {{ servico }}</p>
+  <p style="margin:8px 0 0;"><strong>Data:</strong> {{ datahora }}</p>
+</div>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="https://agenda-beleza-ipca.onrender.com/minhas_marcacoes" class="cta">Ver as minhas marcações</a>
+</p>
+
+<p>Até breve,<br><strong>Agenda Beleza 💖</strong></p>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}Redefinição de senha.{% endblock %}
+{% block conteudo %}
+<h2>Redefinir senha</h2>
+<p>Olá <strong>{{ nome }}</strong>,</p>
+<p>Recebemos um pedido para redefinir a sua senha. Clique no botão abaixo para criar uma nova:</p>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="{{ reset_link }}" class="cta">Redefinir Senha</a>
+</p>
+
+<p class="muted">Se não foi você quem solicitou, ignore este e-mail — a sua conta continua segura.</p>
+
+<p>Com carinho,<br><strong>Equipe Agenda Beleza</strong></p>
+{% endblock %}

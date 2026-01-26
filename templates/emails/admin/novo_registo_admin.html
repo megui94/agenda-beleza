@@ -1,0 +1,20 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}Nova cliente registada.{% endblock %}
+{% block conteudo %}
+<h2>👤 Nova cliente registada</h2>
+<p>Uma nova cliente acabou de criar uma conta na <strong>Agenda Beleza</strong>.</p>
+<p>Aqui estão os detalhes do registo:</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>👩 Nome:</strong> {{ user_nome }}</p>
+  <p style="margin:8px 0 0;"><strong>📧 E-mail:</strong> {{ user_email }}</p>
+  <p style="margin:8px 0 0;"><strong>📞 Telefone:</strong> {{ telefone or 'Não informado' }}</p>
+  <p style="margin:8px 0 0;"><strong>📅 Data de Registo:</strong> {{ data }}</p>
+</div>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="https://agenda-beleza.onrender.com/admin_marcacoes" class="cta">Abrir Painel Administrativo</a>
+</p>
+
+<p class="muted">Este é um alerta automático. Não é necessário responder.</p>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Início • {{ super() }}{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="overlay"></div>
+  <div class="container hero-content">
+    <h1 class="display">Beleza que combina contigo</h1>
+    <p>Unhas impecáveis e cuidado especializado para realçar a beleza das suas mãos.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('servicos') }}" class="btn btn-dark trigger-login-modal">Ver serviços</a>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <header class="section-header">
+    <h2 class="section-title">Bem-vinda à nossa agenda</h2>
+    <p class="section-subtitle">Experiência, segurança e um atendimento feito sob medida.</p>
+  </header>
+
+  <div class="featured-service-wrapper">
+    <article class="featured-card">
+      <div class="featured-image">
+        <img src="{{ url_for('static', filename='imagens/equipa/ana.jpg') }}" alt="Manicure Profissional" />
+      </div>
+      
+      <div class="featured-content">
+        <h3>Manicure Profissional</h3>
+        <p>
+          As suas mãos merecem o melhor cuidado. Utilizamos vernizes hipoalergénicos de alta duração e seguimos rigorosos processos de esterilização.
+        </p>
+        <ul class="feature-list">
+            <li>- Cuticulagem perfeita</li>
+            <li>- Aplicação de verniz duradoura</li>
+            <li>- Material 100% esterilizado</li>
+        </ul>
+        <div class="featured-action">
+            <a href="{{ url_for('servicos') }}" class="btn-link-pink">
+              Ver Detalhes e Agendar <span class="arrow">→</span>
+            </a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+{% if feedbacks %}
+<section class="section bg-soft-pink">
+  <div class="container">
+    <header class="section-header">
+      <h2 class="section-title">O que dizem as nossas clientes 💕</h2>
+      <p class="section-subtitle">Veja algumas das opiniões reais deixadas na plataforma.</p>
+    </header>
+
+    <div class="grid cards-3">
+      {% for f in feedbacks %}
+        <article class="card lift feedback-card">
+          <div class="card-body">
+            <div class="rating">⭐ {{ f[2] }}/5</div>
+            <blockquote class="feedback-text">“{{ f[3] }}”</blockquote>
+            <small class="feedback-author">– {{ f[1] }}</small>
+          </div>
+        </article>
+      {% else %}
+        <div class="text-center" style="grid-column: 1 / -1;">
+          <p style="color:#777;">Ainda não há feedbacks disponíveis.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="cta">
+  <div class="container cta-inner">
+    <h3>Quer um horário hoje?</h3>
+    <p>Verifique a disponibilidade e garanta o seu momento de cuidado.</p>    
+  </div>
+</section>
+
+<style>
+  /* --- ESTILOS GERAIS --- */
+  .featured-service-wrapper { display: flex; justify-content: center; padding: 20px 0; }
+  .featured-card { display: flex; flex-direction: row; background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.08); max-inline-size: 900px; inline-size: 100%; border: 1px solid #f8f8f8; transition: transform 0.3s ease; }
+  .featured-card:hover { transform: translateY(-5px); }
+  .featured-image { flex: 1; min-block-size: 300px; }
+  .featured-image img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+  .featured-content { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+  .featured-content h3 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #333; margin-block-end: 15px; }
+  .featured-content p { color: #666; line-height: 1.6; margin-block-end: 20px; }
+  .feature-list { list-style: none; padding: 0; margin: 0 0 25px 0; }
+  .feature-list li { margin-block-end: 8px; color: #555; font-weight: 500; }
+  .btn-link-pink { text-decoration: none; color: #d63384; font-weight: 700; font-size: 1rem; display: inline-flex; align-items: center; gap: 8px; transition: gap 0.2s; }
+  .btn-link-pink:hover { gap: 12px; color: #ad1457; }
+  .section-divider { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 40px auto 0; max-inline-size: 200px; opacity: 0.6; }
+  .section-divider .line { block-size: 1px; background-color: #d63384; flex: 1; }
+  .section-divider .icon { font-size: 1.2rem; }
+  .bg-soft-pink { background-color: #fff9fb; padding: 80px 0; margin-block-start: 40px; border-block-start: 1px solid #fff0f5; border-block-end: 1px solid #fff0f5; }
+  .feedback-card { border-radius: 16px; background: #fff; border: 1px solid #f1f1f1; }
+  .feedback-text { font-style: italic; color: #555; margin: 10px 0; }
+  .feedback-author { font-weight: 600; color: #d63384; }
+
+  /* --- ESTILOS DO MODAL --- */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 999; backdrop-filter: blur(3px); }
+  .modal-card { background: #fff; padding: 30px; border-radius: 24px; inline-size: 90%; max-inline-size: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); border: 1px solid #fff0f5; }
+  .modal-icon { font-size: 2.5rem; margin-block-end: 15px; background: #fce4ec; inline-size: 60px; block-size: 60px; line-height: 60px; border-radius: 50%; margin-inline: auto; }
+  .modal-card h3 { margin: 0 0 10px; font-size: 1.4rem; font-weight: 700; color: #333; font-family: 'Playfair Display', serif; }
+  .modal-card p { color: #666; margin-block-end: 25px; font-size: 0.95rem; line-height: 1.5; }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; }
+  .btn-modal { border: none; padding: 12px 24px; border-radius: 50px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: 0.2s; text-decoration: none; display: inline-block; }
+  .btn-modal.cancel { background: #f1f3f5; color: #666; } .btn-modal.cancel:hover { background: #e9ecef; }
+  .btn-modal.confirm { background: #d63384; color: #fff; } .btn-modal.confirm:hover { background: #b01b65; transform: translateY(-2px); }
+
+  @media (max-inline-size: 768px) {
+      .featured-card { flex-direction: column; }
+      .featured-image { block-size: 250px; }
+      .featured-content { padding: 25px; }
+      .featured-content h3 { font-size: 1.5rem; }
+  }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("loginModal");
+  const triggerBtn = document.querySelector(".trigger-login-modal");
+  const closeBtn = document.getElementById("closeLoginModal");
+
+  if (triggerBtn && modal) {
+    triggerBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      modal.style.display = "flex";
+    });
+
+    closeBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+});
+</script>
+
+{% endblock %}

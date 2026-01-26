@@ -1,0 +1,24 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}Uma cliente cancelou uma marcação.{% endblock %}
+
+{% block conteudo %}
+<h2>⚠️ Marcação cancelada pela cliente</h2>
+
+<p>Olá <strong>Admin</strong>,</p>
+<p>A cliente <strong>{{ nome_cliente }}</strong> cancelou a marcação.</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>💅 Serviço:</strong> {{ servico }}</p>
+  <p style="margin:8px 0 0;"><strong>📅 Data e hora:</strong> {{ data }}</p>
+
+  {% if email_cliente %}
+    <p style="margin:8px 0 0;"><strong>📧 E-mail:</strong> {{ email_cliente }}</p>
+  {% endif %}
+
+  {% if observacoes %}
+    <p style="margin:8px 0 0;"><strong>📝 Observações:</strong> {{ observacoes }}</p>
+  {% endif %}
+</div>
+
+<p class="muted">Pode ver o histórico no painel de marcações.</p>
+{% endblock %}

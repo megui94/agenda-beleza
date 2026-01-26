@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}Feedbacks • Administração • {{ super() }}{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container text-center">
+    <h1 class="hero-title">Gestão de Feedbacks</h1>
+    <p class="hero-subtitle">Aprovar, remover e acompanhar as opiniões dos clientes.</p>
+  </div>
+</section>
+
+<div class="container nav-wrapper">
+    <nav class="segmented-nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-segment">📊 <span class="d-none d-md-inline">Dashboard</span></a>
+        <a href="{{ url_for('admin_marcacoes') }}" class="nav-segment">📅 <span class="d-none d-md-inline">Marcações</span></a>
+        <a href="{{ url_for('admin_mensagens') }}" class="nav-segment">✉️ <span class="d-none d-md-inline">Mensagens</span></a>
+        <a href="{{ url_for('admin_feedbacks') }}" class="nav-segment active">💬 <span class="d-none d-md-inline">Feedbacks</span></a>
+    </nav>
+</div>
+
+<section class="container main-section">
+  <div class="floating-card">
+
+    <div class="toolbar-header">
+        <h5 class="toolbar-title">Opiniões Recentes</h5>
+        
+        <form method="GET" action="{{ url_for('admin_feedbacks') }}" class="filter-form">
+            <div class="input-wrapper">
+                <select id="estado" name="estado" class="modern-input select-input" onchange="this.form.submit()">
+                    <option value="" {% if not estado %}selected{% endif %}>Todos</option>
+                    <option value="aprovado" {% if estado == 'aprovado' %}selected{% endif %}>Aprovados</option>
+                    <option value="pendente" {% if estado == 'pendente' %}selected{% endif %}>Pendentes</option>
+                </select>
+            </div>
+
+            <div class="input-wrapper search-wrapper">
+                <input type="text" name="q" class="modern-input text-input" 
+                       placeholder="Pesquisar..." value="{{ termo or '' }}">
+                <button type="submit" class="search-btn">🔍</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+      <table class="elegant-table">
+        <thead>
+          <tr>
+            <th class="text-center" width="50">#</th>
+            <th width="25%">Cliente</th>
+            <th>Classificação</th>
+            <th width="30%">Comentário</th>
+            <th>Data</th>
+            <th>Estado</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if feedbacks %}
+            {% for f in feedbacks %}
+            <tr>
+              <td class="text-center index-col">{{ loop.index }}</td>
+
+              <td>
+                <div class="client-info">
+                  {% set nome = f.NomeCliente or 'Anónimo' %}
+                  <div class="avatar-circle">{{ nome[0]|upper }}</div>
+                  <div class="client-name">{{ nome }}</div>
+                </div>
+              </td>
+
+              <td>
+                <span class="rating-badge">
+                   {{ f.Classificacao }} <span style="color: #fbbf24;">★</span>
+                </span>
+              </td>
+
+              <td class="obs-col" title="{{ f.Comentario }}">
+                {{ f.Comentario }}
+              </td>
+
+              <td>
+                {% if f.DataEnvio %}
+                  <div class="date-wrapper">
+                      <span class="fw-bold">{{ f.DataEnvio.strftime('%d/%m') }}</span>
+                      <span class="text-muted small">{{ f.DataEnvio.strftime('%H:%M') }}</span>
+                  </div>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if f.Aprovado %}
+                  <span class="status-pill green">Aprovado</span>
+                {% else %}
+                  <span class="status-pill orange">Pendente</span>
+                {% endif %}
+              </td>
+
+              <td class="text-end">
+                  <div class="action-buttons">
+                    {% if not f.Aprovado %}
+                    <form method="POST" action="{{ url_for('aprovar_feedback', id=f.Id) }}">
+                        <button type="submit" class="btn-icon check" title="Aprovar">✔</button>
+                    </form>
+                    {% endif %}
+
+                    <button type="button" 
+                            class="btn-icon times btn-open-modal"
+                            data-url="{{ url_for('remover_feedback', id=f.Id) }}"
+                            data-nome="{{ f.NomeCliente }}"
+                            title="Remover">
+                        ✖
+                    </button>
+                  </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="7" class="empty-state">Ainda não existem feedbacks.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<div id="confirmModal" class="modal-backdrop" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-icon">⚠️</div>
+    <h3>Remover feedback</h3>
+    <p id="modalText">Tem a certeza?</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal cancel" id="cancelModal">Cancelar</button>
+      <form method="POST" id="modalForm">
+        <button type="submit" class="btn-modal confirm">Remover</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Layout & Hero */
+  .page-hero { padding: 40px 0 20px; }
+  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-block-end: 5px; }
+  .hero-subtitle { color: #6c757d; font-size: 0.95rem; margin: 0; }
+  .main-section { margin: 20px auto 60px; }
+
+  /* Menu */
+  .nav-wrapper { display: flex; justify-content: center; margin-block-end: 10px; }
+  .segmented-nav { background: #f1f3f5; padding: 5px; border-radius: 50px; display: inline-flex; gap: 5px; }
+  .nav-segment { padding: 10px 25px; border-radius: 40px; text-decoration: none; color: #6c757d; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+  .nav-segment:hover { color: #333; background: rgba(255,255,255,0.6); }
+  .nav-segment.active { background: #fff; color: #d63384; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+
+  /* Card & Filters */
+  .floating-card { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(180,180,200,0.15); border: 1px solid rgba(255,255,255,0.8); }
+  .toolbar-header { display: flex; justify-content: space-between; align-items: center; margin-block-end: 25px; gap: 15px; flex-wrap: wrap; }
+  .toolbar-title { font-weight: 700; color: #343a40; margin: 0; }
+  .filter-form { display: flex; gap: 10px; }
+  .modern-input { background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px 18px; border-radius: 50px; font-size: 0.9rem; outline: none; transition: 0.2s; }
+  .modern-input:focus { background: #fff; border-color: #fce4ec; box-shadow: 0 0 0 4px rgba(214, 51, 132, 0.1); }
+  .search-wrapper { position: relative; }
+  .search-btn { position: absolute; inset-inline-end: 5px; inset-block-start: 50%; transform: translateY(-50%); inline-size: 34px; block-size: 34px; border-radius: 50%; border: none; background: #d63384; color: white; cursor: pointer; }
+  
+  /* Table */
+  .elegant-table { inline-size: 100%; border-collapse: separate; border-spacing: 0; }
+  .elegant-table th { text-align: start; font-size: 0.75rem; text-transform: uppercase; color: #adb5bd; font-weight: 700; padding: 15px; border-block-end: 1px solid #f1f3f5; }
+  .elegant-table td { padding: 16px 15px; vertical-align: middle; border-block-end: 1px solid #f8f9fa; font-size: 0.95rem; background: #fff; }
+  .elegant-table tr:hover td { background-color: #fffbfd; }
+  
+  /* Elements */
+  .client-info { display: flex; align-items: center; gap: 15px; }
+  .avatar-circle { inline-size: 40px; block-size: 40px; background: linear-gradient(135deg, #fce4ec, #f8bbd0); color: #c2185b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+  .client-name { font-weight: 600; color: #343a40; }
+  
+  .status-pill { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+  .status-pill.green { background: #e6fffa; color: #047857; }
+  .status-pill.orange { background: #fffaf0; color: #c05621; }
+
+  /* Specífico de Feedback */
+  .rating-badge { background: #fffbeb; color: #92400e; padding: 5px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; }
+  .obs-col { max-inline-size: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6c757d; }
+  .date-wrapper { display: flex; flex-direction: column; line-height: 1.3; }
+  .fw-bold { font-weight: 600; } .text-muted { color: #adb5bd; } .small { font-size: 0.8rem; }
+  
+  /* Buttons */
+  .action-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+  .btn-icon { inline-size: 32px; block-size: 32px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+  .btn-icon.check { background: #e6fffa; color: #047857; } .btn-icon.check:hover { background: #047857; color: #fff; }
+  .btn-icon.times { background: #fff5f5; color: #c53030; } .btn-icon.times:hover { background: #c53030; color: #fff; }
+  .empty-state { text-align: center; padding: 50px; color: #adb5bd; }
+
+  /* Modal Styles */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); }
+  .modal-card { background: #fff; padding: 30px; border-radius: 20px; inline-size: 90%; max-inline-size: 350px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+  .modal-icon { font-size: 2rem; margin-block-end: 10px; }
+  .modal-card h3 { margin: 0 0 10px; font-size: 1.2rem; font-weight: 700; color: #333; }
+  .modal-card p { color: #666; margin-block-end: 25px; font-size: 0.95rem; }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; }
+  .btn-modal { border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+  .btn-modal.cancel { background: #f1f3f5; color: #666; } .btn-modal.cancel:hover { background: #e9ecef; }
+  .btn-modal.confirm { background: #d63384; color: #fff; } .btn-modal.confirm:hover { background: #b01b65; }
+
+  @media (max-inline-size: 768px) { .filter-form { flex-direction: column; inline-size: 100%; } .modern-input { inline-size: 100%; } }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("confirmModal");
+  const modalForm = document.getElementById("modalForm");
+  const modalText = document.getElementById("modalText");
+  const cancelBtn = document.getElementById("cancelModal");
+
+  document.querySelectorAll(".btn-open-modal").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const url = btn.getAttribute("data-url");
+      const nome = btn.getAttribute("data-nome") || "este cliente";
+      modalText.textContent = `Quer mesmo remover o feedback de ${nome}?`;
+      modalForm.setAttribute("action", url);
+      modal.style.display = "flex";
+    });
+  });
+
+  cancelBtn.addEventListener("click", () => modal.style.display = "none");
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+});
+</script>
+
+{% endblock %}

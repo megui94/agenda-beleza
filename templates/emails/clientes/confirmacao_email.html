@@ -1,0 +1,20 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}Confirme o seu e-mail na Agenda Beleza.{% endblock %}
+{% block conteudo %}
+<h2>Confirme o seu e-mail</h2>
+<p>Olá <strong>{{ user_nome }}</strong>,</p>
+
+<p>
+  Verificámos que ainda não confirmou o seu e-mail na <strong>Agenda Beleza</strong>.
+  Clique abaixo para confirmar a sua conta:
+</p>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="{{ confirm_url }}" class="cta" target="_blank">Confirmar E-mail</a>
+</p>
+
+<p class="muted">
+  Este link é válido por <strong>30 minutos</strong>.
+  Se não criou esta conta, ignore este e-mail.
+</p>
+{% endblock %}

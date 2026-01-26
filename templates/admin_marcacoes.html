@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Marcações • Administração • {{ super() }}{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container text-center">
+    <h1 class="hero-title">Gestão de Marcações</h1>
+    <p class="hero-subtitle">Painel de controlo e aprovação de agendamentos.</p>
+  </div>
+</section>
+
+<div class="container nav-wrapper">
+    <nav class="segmented-nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-segment">📊 <span class="d-none d-md-inline">Dashboard</span></a>
+        <a href="{{ url_for('admin_marcacoes') }}" class="nav-segment active">📅 <span class="d-none d-md-inline">Marcações</span></a>
+        <a href="{{ url_for('admin_mensagens') }}" class="nav-segment">✉️ <span class="d-none d-md-inline">Mensagens</span></a>
+        <a href="{{ url_for('admin_feedbacks') }}" class="nav-segment">💬 <span class="d-none d-md-inline">Feedbacks</span></a>
+    </nav>
+</div>
+
+<section class="container main-section">
+  <div class="floating-card">
+    
+    <div class="toolbar-header">
+        <h5 class="toolbar-title">Agendamentos Recentes</h5>
+        <form method="GET" action="{{ url_for('admin_marcacoes') }}" class="filter-form">
+            <div class="input-wrapper">
+                <select name="estado" class="modern-input select-input" onchange="this.form.submit()">
+                    <option value="" {% if not estado %}selected{% endif %}>Todos os estados</option>
+                    <option value="Aprovada" {% if estado == 'Aprovada' %}selected{% endif %}>Aprovadas</option>
+                    <option value="Pendente" {% if estado == 'Pendente' %}selected{% endif %}>Pendentes</option>
+                    <option value="Rejeitada" {% if estado == 'Rejeitada' %}selected{% endif %}>Rejeitadas</option>
+                </select>
+            </div>
+            <div class="input-wrapper search-wrapper">
+                <input type="text" name="q" class="modern-input text-input" placeholder="Pesquisar..." value="{{ termo or '' }}">
+                <button type="submit" class="search-btn">🔍</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+      <table class="elegant-table">
+        <thead>
+          <tr>
+            <th class="text-center" width="50">#</th>
+            <th width="30%">Cliente</th>
+            <th>Serviço</th>
+            <th>Data</th>
+            <th>Estado</th>
+            <th>Obs.</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if marcacoes %}
+            {% for m in marcacoes %}
+            <tr>
+              <td class="text-center index-col">{{ loop.index }}</td>
+              <td>
+                <div class="client-info">
+                  {% set nome = m.Nome or m.nome or 'Desconhecido' %}
+                  <div class="avatar-circle">{{ nome[0]|upper }}</div>
+                  <div class="client-name">{{ nome }}</div>
+                </div>
+              </td>
+              <td><span class="service-badge">{{ m.Servico }}</span></td>
+              <td>
+                {% if m.DataHora %}
+                  <div class="date-wrapper">
+                      <span class="fw-bold">{{ m.DataHora.strftime('%d/%m') }}</span>
+                      <span class="text-muted small">{{ m.DataHora.strftime('%H:%M') }}</span>
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                {% set st = m.Estado %}
+                <span class="status-pill {{ 'green' if st in ('Aprovada','Aprovado') else 'orange' if st == 'Pendente' else 'red' if st in ('Rejeitada','Rejeitado') else 'gray' }}">
+                    {{ st }}
+                </span>
+              </td>
+              <td class="obs-col text-muted small">{{ m.Observacoes or "—" }}</td>
+              <td class="text-end">
+                  <div class="action-buttons">
+                  {% if st == "Pendente" %}
+                    <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
+                      <input type="hidden" name="id" value="{{ m.Id }}">
+                      <input type="hidden" name="acao" value="Aprovada">
+                      <button class="btn-icon check">✔</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
+                      <input type="hidden" name="id" value="{{ m.Id }}">
+                      <input type="hidden" name="acao" value="Rejeitada">
+                      <button class="btn-icon times">✖</button>
+                    </form>
+                  {% elif st in ["Aprovada", "Aprovado"] %}
+                    <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
+                      <input type="hidden" name="id" value="{{ m.Id }}">
+                      <input type="hidden" name="acao" value="Cancelada">
+                      <button class="btn-icon times">✖</button>
+                    </form>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                  </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="7" class="text-center p-5 text-muted">Sem dados.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Layout & Hero */
+  .page-hero { padding: 40px 0 20px; }
+  .hero-title { font-family: 'Playfair Display', serif; font-weight: 600; color: #333; margin-block-end: 5px; }
+  .hero-subtitle { color: #6c757d; font-size: 0.95rem; margin: 0; }
+  .main-section { margin: 20px auto 60px; }
+
+  /* Menu */
+  .nav-wrapper { display: flex; justify-content: center; margin-block-end: 10px; }
+  .segmented-nav { background: #f1f3f5; padding: 5px; border-radius: 50px; display: inline-flex; gap: 5px; }
+  .nav-segment { padding: 10px 25px; border-radius: 40px; text-decoration: none; color: #6c757d; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+  .nav-segment:hover { color: #333; background: rgba(255,255,255,0.6); }
+  .nav-segment.active { background: #fff; color: #d63384; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+
+  /* Card & Filters */
+  .floating-card { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(180,180,200,0.15); border: 1px solid rgba(255,255,255,0.8); }
+  .toolbar-header { display: flex; justify-content: space-between; align-items: center; margin-block-end: 25px; gap: 15px; flex-wrap: wrap; }
+  .toolbar-title { font-weight: 700; color: #343a40; margin: 0; }
+  .filter-form { display: flex; gap: 10px; }
+  .modern-input { background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px 18px; border-radius: 50px; font-size: 0.9rem; outline: none; transition: 0.2s; }
+  .modern-input:focus { background: #fff; border-color: #fce4ec; box-shadow: 0 0 0 4px rgba(214, 51, 132, 0.1); }
+  .search-wrapper { position: relative; }
+  .search-btn { position: absolute; inset-inline-end: 5px; inset-block-start: 50%; transform: translateY(-50%); inline-size: 34px; block-size: 34px; border-radius: 50%; border: none; background: #d63384; color: white; cursor: pointer; }
+  
+  /* Table */
+  .elegant-table { inline-size: 100%; border-collapse: separate; border-spacing: 0; }
+  .elegant-table th { text-align: start; font-size: 0.75rem; text-transform: uppercase; color: #adb5bd; font-weight: 700; padding: 15px; border-block-end: 1px solid #f1f3f5; }
+  .elegant-table td { padding: 16px 15px; vertical-align: middle; border-block-end: 1px solid #f8f9fa; font-size: 0.95rem; background: #fff; }
+  .elegant-table tr:hover td { background-color: #fffbfd; }
+  
+  /* Elements */
+  .client-info { display: flex; align-items: center; gap: 15px; }
+  .avatar-circle { inline-size: 40px; block-size: 40px; background: linear-gradient(135deg, #fce4ec, #f8bbd0); color: #c2185b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+  .client-name { font-weight: 600; color: #343a40; }
+  .service-badge { background: #f8f9fa; color: #6c757d; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; }
+  .status-pill { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+  .status-pill.green { background: #e6fffa; color: #047857; }
+  .status-pill.orange { background: #fffaf0; color: #c05621; }
+  .status-pill.red { background: #fff5f5; color: #c53030; }
+  .status-pill.gray { background: #f7f7f7; color: #718096; }
+  .action-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+  .btn-icon { inline-size: 32px; block-size: 32px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+  .btn-icon.check { background: #e6fffa; color: #047857; } .btn-icon.check:hover { background: #047857; color: #fff; }
+  .btn-icon.times { background: #fff5f5; color: #c53030; } .btn-icon.times:hover { background: #c53030; color: #fff; }
+  
+  @media (max-inline-size: 768px) { .filter-form { flex-direction: column; inline-size: 100%; } .modern-input { inline-size: 100%; } }
+</style>
+{% endblock %}

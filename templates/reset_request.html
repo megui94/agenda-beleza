@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Recuperar Senha • {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>Recuperar Senha</h1>
+    <p>Insira o seu e-mail para receber um link de redefinição.</p>
+  </div>
+</section>
+
+<section class="section container" style="max-inline-size:520px;">
+  <form class="form card form-book" method="POST" action="{{ url_for('reset_request') }}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert {{ 'alert-error' if category == 'error' else 'alert-success' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="form-row">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" required placeholder="exemplo@gmail.com">
+    </div>
+
+    <button class="btn btn-primary" type="submit">Enviar link de redefinição</button>
+
+    <p class="register-prompt">
+      <a href="{{ url_for('login') }}">Voltar ao login</a>
+    </p>
+  </form>
+</section>
+
+<style>
+.alert {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-block-end: 15px;
+  font-size: .95rem;
+  text-align: center;
+  font-weight: 500;
+}
+.alert-error {
+  background: #ffe0e0;
+  color: #c00000;
+  border: 1px solid #ffb3b3;
+}
+.alert-success {
+  background: #e0ffe4;
+  color: #0a7a23;
+  border: 1px solid #b3ffca;
+}
+</style>
+{% endblock %}

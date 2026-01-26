@@ -1,0 +1,20 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}Reenvio de confirmação de conta.{% endblock %}
+{% block conteudo %}
+<h2>🔁 Reenvio de confirmação</h2>
+<p>Olá, <strong>{{ nome }}</strong>! 👋</p>
+
+<p>
+  Verificámos que ainda não confirmou a sua conta na <strong>Agenda Beleza</strong>.
+  Clique no botão abaixo para confirmar o seu endereço de e-mail e ativar a sua conta.
+</p>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="{{ confirm_url }}" class="cta" target="_blank">Confirmar E-mail</a>
+</p>
+
+<p class="muted">
+  Este link é válido por <strong>30 minutos</strong>.
+  Se não criou esta conta, pode ignorar este e-mail.
+</p>
+{% endblock %}

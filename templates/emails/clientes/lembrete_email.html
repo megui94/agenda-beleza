@@ -1,0 +1,20 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}Lembrete: {{ servico }} em {{ datahora }}.{% endblock %}
+{% block conteudo %}
+<h2>Lembrete da sua marcação</h2>
+<p>Olá <strong>{{ user_nome }}</strong>,</p>
+<p>Este é um lembrete da sua marcação de <strong>{{ servico }}</strong>:</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>📅 Data e hora:</strong> {{ datahora }}</p>
+  <p class="muted" style="margin:10px 0 0;">Por favor, chegue com alguns minutos de antecedência.</p>
+</div>
+
+<p>Se precisar reagendar ou cancelar, fale connosco.</p>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="mailto:agenda.beleza.contato@gmail.com" class="cta">Contactar a Agenda</a>
+</p>
+
+<p>Até breve 💖<br><strong>Equipe Agenda Beleza</strong></p>
+{% endblock %}

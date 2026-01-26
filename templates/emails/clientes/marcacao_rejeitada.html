@@ -1,0 +1,19 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}A sua marcação não pôde ser confirmada.{% endblock %}
+{% block conteudo %}
+<h2>❌ Marcação rejeitada</h2>
+<p>Olá <strong>{{ nome }}</strong>,</p>
+
+<p>
+  Infelizmente, a sua marcação de <strong>{{ servico }}</strong> para o dia <strong>{{ datahora }}</strong>
+  não pôde ser confirmada devido a indisponibilidade no horário selecionado.
+</p>
+
+<p>Pode reagendar facilmente clicando abaixo 👇</p>
+
+<p style="text-align:center; margin:18px 0 6px;">
+  <a href="https://agenda-beleza-ipca.onrender.com/marcacoes" class="cta">Fazer novo agendamento</a>
+</p>
+
+<p>Agradecemos a sua compreensão,<br><strong>Agenda Beleza 💅</strong></p>
+{% endblock %}
