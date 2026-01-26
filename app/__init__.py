@@ -34,10 +34,8 @@ def create_app():
         static_folder=str(static_dir),
     )
     app.config.from_object(Config)
-
-    # SERVER_NAME apenas se estiver definido (evita bugs em dev)
-    if app.config.get("SERVER_NAME"):
-        app.config.pop("SERVER_NAME", None)
+    # SERVER_NAME: não removas a chave do config.
+    # Se quiseres evitar problemas em DEV, simplesmente não definas SERVER_NAME no .env local.
 
     setup_logging(app)
     register_context(app)
@@ -61,6 +59,7 @@ def create_app():
     configurar_lembretes(app)
 
     return app
+
 
 # -----------------------------------------------------------------------------
 # ✅ Compatibilidade com servidores WSGI (ex.: gunicorn "app:app")
