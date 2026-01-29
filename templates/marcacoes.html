@@ -2,16 +2,21 @@
 {% block title %}Agendar Marcação • {{ super() }}{% endblock %}
 
 {% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales-all.global.min.js"></script>
+
 <section class="page-hero">
   <div class="container">
     <h1>Agendar Marcação</h1>
-    <p>Escolha o serviço, data e horário. A sua marcação será analisada e confirmada por e-mail.</p>
+    <p>Escolha o serviço e selecione um horário disponível no calendário.</p>
   </div>
 </section>
 
 <section class="section container">
   <form class="form card form-book" method="POST" action="{{ url_for('marcacoes') }}">
-    
+
     <div class="form-row">
       <label for="servico_id">Serviço</label>
       <select id="servico_id" name="servico_id" required>
@@ -20,30 +25,149 @@
           <option value="{{ s[0] }}">{{ s[1] }}</option>
         {% endfor %}
       </select>
+      <small class="hint">O calendário atualiza conforme o serviço escolhido.</small>
     </div>
 
     <div class="form-row">
-      <label for="datahora">Data e hora</label>
-      <input id="datahora" name="datahora" type="datetime-local" required>
-      <small class="hint">Escolha um horário dentro do funcionamento do salão.</small>
+      <label>Horários disponíveis</label>
+      <div id="calendar" style="margin-top:10px;"></div>
+
+      <!-- ✅ este é o valor enviado para o Flask -->
+      <input type="hidden" name="datahora" id="datahoraHidden" required>
+
+      <small id="chosenSlot" class="hint" style="display:block; margin-top:10px;">
+        Nenhum horário selecionado.
+      </small>
     </div>
 
     <div class="form-row">
       <label for="observacoes">Observações</label>
-      <textarea id="observacoes" name="observacoes" rows="4" placeholder="Ex: Tenho alergia a cremes com perfume..."></textarea>
+      <textarea id="observacoes" name="observacoes" rows="4"
+        placeholder="Ex: Tenho alergia a cremes com perfume..."></textarea>
     </div>
 
     <button class="btn btn-primary" type="submit">💅 Solicitar marcação</button>
   </form>
 </section>
 
-<!-- Dica de utilização -->
-<section class="section container info-box">
-  <h3>🕓 Após solicitar:</h3>
-  <ul>
-    <li>Receberá um e-mail de confirmação assim que a marcação for aprovada.</li>
-    <li>Poderá acompanhar o estado das suas marcações em <a href="{{ url_for('minhas_marcacoes') }}">Minhas Marcações</a>.</li>
-    <li>Se precisar, pode cancelar ou reagendar contactando-nos pelo <a href="{{ url_for('contato') }}">formulário de contacto</a>.</li>
-  </ul>
-</section>
+<style>
+  #calendar{
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--shadow);
+    padding: 14px;
+  }
+
+  /* Botões do calendário em rosa */
+  .fc .fc-button-primary {
+    background: var(--pink-700);
+    border-color: var(--pink-700);
+    box-shadow: none;
+  }
+  .fc .fc-button-primary:hover {
+    background: var(--pink-800, #ad1457);
+    border-color: var(--pink-800, #ad1457);
+  }
+  .fc .fc-button-primary:focus {
+    box-shadow: 0 0 0 .2rem rgba(214, 51, 132, .25);
+  }
+
+  /* Slots disponíveis (eventos) em rosa */
+  .fc .slot-available {
+    background: var(--pink-700) !important;
+    border: 1px solid var(--pink-700) !important;
+    color: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 22px rgba(214, 51, 132, .18);
+  }
+
+  /* Linha “agora” rosa */
+  .fc .fc-timegrid-now-indicator-line { border-color: var(--pink-700); }
+  .fc .fc-timegrid-now-indicator-arrow { border-color: var(--pink-700); }
+
+  /* altura para não ficar gigante */
+  .fc .fc-view-harness { min-height: 520px; }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const calendarEl = document.getElementById("calendar");
+  const servicoSelect = document.getElementById("servico_id");
+  const hiddenInput = document.getElementById("datahoraHidden");
+  const chosenEl = document.getElementById("chosenSlot");
+
+  function fmtIsoLocal(d) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  async function fetchSlots(info) {
+    const servicoId = servicoSelect.value;
+    if (!servicoId) return [];
+
+    const url = `/api/slots?servico_id=${encodeURIComponent(servicoId)}&start=${encodeURIComponent(info.startStr)}&end=${encodeURIComponent(info.endStr)}`;
+    const r = await fetch(url, { headers: { "Accept": "application/json" } });
+    if (!r.ok) return [];
+    return await r.json(); // deve devolver eventos com classNames ["slot-available"]
+  }
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    locale: "pt",
+    timeZone: "local",
+
+    /* ✅ só semana */
+    initialView: "timeGridWeek",
+    headerToolbar: {
+      left: "prev,next today",
+      center: "title",
+      right: ""   // ✅ remove month/week/day
+    },
+
+    slotMinTime: "09:00:00",
+    slotMaxTime: "19:00:00",
+    allDaySlot: false,
+    nowIndicator: true,
+    expandRows: true,
+    height: "auto",
+
+    events: async (info, successCallback, failureCallback) => {
+      try {
+        const slots = await fetchSlots(info);
+        successCallback(slots);
+      } catch (e) {
+        console.error(e);
+        failureCallback(e);
+      }
+    },
+
+    eventClick: (info) => {
+      const start = info.event.start;
+      if (!start) return;
+
+      hiddenInput.value = fmtIsoLocal(start);
+
+      chosenEl.textContent =
+        "Selecionado: " +
+        start.toLocaleString("pt-PT", {
+          weekday: "long",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+    },
+  });
+
+  calendar.render();
+
+  servicoSelect.addEventListener("change", () => {
+    hiddenInput.value = "";
+    chosenEl.textContent = "Nenhum horário selecionado.";
+    calendar.refetchEvents();
+  });
+});
+</script>
+
 {% endblock %}

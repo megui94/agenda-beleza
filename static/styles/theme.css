@@ -1477,12 +1477,6 @@ body {
 
 /* Forçar "Registar" do header a ser rosa (igual btn-primary) */
 .site-header a[href*="registar"]{
-
-  /* =========================================
-   ✅ HEADER: Registar com o mesmo estilo do .btn-primary
-========================================= */
-
-.site-header .btn[href*="registar"] {
   background: var(--pink) !important;
   color: #fff !important;
   border: none !important;
@@ -1491,9 +1485,20 @@ body {
 }
 
 .site-header a[href*="registar"]:hover{
-}
-
-.site-header .btn[href*="registar"]:hover {
   background: var(--pink-600) !important;
 }
+
+/* dias sem disponibilidade */
+.day-disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  filter: grayscale(0.25);
+}
+
+/* slots disponíveis (eventos) */
+.fc .slot-available {
+  border: 1px solid #ffd1e0 !important;
+  border-radius: 12px !important;
+  padding: 2px 6px !important;
+  box-shadow: 0 8px 20px rgba(247, 182, 194, 0.25) !important;
 }

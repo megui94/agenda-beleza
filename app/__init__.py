@@ -16,11 +16,13 @@ from .context import register_context
 from .extensions import bcrypt
 from .jobs.lembretes import configurar_lembretes
 
+from .routes import api_calendar as api_calendar_routes
 from .routes import auth as auth_routes
 from .routes import marcacoes as marcacoes_routes
 from .routes import admin as admin_routes
 from .routes import public as public_routes
 from .routes import feedback as feedback_routes
+
 
 def create_app():
     # Caminhos absolutos para garantir que templates/static funcionam mesmo com package
@@ -34,8 +36,6 @@ def create_app():
         static_folder=str(static_dir),
     )
     app.config.from_object(Config)
-    # SERVER_NAME: não removas a chave do config.
-    # Se quiseres evitar problemas em DEV, simplesmente não definas SERVER_NAME no .env local.
 
     setup_logging(app)
     register_context(app)
@@ -54,19 +54,11 @@ def create_app():
     admin_routes.register(app)
     public_routes.register(app)
     feedback_routes.register(app)
+    api_calendar_routes.register(app)
 
     # Scheduler / lembretes
     configurar_lembretes(app)
 
     return app
 
-
-# -----------------------------------------------------------------------------
-# ✅ Compatibilidade com servidores WSGI (ex.: gunicorn "app:app")
-#
-# Nota: quando existe simultaneamente a pasta package "app/" e um ficheiro
-# "app.py" na raiz, o Python normalmente importa primeiro o package.
-# Ao expor a variável `app` aqui, garantimos que `gunicorn app:app` funciona
-# sem ter de alterar o comando de arranque.
-# -----------------------------------------------------------------------------
 app = create_app()

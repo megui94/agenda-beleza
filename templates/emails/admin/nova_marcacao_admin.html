@@ -3,16 +3,12 @@
 {% block conteudo %}
 <h2>Nova marcação</h2>
 <p>Olá <strong>Admin</strong>,</p>
-
 <p>Uma nova marcação foi efetuada por <strong>{{ user_nome }}</strong>.</p>
-
-<p>Uma nova marcação foi efetuada por <strong>{{ nome }}</strong>.</p>
 
 <div class="box">
   <p style="margin:0;"><strong>📅 Data:</strong> {{ datahora }}</p>
   <p style="margin:8px 0 0;"><strong>💅 Serviço:</strong> {{ servico }}</p>
   <p style="margin:8px 0 0;"><strong>📧 E-mail:</strong> {{ user_email }}</p>
-  <p style="margin:8px 0 0;"><strong>📧 E-mail:</strong> {{ email }}</p>
   {% if telefone %}<p style="margin:8px 0 0;"><strong>📞 Telefone:</strong> {{ telefone }}</p>{% endif %}
 </div>
 

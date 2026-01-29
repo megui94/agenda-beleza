@@ -8,25 +8,20 @@ from ..services.email import send_email
 def register(app):
     @app.route("/")
     def index():
-        """Página inicial — mostra alguns feedbacks aprovados (até 6)."""
-        feedbacks = []
-        try:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            cur.execute(
-                """
-                SELECT Id, NomeCliente, Classificacao, Comentario, DataEnvio
-                FROM Feedbacks
-                WHERE Aprovado = TRUE
-                ORDER BY DataEnvio DESC
-                LIMIT 6
-                """
-            )
-            feedbacks = cur.fetchall()
-            conn.close()
-        except Exception as e:
-            # Mantém o site a funcionar mesmo se a BD estiver temporariamente indisponível
-            app.logger.error(f"Erro ao carregar feedbacks na home: {e}")
+        """Pagina inicial - mostra alguns feedbacks aprovados (ate 6)."""
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT Id, NomeCliente, Classificacao, Comentario, Aprovado, DataEnvio
+            FROM Feedbacks
+            WHERE Aprovado = TRUE
+            ORDER BY DataEnvio DESC
+            LIMIT 6
+            """
+        )
+        feedbacks = cur.fetchall()
+        conn.close()
         return render_template("index.html", feedbacks=feedbacks)
 
     @app.route("/sobre")
@@ -35,25 +30,20 @@ def register(app):
 
     @app.route("/servicos")
     def servicos():
-        """Lista de serviços com pesquisa opcional."""
+        """Lista de servicos com pesquisa opcional."""
         termo = (request.args.get("q") or "").strip()
-        servs = []
-        try:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            if termo:
-                cur.execute(
-                    "SELECT * FROM Servicos WHERE Nome LIKE %s OR Descricao LIKE %s",
-                    (f"%{termo}%", f"%{termo}%"),
-                )
-            else:
-                cur.execute("SELECT * FROM Servicos")
-            servs = cur.fetchall()
-            conn.close()
-        except Exception as e:
-            app.logger.error(f"Erro ao carregar serviços: {e}")
+        conn = get_db_connection()
+        cur = conn.cursor()
+        if termo:
+            cur.execute(
+                "SELECT * FROM Servicos WHERE Nome LIKE %s OR Descricao LIKE %s",
+                (f"%{termo}%", f"%{termo}%"),
+            )
+        else:
+            cur.execute("SELECT * FROM Servicos")
+        servs = cur.fetchall()
+        conn.close()
         return render_template("servicos.html", servicos=servs)
-
 
     @app.route("/contato", methods=["GET", "POST"])
     def contato():

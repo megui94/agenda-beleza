@@ -4,7 +4,7 @@ from flask import render_template, request, redirect, flash, session, url_for
 
 from ..services.db import get_db_connection
 from ..services.email import send_email
-
+from ..services.slots import is_slot_available
 
 def register(app):
     @app.route("/agendar")
@@ -52,6 +52,15 @@ def register(app):
 
                 if not datahora_obj:
                     raise ValueError("Formato invalido")
+
+                try:
+                    servico_id_int = int(servico_id)
+                except Exception:
+                    servico_id_int = 0
+
+                if not servico_id_int or not is_slot_available(servico_id_int, datahora_obj):
+                    flash("Este dia/horário já não está disponível. Escolha outro.", "error")
+                    return redirect(url_for("marcacoes"))
 
                 conn = get_db_connection()
                 cur = conn.cursor()

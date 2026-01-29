@@ -17,3 +17,20 @@ class Config:
 
     # Scheduler / lembretes
     ENABLE_SCHEDULER = os.getenv("ENABLE_SCHEDULER", "0") == "1"
+
+    # Horário por dia da semana (0=segunda ... 6=domingo)
+    BUSINESS_HOURS = {
+        0: ("09:00", "18:00"),
+        1: ("09:00", "18:00"),
+        2: ("09:00", "18:00"),
+        3: ("09:00", "18:00"),
+        4: ("09:00", "18:00"),
+        5: ("09:00", "13:00"),  # sábado
+        6: None,                # domingo fechado
+    }
+
+    # Diferença mínima entre horários (2h30 = 150 min)
+    SLOT_STEP_MINUTES = 150
+
+    # Estados que contam como “ocupado”
+    BOOKING_BLOCK_STATES = ("Pendente", "Aprovada", "Aprovado")
