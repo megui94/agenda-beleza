@@ -149,6 +149,97 @@ def atualizar_estado_marcacao(marcacao_id: int, novo_estado: str) -> Tuple[bool,
     return True, "Estado atualizado (falha ao enviar e-mail)."
 
 
+
+def cancelar_marcacao_por_admin(marcacao_id: int, motivo: str = ""):
+    """
+    Cancela (desmarca) uma marcação por decisão do admin e envia e-mail à cliente com o motivo.
+
+    Regras:
+    - Idealmente usada quando a marcação já estava Aprovada.
+    - Se já estiver Cancelada, não volta a enviar e-mail.
+    """
+    motivo = (motivo or "").strip()
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute(
+        """
+        SELECT
+            m.Id,
+            m.DataHora,
+            m.Estado,
+            m.Observacoes,
+            u.Nome  AS NomeCliente,
+            u.Email AS EmailCliente,
+            s.Nome  AS NomeServico
+        FROM Marcacoes m
+        JOIN Utilizador u ON u.Id = m.Cliente_id
+        JOIN Servicos s   ON s.Id = m.Servico_id
+        WHERE m.Id = %s
+        """,
+        (marcacao_id,),
+    )
+    marc = cur.fetchone()
+
+    if not marc:
+        conn.close()
+        return False, "Marcação não encontrada."
+
+    estado_atual = normalize_estado(marc.get("Estado"))
+
+    if estado_atual == "Cancelada":
+        conn.close()
+        return True, "A marcação já estava cancelada."
+
+    # (Opcional) limitar só a aprovadas:
+    # if estado_atual not in ("Aprovada", "Aprovado"):
+    #     conn.close()
+    #     return False, "Só é possível desmarcar marcações aprovadas."
+
+    cur.execute(
+        "UPDATE Marcacoes SET Estado = 'Cancelada' WHERE Id = %s",
+        (marcacao_id,),
+    )
+    conn.commit()
+    conn.close()
+
+    email_cliente = marc.get("EmailCliente")
+    if not email_cliente:
+        return True, "Marcação cancelada (cliente sem e-mail)."
+
+    datahora_str = ""
+    if marc.get("DataHora"):
+        datahora_str = marc["DataHora"].strftime("%d/%m/%Y %H:%M")
+
+    html = render_template(
+        "emails/clientes/marcacao_cancelada_admin.html",
+        nome=marc.get("NomeCliente") or "Cliente",
+        servico=marc.get("NomeServico") or "—",
+        data=datahora_str,
+        motivo=motivo,
+    )
+
+    ok_envio = send_email(
+        "❌ Marcação cancelada • Agenda Beleza",
+        [email_cliente],
+        html,
+        tags=["marcacoes", "cancelada", "admin"],
+    )
+
+    if ok_envio:
+        current_app.logger.info(
+            f"[MARCACOES] Admin cancelou (ID {marcacao_id}) -> e-mail enviado para {email_cliente}"
+        )
+        return True, "Marcação cancelada e e-mail enviado à cliente."
+
+    current_app.logger.error(
+        f"[MARCACOES] Admin cancelou (ID {marcacao_id}) -> falha ao enviar e-mail para {email_cliente}"
+    )
+    return True, "Marcação cancelada (falha ao enviar e-mail)."
+
+
+
 # =============================================================================
 # 📅 CALENDÁRIO / SLOTS (HORÁRIOS DISPONÍVEIS)
 # =============================================================================

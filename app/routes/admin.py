@@ -3,7 +3,7 @@ import os
 from flask import render_template, request, redirect, flash, session, url_for, abort
 
 from ..services.db import get_db_connection
-from ..services.marcacoes import atualizar_estado_marcacao, normalize_estado
+from ..services.marcacoes import atualizar_estado_marcacao, cancelar_marcacao_por_admin, normalize_estado
 
 def register(app):
     @app.route("/admin/marcacoes", methods=["GET"])
@@ -70,6 +70,25 @@ def register(app):
         if (not marcacao_id) or (acao not in ("Aprovada", "Rejeitada", "Cancelada")):
             flash("Acao invalida.", "error")
             return redirect(url_for("admin_marcacoes"))
+
+
+@app.route("/admin/marcacoes/desmarcar", methods=["POST"])
+def admin_desmarcar_marcacao():
+    """Admin desmarca uma marcação (cancela) e envia e-mail à cliente com o motivo."""
+    if not session.get("is_admin"):
+        flash("Acesso restrito.", "error")
+        return redirect(url_for("index"))
+
+    marcacao_id = request.form.get("id")
+    motivo = (request.form.get("motivo") or "").strip()
+
+    if not marcacao_id:
+        flash("Marcação inválida.", "error")
+        return redirect(url_for("admin_marcacoes"))
+
+    ok, msg = cancelar_marcacao_por_admin(int(marcacao_id), motivo=motivo)
+    flash(msg, "success" if ok else "error")
+    return redirect(url_for("admin_marcacoes"))
 
         ok, msg = atualizar_estado_marcacao(int(marcacao_id), acao)
         flash(msg, "success" if ok else "error")

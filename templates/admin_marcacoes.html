@@ -94,13 +94,16 @@
                       <input type="hidden" name="acao" value="Rejeitada">
                       <button class="btn-icon times">✖</button>
                     </form>
-                  {% elif st in ["Aprovada", "Aprovado"] %}
-                    <form method="POST" action="{{ url_for('admin_update_marcacao') }}">
-                      <input type="hidden" name="id" value="{{ m.Id }}">
-                      <input type="hidden" name="acao" value="Cancelada">
-                      <button class="btn-icon times">✖</button>
-                    </form>
-                  {% else %}
+                  
+{% elif st in ["Aprovada", "Aprovado"] %}
+  <button
+    type="button"
+    class="btn btn-sm btn-outline-danger"
+    onclick="openCancelModal('{{ m.Id }}', '{{ nome|e }}', '{{ m.Servico|e }}', '{{ m.DataHora.strftime('%d/%m/%Y %H:%M') if m.DataHora else '' }}')">
+    Desmarcar
+  </button>
+{% else %}
+{% else %}
                     <span class="text-muted">—</span>
                   {% endif %}
                   </div>
@@ -114,6 +117,53 @@
       </table>
     </div>
   </div>
+
+
+<!-- Modal: motivo do cancelamento (admin) -->
+<div id="cancelModal" class="ab-modal" aria-hidden="true">
+  <div class="ab-modal__overlay" onclick="closeCancelModal()"></div>
+
+  <div class="ab-modal__card" role="dialog" aria-modal="true" aria-labelledby="cancelTitle">
+    <h3 id="cancelTitle" style="margin-top:0;">Desmarcar marcação</h3>
+    <p id="cancelInfo" class="text-muted" style="margin-top:-6px;"></p>
+
+    <form method="POST" action="{{ url_for('admin_desmarcar_marcacao') }}">
+      <input type="hidden" name="id" id="cancelId">
+
+      <label for="cancelMotivo" style="display:block; margin-top:10px;">Motivo (será enviado à cliente)</label>
+      <textarea id="cancelMotivo" name="motivo" rows="4" required
+                style="width:100%; margin-top:6px; padding:10px 12px; border-radius:12px; border:1px solid #e9ecef; background:#f8f9fa; outline:none;"></textarea>
+
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px;">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="closeCancelModal()">Voltar</button>
+        <button type="submit" class="btn btn-sm btn-danger">Confirmar cancelamento</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openCancelModal(id, nome, servico, datahora){
+    document.getElementById("cancelId").value = id;
+    document.getElementById("cancelMotivo").value = "";
+    const info = `${nome} • ${servico}${datahora ? " • " + datahora : ""}`;
+    document.getElementById("cancelInfo").textContent = info;
+
+    const modal = document.getElementById("cancelModal");
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("is-open");
+    setTimeout(() => document.getElementById("cancelMotivo").focus(), 50);
+  }
+  function closeCancelModal(){
+    const modal = document.getElementById("cancelModal");
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("is-open");
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeCancelModal();
+  });
+</script>
+
 </section>
 
 <style>
@@ -162,5 +212,23 @@
   .btn-icon.times { background: #fff5f5; color: #c53030; } .btn-icon.times:hover { background: #c53030; color: #fff; }
   
   @media (max-inline-size: 768px) { .filter-form { flex-direction: column; inline-size: 100%; } .modern-input { inline-size: 100%; } }
+
+
+/* Modal (desmarcar) */
+.ab-modal { position: fixed; inset: 0; display: none; z-index: 9999; }
+.ab-modal.is-open { display: block; }
+.ab-modal__overlay { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+.ab-modal__card {
+  position: relative;
+  max-width: 520px;
+  margin: 10vh auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
+}
+@media (max-width: 600px){
+  .ab-modal__card { margin: 8vh 14px; }
+}
 </style>
 {% endblock %}

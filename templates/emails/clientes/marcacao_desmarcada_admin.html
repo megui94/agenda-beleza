@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+{% block preheader %}A sua marcação foi desmarcada pelo salão.{% endblock %}
+{% block conteudo %}
+<h2>⚠️ Marcação desmarcada pelo salão</h2>
+
+<p>Olá <strong>{{ nome }}</strong>,</p>
+
+<p>
+  Infelizmente, por motivos internos, precisamos de desmarcar a sua marcação.
+</p>
+
+<div class="box">
+  <p style="margin:0;"><strong>Serviço:</strong> {{ servico }}</p>
+  <p style="margin:8px 0 0;"><strong>Data e hora:</strong> {{ data }}</p>
+</div>
+
+{% if motivo %}
+<div class="box" style="margin-top:14px;">
+  <p style="margin:0;"><strong>Motivo:</strong> {{ motivo }}</p>
+</div>
+{% endif %}
+
+<p class="muted" style="margin-top:16px;">
+  Pedimos desculpa pelo incómodo. Se desejar, pode voltar ao site e escolher um novo horário.
+</p>
+
+<p class="muted" style="margin-top:18px;">Agenda Beleza 💅</p>
+{% endblock %}
