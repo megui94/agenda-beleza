@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
 from flask import render_template, request, redirect, flash, session, url_for, abort
 
 from ..services.db import get_db_connection
-from ..services.marcacoes import atualizar_estado_marcacao, cancelar_marcacao_por_admin, normalize_estado
+from ..services.marcacoes import (
+    atualizar_estado_marcacao,
+    cancelar_marcacao_por_admin,
+    normalize_estado,
+)
+
 
 def register(app):
     @app.route("/admin/marcacoes", methods=["GET"])
@@ -19,17 +23,17 @@ def register(app):
         cur = conn.cursor(dictionary=True)
 
         query = """
-            SELECT 
-                m.Id, 
-                u.Nome      AS Nome,
-                s.Nome      AS Servico, 
-                m.DataHora  AS DataHora, 
-                m.Estado    AS Estado, 
+            SELECT
+                m.Id,
+                u.Nome        AS Nome,
+                s.Nome        AS Servico,
+                m.DataHora    AS DataHora,
+                m.Estado      AS Estado,
                 m.Observacoes AS Observacoes,
-                u.Email     AS Email
+                u.Email       AS Email
             FROM Marcacoes m
             JOIN Utilizador u ON m.Cliente_id = u.Id
-            JOIN Servicos   s  ON m.Servico_id = s.Id
+            JOIN Servicos   s ON m.Servico_id = s.Id
             WHERE 1 = 1
         """
 
@@ -71,26 +75,25 @@ def register(app):
             flash("Acao invalida.", "error")
             return redirect(url_for("admin_marcacoes"))
 
-
-@app.route("/admin/marcacoes/desmarcar", methods=["POST"])
-def admin_desmarcar_marcacao():
-    """Admin desmarca uma marcação (cancela) e envia e-mail à cliente com o motivo."""
-    if not session.get("is_admin"):
-        flash("Acesso restrito.", "error")
-        return redirect(url_for("index"))
-
-    marcacao_id = request.form.get("id")
-    motivo = (request.form.get("motivo") or "").strip()
-
-    if not marcacao_id:
-        flash("Marcação inválida.", "error")
+        ok, msg = atualizar_estado_marcacao(int(marcacao_id), acao)
+        flash(msg, "success" if ok else "error")
         return redirect(url_for("admin_marcacoes"))
 
-    ok, msg = cancelar_marcacao_por_admin(int(marcacao_id), motivo=motivo)
-    flash(msg, "success" if ok else "error")
-    return redirect(url_for("admin_marcacoes"))
+    @app.route("/admin/marcacoes/desmarcar", methods=["POST"])
+    def admin_desmarcar_marcacao():
+        """Admin desmarca (cancela) uma marcação aprovada e envia e-mail à cliente com o motivo."""
+        if not session.get("is_admin"):
+            flash("Acesso restrito.", "error")
+            return redirect(url_for("index"))
 
-        ok, msg = atualizar_estado_marcacao(int(marcacao_id), acao)
+        marcacao_id = request.form.get("id")
+        motivo = (request.form.get("motivo") or "").strip()
+
+        if not marcacao_id:
+            flash("Marcação inválida.", "error")
+            return redirect(url_for("admin_marcacoes"))
+
+        ok, msg = cancelar_marcacao_por_admin(int(marcacao_id), motivo=motivo)
         flash(msg, "success" if ok else "error")
         return redirect(url_for("admin_marcacoes"))
 
